@@ -1308,7 +1308,7 @@
     },
     "igraph": {
       "Package": "igraph",
-      "Version": "2.1.4",
+      "Version": "2.2.1",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -1331,7 +1331,7 @@
     },
     "imager": {
       "Package": "imager",
-      "Version": "1.0.3",
+      "Version": "1.0.8",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -2215,7 +2215,7 @@
     },
     "s2": {
       "Package": "s2",
-      "Version": "1.1.8",
+      "Version": "1.1.9",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -2273,7 +2273,7 @@
     },
     "sf": {
       "Package": "sf",
-      "Version": "1.0-21",
+      "Version": "1.0-23",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -2476,7 +2476,7 @@
     },
     "terra": {
       "Package": "terra",
-      "Version": "1.8-50",
+      "Version": "1.8-86",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [

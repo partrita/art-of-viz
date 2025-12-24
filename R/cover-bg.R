@@ -6,13 +6,6 @@ library(cropcircles)
 library(ggimage)
 
 
-# Fonts -------------------------------------------------------------------
-
-font_add_google("Source Sans 3", "Source")
-showtext_auto()
-showtext_opts(dpi = 300)
-
-
 # Functions ---------------------------------------------------------------
 
 is_even <- function(x) {
@@ -29,10 +22,10 @@ make_hex_coords <- function(x0, y0, r) {
   result <- do.call(
     rbind,
     mapply(hexagon_coords, x0, y0, r, seq_along(x0),
-      SIMPLIFY = FALSE
+           SIMPLIFY = FALSE
     )
   )
-
+  
   return(result)
 }
 
@@ -44,7 +37,6 @@ n_y <- 8
 
 col_palette <- c("#FBEBFF", "#E999FF", "#9300B8", "#400052")
 bg_col <- "#200029"
-body_font <- "Source"
 
 padding <- 20
 width <- 5
@@ -216,36 +208,12 @@ ggplot() +
     ),
     size = 0.1
   ) +
-  annotate(
-    "text",
-    x = 1.25, y = 2.2,
-    label = "The Art of Data\nVisualization\nwith ggplot2",
-    family = body_font,
-    color = "white",
-    hjust = 0,
-    vjust = 1,
-    size = 28,
-    fontface = "bold",
-    size.unit = "pt"
-  ) +
-  annotate(
-    "text",
-    x = 1.25, y = 6.9,
-    label = "Nicola Rennie",
-    family = body_font,
-    color = "white",
-    hjust = 0,
-    vjust = 1,
-    size = 18,
-    fontface = "bold",
-    size.unit = "pt"
-  ) +
   scale_color_identity() +
   scale_y_reverse() +
   coord_fixed(expand = FALSE, clip = "off") +
   theme_void() +
   theme(
-    plot.background = element_rect(fill = bg_col, color = bg_col),
+    plot.background = element_rect(fill = "transparent", color = "transparent"),
     plot.margin = margin(-padding, -padding, -padding, -padding)
   )
 
@@ -253,8 +221,8 @@ ggplot() +
 # Save --------------------------------------------------------------------
 
 if (interactive()) {
-  ggsave("images/cover.png",
+  ggsave("images/cover-bg.svg",
          height = 1.5*width, width = width,
-         dpi = 300, bg = bg_col
+         dpi = 300, bg = "transparent"
   )
 }
