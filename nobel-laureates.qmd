@@ -38,17 +38,17 @@ library(sysfonts)
 #| file: R/source_caption.R
 ```
 
-# Nobel Prize laureates: positioning text and parameterizing plots {#sec-nobel}
+# 노벨상 수상자: 텍스트 배치 및 플롯 매개변수화 {#sec-nobel}
 
-In this chapter, we'll learn how to access data through an API, create custom text layouts, and build parameterized plot functions. 
+이 장에서는 API를 통해 데이터에 액세스하고, 사용자 정의 텍스트 레이아웃을 만들고, 매개변수화된 플롯 함수를 작성하는 방법을 배웁니다.
 
-By the end of this chapter, you'll be able to:
+이 장을 마치면 다음을 할 수 있습니다:
 
-* Build URLs in R in order to extract data from an API; 
-* Create a new type of plot with core functions in **`ggplot2`** by using a little bit of trigonometry; and 
-* Parameterise your plotting code to create a function, to make it easier to produce lots of similar graphics with a consistent layout.
+* API에서 데이터를 추출하기 위해 R에서 URL을 작성합니다;
+* 약간의 삼각 함수를 사용하여 **`ggplot2`**의 핵심 함수로 새로운 유형의 플롯을 만듭니다; 그리고
+* 일관된 레이아웃으로 유사한 그래픽을 더 쉽게 생성할 수 있도록 플롯 코드를 매개변수화하여 함수를 만듭니다.
 
-We begin by loading the packages required in this chapter.
+이 장에 필요한 패키지를 로드하는 것으로 시작합니다.
 
 ```{r}
 #| label: nobel-pkgs-req
@@ -64,37 +64,37 @@ library(showtext)
 library(sysfonts)
 ```
 
-We've used all of these packages in previous chapters, but we'll be using them to do some slightly more complicated data wrangling and plotting!
+이전 장에서 이 모든 패키지를 사용했지만, 여기서는 좀 더 복잡한 데이터 랭글링과 플로팅을 수행하는 데 사용할 것입니다!
 
-## Data
+## 데이터
 
-In his will, the inventor, entrepreneur, and businessman, Alfred Nobel, stated that his fortune should be used to reward *those who, during the preceding year, have conferred the greatest benefit to humankind*. The Nobel Prizes were first awarded in 1901, and are granted in the fields of Physics, Chemistry, Physiology or Medicine, Literature, Peace, and (since 1969) Economic Sciences. In this chapter, we're going to explore Nobel Prize Laureates - people who have received such a prize.
+발명가이자 기업가, 사업가인 알프레드 노벨은 유언장에서 자신의 재산을 *그 전해에 인류에게 가장 큰 공헌을 한 사람들*에게 보상하는 데 사용해야 한다고 명시했습니다. 노벨상은 1901년에 처음 수여되었으며 물리, 화학, 생리·의학, 문학, 평화 및 (1969년부터) 경제학 분야에서 수여됩니다. 이 장에서는 노벨상 수상자, 즉 상을 받은 사람들을 살펴보겠습니다.
 
-In May 2019, the TidyTuesday challenge used [several datasets about Nobel Prize Laureates](https://github.com/rfordatascience/tidytuesday/tree/master/data/2019/2019-05-14) and their publications. Those datasets contain data up to the year 2016. Since that data is now a little bit outdated, we're going to look at an alternative way of obtaining the data and getting it into R - using an API! \index{TidyTuesday}
+2019년 5월, TidyTuesday 챌린지는 [노벨상 수상자 및 그들의 출판물에 대한 여러 데이터 세트](https://github.com/rfordatascience/tidytuesday/tree/master/data/2019/2019-05-14)를 사용했습니다. 해당 데이터 세트에는 2016년까지의 데이터가 포함되어 있습니다. 그 데이터는 이제 약간 구식이므로 API를 사용하여 데이터를 얻고 R로 가져오는 대안적인 방법을 살펴보겠습니다! \index{TidyTuesday}
 
-An API (Application Programming Interface) is essentially a tool that lets different software programs communicate with each other [@harmon2024]. The Nobel Prize API endpoint [@nobel_data] can be accessed at {{< monolink "https://api.nobelprize.org/2.1/laureates" "api.nobelprize.org/2.1/laureates" >}}, with some instructions and guidance about how to use it available on the {{< monolink "https://www.nobelprize.org/" "nobelprize.org" >}} website at {{< monolink "https://www.nobelprize.org/organization/developer-zone-2/" "www.nobelprize.org/organization/developer-zone-2" >}}, which also links to the [Terms of Use](https://www.nobelprize.org/organization/terms-of-use-for-api-nobelprize-org-and-data-nobelprize-org/).
+API(응용 프로그래밍 인터페이스)는 본질적으로 다른 소프트웨어 프로그램이 서로 통신할 수 있게 해주는 도구입니다 [@harmon2024]. 노벨상 API 엔드포인트 [@nobel_data]는 {{< monolink "https://api.nobelprize.org/2.1/laureates" "api.nobelprize.org/2.1/laureates" >}}에서 액세스할 수 있으며 사용 방법에 대한 지침과 가이드는 {{< monolink "https://www.nobelprize.org/" "nobelprize.org" >}} 웹사이트의 {{< monolink "https://www.nobelprize.org/organization/developer-zone-2/" "www.nobelprize.org/organization/developer-zone-2" >}}에서 확인할 수 있으며 [사용 약관](https://www.nobelprize.org/organization/terms-of-use-for-api-nobelprize-org-and-data-nobelprize-org/)으로도 연결됩니다.
 
-This API doesn't require an API key, so we don't need to worry about registering, or authenticating an account. Instead, we simply pass the options into a URL and then read the CSV from that URL.
+이 API는 API 키가 필요하지 않으므로 계정을 등록하거나 인증하는 것에 대해 걱정할 필요가 없습니다. 대신 옵션을 URL로 전달한 다음 해당 URL에서 CSV를 읽기만 하면 됩니다.
 
-Let's look at the data for just one of the fields to start with: Physics. There are lots of different options available for accessing the API, but we only need to specify a few of them:
+물리학이라는 한 분야의 데이터만 살펴보는 것으로 시작하겠습니다. API에 액세스하는 데 사용할 수 있는 다양한 옵션이 있지만 몇 가지만 지정하면 됩니다:
 
-* **limit**: how many results are returned. The default is `25` but there are more than 25 Nobel Laureates in physics so we need to use a higher value.
-* **nobelPrizeCategory**: the field. The value is a three letter (lowercase) abbreviation for the field. For physics, the value is `phy`. 
-* **format**: the output format. The options are JSON or CSV, and we'll use CSV since these files are easier to work with in R.
+* **limit**: 반환되는 결과의 수입니다. 기본값은 `25`이지만 물리학 분야의 노벨상 수상자는 25명 이상이므로 더 높은 값을 사용해야 합니다.
+* **nobelPrizeCategory**: 분야입니다. 값은 분야에 대한 세 글자(소문자) 약어입니다. 물리학의 경우 값은 `phy`입니다.
+* **format**: 출력 형식입니다. 옵션은 JSON 또는 CSV이며, R에서 작업하기 더 쉽기 때문에 CSV를 사용합니다.
 
 ::: {#tip-nobel-api .callout-tip}
 
-## Choosing an API Limit
+## API 제한 선택
 
-It's important to be polite and not make too many API requests at once, so don't choose 1,000 if you need 20 results. 
+한 번에 너무 많은 API 요청을 하지 않고 예의를 갖추는 것이 중요하므로 결과가 20개가 필요한 경우 1,000을 선택하지 마십시오.
 
-If you have a limit of 250 requests and the data returned contains 250 results, you may want to check if you actually have all of the results!
+요청 제한이 250개이고 반환된 데이터에 250개의 결과가 포함되어 있다면 실제로 모든 결과가 있는지 확인하는 것이 좋습니다!
 
 :::
 
-We construct a URL in the following format: the base API URL, followed by the endpoint, followed by a `?`, then a list of query parameters separated by `&`. Here, the base URL is `http://api.nobelprize.org/2.1/` and the endpoint is `laureates`. You can either (1) build the URL as one long character string, or (2) construct the strings separately and stick them together with `glue()` as we've done here. If you are making multiple, slightly different, API calls then the second approach is more appropriate since you can re-use the base URL. 
+다음과 같은 형식으로 URL을 구성합니다: 기본 API URL, 엔드포인트, `?`, 그리고 `&`로 구분된 쿼리 매개변수 목록. 여기서 기본 URL은 `http://api.nobelprize.org/2.1/`이고 엔드포인트는 `laureates`입니다. (1) URL을 하나의 긴 문자열로 작성하거나 (2) 문자열을 별도로 구성하고 여기서 한 것처럼 `glue()`와 함께 붙일 수 있습니다. 여러 개의 약간 다른 API 호출을 하는 경우 기본 URL을 재사용할 수 있으므로 두 번째 접근 방식이 더 적절합니다.
 
-Once we've constructed the URL, we simply pass it into `read_csv()` from **`readr`** (or `read.csv()` from base R if you prefer) and save the output to a variable - `nobel_physics` in this case. \index{utils!read.csv} \index{readr!read\_csv} 
+URL을 구성하고 나면 **`readr`**의 `read_csv()`(또는 선호하는 경우 기본 R의 `read.csv()`)로 전달하고 출력을 변수(`nobel_physics`)에 저장하기만 하면 됩니다. \index{utils!read.csv} \index{readr!read\_csv}
 
 ::: {.content-visible when-format="html"}
 
@@ -129,9 +129,9 @@ nobel_physics <- read_csv(
 
 :::
 
-The data can also be accessed using the **`nobel`** R package [@nobel] which wraps the code above into the `laureates()` function.
+위 코드를 `laureates()` 함수로 래핑한 **`nobel`** R 패키지 [@nobel]를 사용하여 데이터에 액세스할 수도 있습니다.
 
-We want to avoid querying the API multiple times if we don't need to. Once we've downloaded the data, we can save it as a CSV file to allow us to use the data at a later point in time without re-querying the same query. We can use the `write.csv()` option to save the data to a file called `nobel_physics.csv` in an existing folder called `data` - you might choose to save it somewhere slightly different! \index{utils!write.csv}
+필요하지 않다면 API를 여러 번 쿼리하지 않는 것이 좋습니다. 데이터를 다운로드한 후에는 CSV 파일로 저장하여 동일한 쿼리를 다시 요청하지 않고 나중에 데이터를 사용할 수 있습니다. `write.csv()` 옵션을 사용하여 `data`라는 기존 폴더에 `nobel_physics.csv`라는 파일로 데이터를 저장할 수 있습니다. 약간 다른 곳에 저장하도록 선택할 수도 있습니다! \index{utils!write.csv}
 
 ```{r}
 #| label: nobel-api-csv
@@ -144,7 +144,7 @@ write.csv(
 )
 ```
 
-We can keep using the existing `nobel_physics` object, or we can read it back in from the CSV file using `read_csv()`. \index{readr!read\_csv}
+기존 `nobel_physics` 객체를 계속 사용하거나 `read_csv()`를 사용하여 CSV 파일에서 다시 읽어올 수 있습니다. \index{readr!read\_csv}
 
 ```{r}
 #| label: nobel-load-data-csv
@@ -152,29 +152,29 @@ We can keep using the existing `nobel_physics` object, or we can read it back in
 nobel_physics <- read_csv("data/nobel_physics.csv")
 ```
 
-Let's have a quick look at the data.
+데이터를 잠깐 살펴보겠습니다.
 
 ```{r}
 #| label: nobel-head
 head(nobel_physics)
 ```
 
-The data contains information for `r ncol(nobel_physics)` variables for `r nrow(nobel_physics)` laureates. The `id` column uniquely identifies a Nobel laureate. The `name`, `gender`, `birthdate`, `birthplace`, `deathdate`, and `deathplace` are fairly self-explanatory variables relating to the individual laureate. The `category` variable gives us the field of the award e.g. Physics. The year they were awarded the prize is given in the `year` column. Nobel Prizes can be shared among multiple people, and the `share` column indicates what fraction of the award each individual has. For example, a value of `"1"` for `share` indicates the individual was the sole recipient, and a value of `"1/3"` indicates they were one of three recipients.
+데이터에는 `r nrow(nobel_physics)`명의 수상자에 대한 `r ncol(nobel_physics)`개 변수의 정보가 포함되어 있습니다. `id` 열은 노벨상 수상자를 고유하게 식별합니다. `name`, `gender`, `birthdate`, `birthplace`, `deathdate`, 및 `deathplace`는 개별 수상자와 관련된 상당히 설명적인 변수입니다. `category` 변수는 수상 분야(예: 물리학)를 알려줍니다. 상을 받은 연도는 `year` 열에 제공됩니다. 노벨상은 여러 사람이 공유할 수 있으며 `share` 열은 각 개인이 가진 상의 비율을 나타냅니다. 예를 들어 `share` 값이 `"1"`이면 단독 수상자임을 나타내고 `"1/3"`이면 세 명의 수상자 중 한 명임을 나타냅니다.
 
-The `overallmotivation` and `motivation` columns give an explanation of the reason why an individual was awarded the prize, There are many missing values in the `overallmotivation` column and, for those that do have a non-missing value, this appears to be a more general statement than the one given in `motivation`. The Nobel Laureates affiliations are also listed in the `affiliations` column.
+`overallmotivation` 및 `motivation` 열은 개인이 상을 받은 이유에 대한 설명을 제공합니다. `overallmotivation` 열에는 누락된 값이 많으며 누락되지 않은 값이 있는 경우 `motivation`에 제공된 것보다 더 일반적인 설명인 것으로 보입니다. 노벨상 수상자의 소속은 `affiliations` 열에도 나열되어 있습니다.
 
-## Exploratory work
+## 탐색 작업
 
-There are many different aspects of the data that we could explore: the demographics of the Nobel Laureates; how the geographical profile of awardees varies; or how the age of awardees has changed over time. Let's have a look at the data to see if these are interesting questions to explore further. 
+인구 통계학적 특성, 수상자의 지리적 프로필이 어떻게 다른지, 또는 수상자의 나이가 시간에 따라 어떻게 변했는지 등 탐색할 수 있는 데이터의 다양한 측면이 있습니다. 데이터를 살펴보고 이것들이 더 탐색해 볼 만한 흥미로운 질문인지 확인해 보겠습니다.
 
-### Data exploration
+### 데이터 탐색
 
-Let's start by exploring the relationship between year of birth and year of award. We would expect that the people born earlier in time, are also the people awarded Nobel Prizes earlier in time, and a scatter plot confirms this:
+생년월일과 수상 연도 간의 관계를 탐색하는 것으로 시작하겠습니다. 시간이 지남에 따라 일찍 태어난 사람들이 일찍 상을 받았을 것이라고 예상할 수 있으며 산점도가 이를 확인해 줍니다:
 
 ```{r, echo=-1}
 #| label: fig-nobel-scatter
-#| fig-cap: "A scatter plot of awardee birth date against year of award, showing the expected increasing trend."
-#| fig-alt: "A scatter plot of awardee birth date against year of award, showing the expected increasing trend."
+#| fig-cap: "수상자 생년월일 대 수상 연도의 산점도로, 예상되는 증가 추세를 보여줍니다."
+#| fig-alt: "수상자 생년월일 대 수상 연도의 산점도로, 예상되는 증가 추세를 보여줍니다."
 par(mar = c(4.1, 4.1, 1.1, 2.1))
 plot(
   x = nobel_physics$birthdate,
@@ -184,12 +184,12 @@ plot(
 )
 ```
 
-We might be interested in seeing whether this relationship is changing over time. Essentially, is the age of awardees changing over time? We can use the `year()` function from **`lubridate`** to convert the `birthdate` into a year and subtract this from the award `year` to get an approximate age. Then plot this against the award year: \index{lubridate!year}
+우리는 이 관계가 시간이 지남에 따라 변하고 있는지 확인하는 데 관심이 있을 수 있습니다. 본질적으로 수상자의 나이가 시간이 지남에 따라 변하고 있습니까? **`lubridate`**의 `year()` 함수를 사용하여 `birthdate`를 연도로 변환하고 수상 `year`에서 이를 빼서 대략적인 나이를 얻을 수 있습니다. 그런 다음 수상 연도에 대해 플롯합니다: \index{lubridate!year}
 
 ```{r, echo=-1}
 #| label: fig-nobel-hist
-#| fig-cap: "A scatter plot showing the age of Nobel Prize awardees over time, with a slight increasing trend suggested."
-#| fig-alt: "A scatter plot showing the age of Nobel Prize awardees over time, with a slight increasing trend suggested."
+#| fig-cap: "시간이 지남에 따른 노벨상 수상자의 나이를 보여주는 산점도로, 약간의 증가 추세가 나타납니다."
+#| fig-alt: "시간이 지남에 따른 노벨상 수상자의 나이를 보여주는 산점도로, 약간의 증가 추세가 나타납니다."
 par(mar = c(4.1, 4.1, 1.1, 2.1))
 award_age <- nobel_physics$year -
   year(nobel_physics$birthdate)
@@ -201,61 +201,61 @@ plot(
 )
 ```
 
-It looks like the age of awardees might be increasing slightly - this could be interesting to explore further. But let's also look at the gender split for Nobel Laureates in Physics. We can calculate the number of `"male"` and `"female"` values in the `gender` column using the `table()` function, then plot it using `barplot()`: \index{base!table} \index{graphics!barplot} 
+수상자의 나이가 약간 증가하는 것처럼 보입니다. 더 탐색해 보면 흥미로울 수 있습니다. 하지만 물리학 분야의 노벨상 수상자에 대한 성별 구분도 살펴보겠습니다. `table()` 함수를 사용하여 `gender` 열에서 `"male"` 및 `"female"` 값의 수를 계산한 다음 `barplot()`을 사용하여 플롯할 수 있습니다: \index{base!table} \index{graphics!barplot}
 
 ```{r, echo=-1}
 #| label: fig-nobel-gender-barplot
-#| fig-cap: "A bar chart of the number of male and female Nobel Laureates in Physics, with a much higher number of male awardees."
-#| fig-alt: "A bar chart of the number of male and female Nobel Laureates in Physics, with a much higher number of male awardees."
+#| fig-cap: "물리학 분야의 남성 및 여성 노벨상 수상자 수에 대한 막대 차트로, 남성 수상자 수가 훨씬 더 많음을 보여줍니다."
+#| fig-alt: "물리학 분야의 남성 및 여성 노벨상 수상자 수에 대한 막대 차트로, 남성 수상자 수가 훨씬 더 많음을 보여줍니다."
 par(mar = c(4.1, 4.1, 1.1, 2.1))
 barplot(table(nobel_physics$gender))
 ```
 
-This is quite a significant difference! Let's find a way to communicate and highlight this disparity. 
+이것은 상당히 큰 차이입니다! 이러한 불균형을 전달하고 강조할 방법을 찾아봅시다.
 
-### Exploratory sketches
+### 탐색적 스케치
 
-When thinking about how to construct a visualization, it's important to consider multiple factors [@signif2024a]:
+시각화를 구성하는 방법을 생각할 때 여러 요소를 고려하는 것이 중요합니다 [@signif2024a]:
 
-* What message are you trying to convey?
-* Who are you trying to reach and what is their background?
-* What is the purpose of the visualization?
-* Does the way you've built that visualization support the purpose?
+* 어떤 메시지를 전달하려고 합니까?
+* 누구에게 도달하려고 하며 그들의 배경은 무엇입니까?
+* 시각화의 목적은 무엇입니까?
+* 시각화를 구축한 방식이 목적을 뒷받침합니까?
 
-Let's say that the purpose of the visualization is to highlight the gender disparity in Nobel Prize awardees. Yes, the bar chart of how many male and female Nobel Laureates there are shows the disparity very clearly. It's a simple message. But it's not eye-catching. It's not a visualization that really makes a reader stop and pay attention. And it aggregates data down to just two categories - ignoring that these are individual people. 
+시각화의 목적이 노벨상 수상자의 성별 불균형을 강조하는 것이라고 가정해 보겠습니다. 네, 남성 및 여성 노벨상 수상자가 얼마나 많은지에 대한 막대 차트는 불균형을 매우 명확하게 보여줍니다. 간단한 메시지입니다. 하지만 눈길을 확 끌지는 않습니다. 독자가 멈춰서 주의를 기울이게 만드는 시각화는 아닙니다. 그리고 데이터를 두 가지 범주로 집계하여 이들이 개체라는 사실을 무시합니다.
 
-Instead, let's think outside of the box are present the information in a very non-standard way:
+대신 상자 밖에서 생각하여 정보를 매우 비표준적인 방식으로 제시해 봅시다:
 
-![Initial sketch of text arranged perpendicularly around a circle, with text color based on gender.](images/sketch-nobel.png){#fig-nobel-sketch fig-align="center" fig-alt="Initial sketch of text arranged perpendicularly around a circle, with text color based on gender."}
+![성별에 따른 텍스트 색상을 사용하여 원 주위에 수직으로 배열된 텍스트의 초기 스케치.](images/sketch-nobel.png){#fig-nobel-sketch fig-align="center" fig-alt="성별에 따른 텍스트 색상을 사용하여 원 주위에 수직으로 배열된 텍스트의 초기 스케치."}
 
-A bar chart would be a quicker, more efficient way of displaying how many male and female Nobel Laureates there are. A visualization of the names of every single Nobel Laureate might be a quicker, more efficient way of catching someone's attention. This alternative visualization doesn't sacrifice accuracy of information, but it might take a reader a little bit longer to digest the information. Whether that's a sacrifice worth making comes back to what the purpose of the visualization is.
+막대 차트는 남성 및 여성 노벨상 수상자가 얼마나 많은지 표시하는 더 빠르고 효율적인 방법일 것입니다. 모든 단일 노벨상 수상자의 이름에 대한 시각화는 누군가의 주의를 끄는 더 빠르고 효율적인 방법일 수 있습니다. 이 대안적인 시각화는 정보의 정확성을 희생하지 않지만 독자가 정보를 소화하는 데 시간이 조금 더 걸릴 수 있습니다. 그 희생을 감수할 가치가 있는지는 시각화의 목적이 무엇인지에 달려 있습니다.
 
-## Preparing a plot
+## 플롯 준비하기
 
-So let's start making our custom visualization! We start by defining a variable for the award category we're interested in - Physics. This first step might seem a little odd since we've only queried the API for physics data anyway, but when you get to the last section of this chapter, it'll make more sense!
+자, 이제 사용자 정의 시각화를 만들어 봅시다! 관심 있는 수상 분야인 물리학에 대한 변수를 정의하는 것으로 시작합니다. 어차피 API에 물리학 데이터만 요청했으므로 이 첫 단계는 조금 이상해 보일 수 있지만 이 장의 마지막 섹션에 도달하면 더 이해가 될 것입니다!
 
 ```{r}
 #| label: nobel-category
 nobel_category <- "Physics"
 ```
 
-It's always worth double checking that we do actually only have the data we expect... \index{base!table} \index{graphics!barplot}
+우리가 기대하는 데이터만 가지고 있는지 항상 다시 확인하는 것이 좋습니다... \index{base!table} \index{graphics!barplot}
 
 ```{r, echo=-1}
 #| label: fig-nobel-barplot-category
-#| fig-cap: "A bar chart of the number of *Physics* laureates (with a surprise appearance of a Chemistry laureate)."
-#| fig-alt: "A bar chart of the number of *Physics* laureates (with a surprise appearance of a Chemistry laureate)."
+#| fig-cap: "*물리학* 수상자의 수에 대한 막대 차트(화학 수상자가 깜짝 등장함)."
+#| fig-alt: "*물리학* 수상자의 수에 대한 막대 차트(화학 수상자가 깜짝 등장함)."
 par(mar = c(4.1, 4.1, 1.1, 2.1))
 barplot(table(nobel_physics$category))
 ```
 
-...because sometimes you find something unexpected!
+...때때로 예상치 못한 것을 발견할 수 있기 때문입니다!
 
-Even though we've asked for only physics data from the API, the data also includes an entry relating to the Chemistry prize. If we read the [documentation for the API](https://www.nobelprize.org/organization/developer-zone-2/), this gives us the explanation as to why. The API we've used relates to Nobel Laureates, not Nobel Prizes - meaning the list includes all laureates who have won a prize in Physics. Marie Curie won two Nobel Prizes - in 1903 for Physics, and in 1911 for Chemistry.
+API에서 물리학 데이터만 요청했음에도 불구하고 데이터에는 화학상과 관련된 항목도 포함되어 있습니다. [API 문서](https://www.nobelprize.org/organization/developer-zone-2/)를 읽어보면 그 이유를 설명해 줍니다. 우리가 사용한 API는 노벨상 자체가 아니라 노벨상 수상자와 관련이 있습니다. 즉, 목록에는 물리학 분야에서 상을 받은 모든 수상자가 포함됩니다. 마리 퀴리는 1903년 물리학상, 1911년 화학상 등 두 개의 노벨상을 수상했습니다.
 
-### Data wrangling
+### 데이터 랭글링
 
-We'll start by using `filter()` from **`dplyr`** to filter out any non-Physics entries, and then selecting only the columns we need for our plot: `name`, `gender`, and `year`. The data is currently arranged alphabetically based on `name`, so we'll use the `arrange()` function to sort by year. \index{dplyr!filter} \index{dplyr!select} \index{dplyr!arrange}
+**`dplyr`**의 `filter()`를 사용하여 비물리학 항목을 걸러내고 `name`, `gender`, 및 `year`와 같이 플롯에 필요한 열만 선택하는 것으로 시작하겠습니다. 데이터는 현재 `name`을 기준으로 알파벳순으로 정렬되어 있으므로 `arrange()` 함수를 사용하여 연도별로 정렬합니다. \index{dplyr!filter} \index{dplyr!select} \index{dplyr!arrange}
 
 ```{r}
 #| label: nobel-physics-data
@@ -265,38 +265,38 @@ physics_data <- nobel_physics |>
   arrange(year)
 ```
 
-Now comes the tricky part of figuring out how to position the text in a circle. The first idea might be to simply plot the text in a line and then use the `coord_polar()` (or `coord_radial()`) function in **`ggplot2`** to transform the coordinate space. However, `coord_polar()` makes it really hard to position other elements such as annotations on the plot. Alternatively, we could make use of the **`ggplot2`** extension package, **`geomtextpath`** [@geomtextpath], which allows you to write text in **`ggplot2`** that follows a curved path. \index{ggplot2!coord\_polar} \index{ggplot2!coord\_radial} \index{geomtextpath}
+이제 텍스트를 원형으로 배치하는 방법을 알아내는 까다로운 부분이 나옵니다. 첫 번째 아이디어는 단순히 텍스트를 한 줄로 플롯한 다음 **`ggplot2`**의 `coord_polar()`(또는 `coord_radial()`) 함수를 사용하여 좌표 공간을 변환하는 것일 수 있습니다. 그러나 `coord_polar()`를 사용하면 플롯에 주석과 같은 다른 요소를 배치하기가 정말 어렵습니다. 다른 방법으로 **`ggplot2`** 확장 패키지인 **`geomtextpath`** [@geomtextpath]를 사용할 수 있습니다. 이 패키지를 사용하면 **`ggplot2`**에서 곡선을 따라 텍스트를 작성할 수 있습니다. \index{ggplot2!coord\_polar} \index{ggplot2!coord\_radial} \index{geomtextpath}
 
 ::: {#tip-nobel-external .callout-tip}
 
-## Why add annotations in R?
+## 왜 R에서 주석을 추가하나요?
 
-You may be wondering why we want to put so much work into building a custom layout from scratch, when you could easily just create a basic chart, apply `coord_polar()`, and then export it to other software (e.g. Inkscape or PowerPoint) to add the text annotations. This is certaintly a valid point. If you were only making a single chart on one occassion, then adding the finishing touches outside of R would be both quicker and easier. However, if you're making the same chart multiple times, or creating slightly different versions of a similar chart, the manual work can quickly accumulate. The benefit of creating annotations in R is that it's easier to scale up your work, and automate the annotation creation.
+기본 차트를 만들고 `coord_polar()`를 적용한 다음 다른 소프트웨어(예: Inkscape 또는 PowerPoint)로 내보내 텍스트 주석을 추가하면 되는데 왜 처음부터 사용자 정의 레이아웃을 구축하는 데 그렇게 많은 공을 들이고 싶어 하는지 궁금할 수 있습니다. 이것은 확실히 타당한 지적입니다. 한 번만 차트를 만드는 경우 R 외부에서 마무리를 하는 것이 더 빠르고 쉽습니다. 그러나 동일한 차트를 여러 번 만들거나 유사한 차트의 약간 다른 버전을 만드는 경우 수동 작업이 빠르게 늘어날 수 있습니다. R에서 주석을 만드는 것의 장점은 작업을 확장하고 주석 생성을 자동화하기가 더 쉽다는 것입니다.
 
 :::
 
-But (just for the fun of it) let's try to make the plot from scratch using only **`ggplot2`**. 
+하지만 (단지 재미로) **`ggplot2`**만 사용하여 처음부터 플롯을 만들어 봅시다. 
 
-We need to define the following to be able to position the text:
+텍스트를 배치할 수 있으려면 다음을 정의해야 합니다:
 
-* the x- and y- coordinates of where the text should end
-* the angle that the text should be positioned at
+* 텍스트가 끝날 x 및 y 좌표
+* 텍스트가 위치해야 할 각도
 
-To calculate the x- and y- coordinates, we want to start thinking in polar coordinates. To keep it simple, let's assume that the circle which the text is positioned around is centered at `(0, 0)`. For the coordinates, this means we need to know:
+x 및 y 좌표를 계산하려면 극좌표를 생각해야 합니다. 간단하게 하기 위해 텍스트가 배치되는 원의 중심이 `(0, 0)`이라고 가정해 보겠습니다. 좌표의 경우 다음을 알아야 함을 의미합니다:
 
-* the radius (` r`) of the circle: how far away from `(0, 0)` does the text start? This will be a constant value for all text labels.
-* the angle (`theta`) of arc: how far round the circle from the horizontal axis should the text appear? This value will vary for each text label since we want the labels to be equally spaces around the (semi-)circle.
+* 원의 반지름(`r`): 텍스트가 `(0, 0)`에서 얼마나 멀리 떨어져 시작합니까? 이것은 모든 텍스트 레이블에 대해 상수 값입니다.
+* 호의 각도(`theta`): 수평축에서 원을 따라 텍스트가 얼마나 멀리 나타나야 합니까? 레이블이 (반)원 주위에 균등하게 간격을 두기를 원하므로 이 값은 각 텍스트 레이블마다 다릅니다.
 
-Let's start by defining a variable for the radius. It doesn't really matter what value you choose at this point since everything else can be re-scaled around a different radius.
+반지름에 대한 변수를 정의하는 것으로 시작하겠습니다. 다른 모든 것은 다른 반지름을 중심으로 재조정될 수 있으므로 이 시점에서는 어떤 값을 선택하든 상관없습니다.
 
 ```{r}
 #| label: nobel-radius
 r <- 5
 ```
 
-![Sketch showing the relationship between the radius, angle, and position of the text in x- and y-coordinates.](images/sketch-nobel-theta.png){#fig-nobel-sketch-theta fig-align="center" fig-alt="Sketch showing the relationship between the radius, angle, and position of the text in x- and y-coordinates."}
+![반지름, 각도, x 및 y 좌표에서 텍스트 위치 간의 관계를 보여주는 스케치.](images/sketch-nobel-theta.png){#fig-nobel-sketch-theta fig-align="center" fig-alt="반지름, 각도, x 및 y 좌표에서 텍스트 위치 간의 관계를 보여주는 스케치."}
 
-Assuming that we know the radius and angle of a point, we can calculate the x- and y- coordinates of a point using the following equations: 
+점의 반지름과 각도를 알고 있다고 가정하면 다음 방정식을 사용하여 점의 x 및 y 좌표를 계산할 수 있습니다:
 
 \begin{equation*}
 \begin{split}
@@ -305,11 +305,11 @@ y & = r sin(\theta)
 \end{split}
 \end{equation*}
 
-We don't want to put the text all the way around the circle, since we want to leave some space to add the title as shown in @fig-nobel-sketch. We'll leave a gap starting from $\pi/4$ (between 1 and 2 on a clock face) to $7\pi/4$ (between 4 and 5 on a clock face). We start by generating a sequence of equally spaced $\theta$ values, starting from $\pi/4$ and going to $7\pi/4$, with one value for each observation in the data. This is added as a new column in the data using `mutate()` from **`dplyr`**. We then calculate the `x` and `y` coordinates using the equations above and, again, add these as new columns to the data. \index{dplyr!mutate} 
+@fig-nobel-sketch 에 표시된 대로 제목을 추가할 공간을 남겨두고 싶으므로 원 전체에 텍스트를 넣고 싶지는 않습니다. $\pi/4$ (시계 페이스의 1과 2 사이)에서 $7\pi/4$ (시계 페이스의 4와 5 사이)까지 간격을 남겨 둡니다. $\pi/4$에서 시작하여 $7\pi/4$까지 데이터의 각 관측치에 대해 하나의 값을 갖는 균등하게 이격된 $\theta$ 값 시퀀스를 생성하는 것으로 시작합니다. 이것은 **`dplyr`**의 `mutate()`를 사용하여 데이터에 새 열로 추가됩니다. 그런 다음 위의 방정식을 사용하여 `x` 및 `y` 좌표를 계산하고 다시 데이터에 새 열로 추가합니다. \index{dplyr!mutate}
 
-The angle of the text is a little bit more tricky. We want the text to be positioned perpendicular to the circle i.e. the angle of the text is different for each name. We can use the value of `theta` to calculate the angle of the text. 
+텍스트의 각도는 조금 더 까다롭습니다. 텍스트가 원에 수직으로 위치하기를 원합니다. 즉, 텍스트의 각도는 각 이름마다 다릅니다. `theta` 값을 사용하여 텍스트의 각도를 계산할 수 있습니다. 
 
-When we later pass the angle value into **`ggplot2`** functions for plotting, it's expected that the angle be expressed in degrees (rather than radians). For example, for vertical text, we would pass in `angle = 90` rather than `angle = pi/2`. So we need to transform `theta` to degrees by dividing by $2\pi$ and multiplying by 360. To make the text the right way up (at least on the left side of the circle) we add 180 degrees. \index{base!seq} \index{base!cos} \index{base!sin}
+나중에 플로팅을 위해 각도 값을 **`ggplot2`** 함수에 전달할 때 각도는 라디안이 아닌 도(degree)로 표현되어야 합니다. 예를 들어 수직 텍스트의 경우 `angle = pi/2` 대신 `angle = 90`을 전달합니다. 따라서 $2\pi$로 나누고 360을 곱하여 `theta`를도로 변환해야 합니다. 텍스트를 (적어도 원의 왼쪽에서는) 올바른 방향으로 만들기 위해 180도를 더합니다. \index{base!seq} \index{base!cos} \index{base!sin}
 
 ```{r}
 #| label: nobel-theta-data
@@ -326,25 +326,25 @@ plot_data <- physics_data |>
   )
 ```
 
-Let's have a quick look at the data:
+데이터를 잠깐 살펴보겠습니다:
 
 ```{r}
 #| label: nobel-plot-data
 head(plot_data)
 ```
 
-Now we're ready to start plotting with **`ggplot2`**!
+이제 **`ggplot2`**로 플로팅을 시작할 준비가 되었습니다!
 
-### The first plot
+### 첫 번째 플롯
 
-Constructing the base plot is reasonably straightforward - we've done the hard work in defining the x values, y values, the angles already. Since our plot is a visualization of text data, we'll use `geom_text()` to add the text. All we have to do is tell **`ggplot2`** what to put where! \index{ggplot2!geom\_text}
+기본 플롯을 구성하는 것은 상당히 간단합니다. 이미 x 값, y 값, 각도를 정의하는 힘든 작업을 수행했습니다. 플롯은 텍스트 데이터의 시각화이므로 `geom_text()`를 사용하여 텍스트를 추가합니다. 우리가 해야 할 일은 **`ggplot2`**에 무엇을 어디에 넣을지 알려주는 것뿐입니다! \index{ggplot2!geom\_text}
 
-We pass `plot_data` into the `data` argument, and then set the aesthetic mapping using `aes()`. The mappings are as you would expect: `x` goes on the x-axis, `y` goes on the y-axis, the `label` comes from the `name` column, the text `angle` is defined by the `angle` column we created, and the `color` is based on the values in the `gender` column. This mapping could be passed into either `ggplot()` or directly into `geom_text()` as we've done here. Since we'll only be using one geometry for this plot, it won't make a difference! \index{ggplot2!ggplot} \index{ggplot2!aes}
+`plot_data`를 `data` 인수에 전달한 다음 `aes()`를 사용하여 미적 매핑을 설정합니다. 매핑은 예상대로입니다: `x`는 x축에, `y`는 y축에, `label`은 `name` 열에서 오고, 텍스트 `angle`은 우리가 만든 `angle` 열에 의해 정의되며, `color`는 `gender` 열의 값을 기반으로 합니다. 이 매핑은 `ggplot()`에 전달하거나 여기서 한 것처럼 `geom_text()`에 직접 전달할 수 있습니다. 이 플롯에는 하나의 지오메트리만 사용할 것이므로 차이는 없습니다! \index{ggplot2!ggplot} \index{ggplot2!aes}
 
 ```{r}
 #| label: fig-nobel-base-plot
-#| fig-cap: "The names of Nobel Prize in Physics awardees arranged in a semi-circle, with color indicating awardee gender. The text is too large, creating many overlapping labels."
-#| fig-alt: "The names of Nobel Prize in Physics awardees arranged in a semi-circle, with color indicating awardee gender. The text is too large, creating many overlapping labels."
+#| fig-cap: "반원형으로 배열된 노벨 물리학상 수상자의 이름으로, 색상은 수상자의 성별을 나타냅니다. 텍스트가 너무 커서 레이블이 많이 겹칩니다."
+#| fig-alt: "반원형으로 배열된 노벨 물리학상 수상자의 이름으로, 색상은 수상자의 성별을 나타냅니다. 텍스트가 너무 커서 레이블이 많이 겹칩니다."
 #| message: false
 ggplot() +
   geom_text(
@@ -358,18 +358,18 @@ ggplot() +
   )
 ```
 
-## Advanced styling
+## 고급 스타일링
 
-At first glance, this first plot might look like a complete mess but with a little bit of work it will soon start looking like @fig-nobel-sketch.
+언뜻 보기에 이 첫 번째 플롯은 완전히 엉망인 것처럼 보일 수 있지만 약간의 작업만 거치면 곧 @fig-nobel-sketch 처럼 보이기 시작할 것입니다.
 
-### Fonts
+### 글꼴
 
-Let's start by choosing some typefaces for our visualization. We're going to pick two typefaces:
+시각화를 위한 서체를 선택하는 것으로 시작하겠습니다. 두 가지 서체를 선택할 것입니다:
 
-* `title_font`: a bold typeface that will, as the name suggests, be used for the title. We'll use *Passion One* - a display typeface with thick, bold strokes which make it ideal for titles. 
-* a `body_font`: a simple typeface that will be used for all other text elements, including the text displaying the laureate names. This means the text will be quite a small font size, and so it's important to use a clean and simple typeface. We'll use *Ubuntu* - a sans serif typeface that we've used in previous chapters.
+* `title_font`: 이름에서 알 수 있듯이 제목에 사용될 굵은 서체입니다. 제목에 이상적인 두껍고 굵은 선이 있는 디스플레이 서체인 *Passion One*을 사용할 것입니다. 
+* `body_font`: 수상자 이름을 표시하는 텍스트를 포함하여 다른 모든 텍스트 요소에 사용될 간단한 서체입니다. 즉, 텍스트는 꽤 작은 글꼴 크기가 될 것이므로 깨끗하고 간단한 서체를 사용하는 것이 중요합니다. 이전 장에서 사용했던 산세리프 서체인 *Ubuntu*를 사용할 것입니다.
 
-Both typefaces are provided through Google Fonts so we'll use `font_add_google()` from **`sysfonts`** to load them into R. We also run `showtext_auto()` and `showtext_opts(dpi = 300)` to use **`showtext`** for rendering text on plots at our desired resolution.  \index{sysfonts!font\_add\_google} \index{showtext!showtext\_auto} \index{showtext!showtext\_opts} \index{fonts}
+두 서체 모두 Google Fonts를 통해 제공되므로 **`sysfonts`**의 `font_add_google()`을 사용하여 R로 로드합니다. 또한 `showtext_auto()` 및 `showtext_opts(dpi = 300)`을 실행하여 **`showtext`**를 사용하여 원하는 해상도로 플롯의 텍스트를 렌더링합니다.  \index{sysfonts!font\_add\_google} \index{showtext!showtext\_auto} \index{showtext!showtext\_opts} \index{fonts}
 
 ```{r}
 #| label: nobel-fonts
@@ -381,12 +381,12 @@ body_font <- "Ubuntu"
 title_font <- "Passion One"
 ```
 
-Now, let's remake our `basic_plot` - this time also setting the font `family` to `body_font`. We'll also right align the text using `hjust = 1` to make the text appear around the outer edge of the circle. The text also needs to be a bit smaller to avoid overlapping between names positioned next to each other. \index{ggplot2!ggplot} \index{ggplot2!geom\_text} \index{ggplot2!aes}
+이제 `basic_plot`을 다시 만들어 보겠습니다. 이번에는 글꼴 `family`도 `body_font`로 설정합니다. 또한 `hjust = 1`을 사용하여 텍스트를 오른쪽 정렬하여 텍스트가 원의 바깥쪽 가장자리 주위에 나타나도록 합니다. 텍스트는 서로 옆에 위치한 이름이 겹치지 않도록 조금 더 작아야 합니다. \index{ggplot2!ggplot} \index{ggplot2!geom\_text} \index{ggplot2!aes}
 
 ```{r}
 #| label: fig-nobel-base-plot-2
-#| fig-cap: "The names of Nobel Prize in Physics awardees arranged in a semicircle, with color indicating awardee gender. Much of the text lies outside of the plot area."
-#| fig-alt: "The names of Nobel Prize in Physics awardees arranged in a semicircle, with color indicating awardee gender. Much of the text lies outside of the plot area."
+#| fig-cap: "반원형으로 배열된 노벨 물리학상 수상자의 이름으로, 색상은 수상자의 성별을 나타냅니다. 텍스트의 많은 부분이 플롯 영역 외부에 있습니다."
+#| fig-alt: "반원형으로 배열된 노벨 물리학상 수상자의 이름으로, 색상은 수상자의 성별을 나타냅니다. 텍스트의 많은 부분이 플롯 영역 외부에 있습니다."
 basic_plot <- ggplot() +
   geom_text(
     data = plot_data,
@@ -403,11 +403,11 @@ basic_plot <- ggplot() +
 basic_plot
 ```
 
-### Colors
+### 색상
 
-As we've done in all previous chapters, we'll define some variables for the colors we'll be using in the visualization. Here, we'll define a background color, a primary color, and a secondary color. 
+이전의 모든 장에서 했던 것 처럼 시각화에서 사용할 색상에 대한 변수를 정의하겠습니다. 여기서는 배경색, 기본색, 보조색을 정의합니다.
 
-The primary color will be used to highlight the female laureates, as well as the title and caption text. The secondary color will be used to color the male laureate names. The primary color should be bolder or brighter than the secondary color - meaning a few pops of color on the chart will stand out and highlight the female laureates. \index{color}
+기본색은 여성 수상자뿐만 아니라 제목 및 캡션 텍스트를 강조하는 데 사용됩니다. 보조색은 남성 수상자 이름을 색칠하는 데 사용됩니다. 기본색은 보조색보다 더 굵거나 밝아야 합니다. 즉, 차트의 몇 가지 색상이 눈에 띄고 여성 수상자를 강조하게 됩니다. \index{color}
 
 ```{r}
 #| label: nobel-color
@@ -416,7 +416,7 @@ primary_col <- "black"
 secondary_col <- "gray75"
 ```
 
-We can apply these colors to the text showing the names using `scale_color_manual()` where we manually specify which color maps to which value in the `gender` column: \index{ggplot2!scale\_color\_manual}
+`scale_color_manual()`을 사용하여 `gender` 열의 어떤 값에 어떤 색상을 매핑할지 수동으로 지정하여 이름을 표시하는 텍스트에 이러한 색상을 적용할 수 있습니다. \index{ggplot2!scale\_color\_manual}
 
 ```{r}
 #| label: nobel-col-plot
@@ -429,16 +429,16 @@ col_plot <- basic_plot +
   )
 ```
 
-### Adding text
+### 텍스트 추가
 
-Rather than adding a title and subtitle at the top of the plot, we'll add them in the gap in the right hand side of the circle. We'll use the `annotate()` function from **`ggplot2`** to add the text. Remember that for `annotate()`, we need to start by specifying the type of geometry we're annotating - in this case, `"text"`. \index{ggplot2!annotate}
+플롯 상단에 제목과 부제목을 추가하는 대신 원의 오른쪽 부분에 있는 간격에 추가합니다. **`ggplot2`**의 `annotate()` 함수를 사용하여 텍스트를 추가합니다. `annotate()`의 경우 주석을 달 지오메트리 유형(이 경우 `"text"`)을 지정하는 것으로 시작해야 한다는 점을 기억하십시오. \index{ggplot2!annotate}
 
-We'll add two separate annotations: one for the title (*Nobel Prize Laureates*) and for a subtitle indicating the award category (*Physics*). The title and subtitle should be right-aligned, so we set the x-coordinate for each annotation to be equal to 10 and set `hjust = 1`. The title is vertically aligned with the center of the circle (at `y = 0`), and the subtitle slightly below it at `y = -1`. The font family is adjusted to either the `body_font` or `title_font` using the `family` argument, and the text `size` and `color` is also adjusted.
+두 개의 별도 주석을 추가합니다. 하나는 제목(*Nobel Prize Laureates*)용이고 다른 하나는 수상 분야(*Physics*)를 나타내는 부제목용입니다. 제목과 부제목은 오른쪽 정렬이어야 하므로 각 주석의 x좌표를 10으로 설정하고 `hjust = 1`로 설정합니다. 제목은 원의 중심(`y = 0`)과 수직으로 정렬되고 부제목은 `y = -1`에서 약간 아래에 있습니다. 글꼴 패밀리는 `family` 인수를 사용하여 `body_font` 또는 `title_font`로 조정되며 텍스트 `size` 및 `color`도 조정됩니다.
 
 ```{r}
 #| label: fig-nobel-annotated
-#| fig-cap: "The names of Nobel Prize in Physics awardees arranged in a C-shape, with female awardees highlighted in a darker color. The text runs outside the plotting area, with annotations added to indicate the award category."
-#| fig-alt: "The names of Nobel Prize in Physics awardees arranged in a C-shape, with female awardees highlighted in a darker color. The text runs outside the plotting area, with annotations added to indicate the award category."
+#| fig-cap: "C자 형태로 배열된 노벨 물리학상 수상자의 이름으로, 여성 수상자는 더 어두운 색상으로 강조 표시됩니다. 텍스트가 플로팅 영역 밖으로 실행되며 수상 분야를 나타내는 주석이 추가되었습니다."
+#| fig-alt: "C자 형태로 배열된 노벨 물리학상 수상자의 이름으로, 여성 수상자는 더 어두운 색상으로 강조 표시됩니다. 텍스트가 플로팅 영역 밖으로 실행되며 수상 분야를 나타내는 주석이 추가되었습니다."
 annotated_plot <- col_plot +
   annotate("text",
     x = 10, y = 0,
@@ -459,7 +459,7 @@ annotated_plot <- col_plot +
 annotated_plot
 ```
 
-We can add a caption to the plot which contains: (i) a description of the data source, and (ii) the social media links from the `social_caption()` function we defined in @sec-cats. We make both the icons and text the same color - `primary_col`. We can pass this into the `source_caption()` function defined in @sec-turbines. \index{social\_caption} \index{source\_caption}
+플롯에 캡션을 추가할 수 있는데, 여기에는 (i) 데이터 출처에 대한 설명과 (ii) @sec-cats 에서 정의한 `social_caption()` 함수의 소셜 미디어 링크가 포함됩니다. 아이콘과 텍스트를 모두 같은 색상인 `primary_col`로 만듭니다. 이를 @sec-turbines 에서 정의한 `source_caption()` 함수에 전달할 수 있습니다. \index{social\_caption} \index{source\_caption}
 
 ```{r}
 #| label: nobel-text
@@ -475,7 +475,7 @@ cap <- source_caption(
 )
 ```
 
-We then add this caption to our existing plot using the `caption` argument in the `labs()` function: \index{ggplot2!labs}
+그런 다음 `labs()` 함수의 `caption` 인수를 사용하여 기존 플롯에 이 캡션을 추가합니다: \index{ggplot2!labs}
 
 ```{r}
 #| label: nobel-text-plot
@@ -483,16 +483,16 @@ text_plot <- annotated_plot +
   labs(caption = cap)
 ```
 
-### Adjusting scales and themes
+### 스케일 및 테마 조정
 
-At the moment, the text isn't arranged in a circle as such - it's taking on more of an oval shape. To make sure it is displayed in a circle, we can use `coord_fixed()` to make sure that one unit on the x-axis is equal to one unit on the y-axis. 
+현재 텍스트는 원형으로 배열되어 있지 않고 타원형을 띠고 있습니다. 원형으로 표시되도록 하려면 `coord_fixed()`를 사용하여 x축의 한 단위가 y축의 한 단위와 같도록 할 수 있습니다.
 
-The limits of the plot also need to be extended. The scales are currently based on the x- and y- coordinates we passed in (the text at the inner edge of the circle) which means the text runs of the page. We can do this by extending the limits using `scale_x_continuous()` and `scale_y_continuous()`. We can extend the right hand side of the x-axis a little bit further to accommodate the added annotations. \index{ggplot2!scale\_x\_continuous} \index{ggplot2!scale\_y\_continuous} \index{ggplot2!coord\_fixed}
+플롯의 제한도 확장해야 합니다. 스케일은 현재 전달한 x 및 y 좌표(원의 안쪽 가장자리에 있는 텍스트)를 기반으로 하므로 텍스트가 페이지 밖으로 나갑니다. `scale_x_continuous()` 및 `scale_y_continuous()`를 사용하여 제한을 확장하여 이를 수행할 수 있습니다. 추가된 주석을 수용하기 위해 x축의 오른쪽을 조금 더 확장할 수 있습니다. \index{ggplot2!scale\_x\_continuous} \index{ggplot2!scale\_y\_continuous} \index{ggplot2!coord\_fixed}
 
 ```{r}
 #| label: fig-nobel-style-plot-1
-#| fig-cap: "The names of Nobel Prize in Physics awardees arranged around a circle, with female awardees highlighted in a darker color. The default grid lines remain in the background."
-#| fig-alt: "The names of Nobel Prize in Physics awardees arranged around a circle, with female awardees highlighted in a darker color. The default grid lines remain in the background."
+#| fig-cap: "원 주위에 배열된 노벨 물리학상 수상자의 이름으로, 여성 수상자는 더 어두운 색상으로 강조 표시됩니다. 기본 그리드 선이 배경에 남아 있습니다."
+#| fig-alt: "원 주위에 배열된 노벨 물리학상 수상자의 이름으로, 여성 수상자는 더 어두운 색상으로 강조 표시됩니다. 기본 그리드 선이 배경에 남아 있습니다."
 styled_plot <- text_plot +
   scale_x_continuous(limits = c(-9, 12)) +
   scale_y_continuous(limits = c(-7.5, 7.5)) +
@@ -500,18 +500,18 @@ styled_plot <- text_plot +
 styled_plot
 ```
 
-Since this is an *artistic* visualization, we want to remove the distracting grid lines and axis labels (which don't make much sense for this type of plot). As we've done in earlier chapters (such as @sec-time-zones), we use `theme_void()` to remove these background theme elements. \index{ggplot2!theme\_void}
+이것은 *예술적* 시각화이므로 산만한 그리드 선과 축 레이블(이 유형의 플롯에는 별로 의미가 없음)을 제거하고 싶습니다. 이전 장(@sec-time-zones 와 같은)에서 했던 것처럼 `theme_void()`를 사용하여 이러한 배경 테마 요소를 제거합니다. \index{ggplot2!theme\_void}
 
-We can some further, final customization by changing the following `theme()` elements: \index{ggplot2!theme} \index{ggplot2!element\_rect} \index{ggtext!element\_textbox\_simple} \index{ggplot2!margin}
+다음 `theme()` 요소를 변경하여 몇 가지 추가적인 최종 사용자 정의를 수행할 수 있습니다. \index{ggplot2!theme} \index{ggplot2!element\_rect} \index{ggtext!element\_textbox\_simple} \index{ggplot2!margin}
 
-* removing the legend
-* changing the background color by passing in the `bg_col` variable to `element_rect()`
-* using `element_textbox_simple()` from **`ggtext`** to format the HTML tags that add the social media icons in the caption
+* 범례 제거
+* `element_rect()`에 `bg_col` 변수를 전달하여 배경색 변경
+* **`ggtext`**의 `element_textbox_simple()`을 사용하여 캡션에 소셜 미디어 아이콘을 추가하는 HTML 태그 서식 지정
 
 ```{r}
 #| label: fig-nobel-style-plot-2
-#| fig-cap: "The names of Nobel Prize in Physics awardees arranged in an anti-clockwise direction, with female awardees highlighted in a darker color."
-#| fig-alt: "The names of Nobel Prize in Physics awardees arranged in an anti-clockwise direction, with female awardees highlighted in a darker color."
+#| fig-cap: "반시계 방향으로 배열된 노벨 물리학상 수상자의 이름으로, 여성 수상자는 더 어두운 색상으로 강조 표시됩니다."
+#| fig-alt: "반시계 방향으로 배열된 노벨 물리학상 수상자의 이름으로, 여성 수상자는 더 어두운 색상으로 강조 표시됩니다."
 styled_plot +
   theme_void(base_size = 6, base_family = body_font) +
   theme(
@@ -529,53 +529,53 @@ styled_plot +
   )
 ```
 
-And we now have a creative way of visualizing the recipients of the Nobel Prize for Physics! How might we go about visualizing the recipients of the other prize categories in a similar way?
+이제 노벨 물리학상 수상자를 시각화하는 창의적인 방법이 생겼습니다! 다른 상 분야의 수상자를 비슷한 방식으로 시각화하려면 어떻게 해야 할까요?
 
-### Parameterized plots
+### 매개변수화된 플롯
 
-Although we could copy and paste the code we already have, and change out `physics` for `peace` everywhere, for example, this isn't a sustainable approach if we're not just looking to create one additional plot. What if we also want to create plots for medicine, economics, chemistry, and literature? That's a lot of copy and pasting! Instead, we might want to think about creating our own function. \index{parameterized plots}
+이미 가지고 있는 코드를 복사하여 붙여넣고 모든 곳에서 `physics`를 `peace`로 바꾸는 등의 작업을 할 수 있지만, 이것은 하나의 추가 플롯만 만들려는 경우가 아니라면 지속 가능한 접근 방식이 아닙니다. 의학, 경제학, 화학 및 문학에 대한 플롯도 만들고 싶다면요? 복사해서 붙여넣기가 너무 많습니다! 대신 자체 함수를 만드는 것에 대해 생각할 수 있습니다. \index{parameterized plots}
 
-This can be really useful if, for example, you want to create a plot of sales performance for a given month. Let's say last month you wanted to create a histogram of the sales for only last month. This month, you want to create the same histogram but with the data for only this month, Nothing other than the underlying data (and perhaps the title of the plot) should change. You could create a function that takes the month as an argument, filters the data, and then plots it with the updated title. You don't have to rewrite the plotting code every month, you just need to call your custom plot function. 
+예를 들어 특정 월의 판매 실적 플롯을 만들려는 경우 정말 유용할 수 있습니다. 지난달에 지난달의 판매에 대한 히스토그램을 만들고 싶었다고 가정해 보겠습니다. 이번 달에는 이번 달의 데이터만 사용하여 동일한 히스토그램을 만들고 싶습니다. 기본 데이터(및 아마도 플롯 제목) 외에는 아무것도 변경해서는 안 됩니다. 월을 인수로 받아 데이터를 필터링한 다음 업데이트된 제목으로 플롯하는 함수를 만들 수 있습니다. 매달 플로팅 코드를 다시 작성할 필요 없이 사용자 정의 플롯 함수를 호출하기만 하면 됩니다.
 
-Throughout this book, we've been using variables to store our choice of colors, and typefaces. This makes it easier to quickly try out a new color scheme. But it also makes it easier to convert your code into a function: those variables just become function arguments! \index{color}
+이 책 전체에서 색상과 서체 선택 항목을 저장하기 위해 변수를 사용해 왔습니다. 이렇게 하면 새로운 색상 구성표를 빠르게 시도하기가 더 쉬워집니다. 하지만 코드를 함수로 변환하기도 더 쉬워집니다. 해당 변수는 함수 인수가 됩니다! \index{color}
 
-When we're converting our code into a function, we need to think about what a user has to tell us, in order for the code to work. In the sales histogram example above, a user would need to specify which month they want the plot for. In our example of the Nobel Prize visualizations, a user need to specify: 
+코드를 함수로 변환할 때 코드가 작동하려면 사용자가 무엇을 알려줘야 하는지 생각해야 합니다. 위의 판매 히스토그램 예에서 사용자는 플롯을 원하는 월을 지정해야 합니다. 노벨상 시각화의 예에서 사용자는 다음을 지정해야 합니다:
 
-* which category they want to plot (we can't read their mind or know what data they have)
-* what the data is called (we don't know what they've called their `data.frame`)
-* the radius of the circle (we might need to vary this depending on how many observations are in a given category)
-  
+* 어떤 분야를 플롯하고 싶은지 (우리는 그들의 마음을 읽거나 그들이 어떤 데이터를 가지고 있는지 알 수 없습니다)
+* 데이터의 이름은 무엇인지 (우리는 그들이 `data.frame`을 무엇이라고 불렀는지 모릅니다)
+* 원의 반지름 (주어진 분야에 관측치가 몇 개인지에 따라 이를 변경해야 할 수도 있습니다)
+
 ::: {#tip-nobel-dataframe .callout-tip}
 
-## Checking columns exist
+## 열이 존재하는지 확인
 
-The data wrangling code assumes that `year`, `name`, `gender`, and `category` are columns that exist in the input `data.frame`. Since we're working with data from an API that outputs it in a consistent format, this is a reasonable assumption to make. However, the API might change it some point. Or someone may want to use it with data sourced from somewhere else. To make the function more robust, we could add an initial step to check if those columns exist!
+데이터 랭글링 코드는 `year`, `name`, `gender`, 및 `category`가 입력 `data.frame`에 존재하는 열이라고 가정합니다. 일관된 형식으로 출력하는 API의 데이터를 작업하고 있으므로 이는 합리적인 가정입니다. 그러나 API는 어느 시점에 바뀔 수도 있습니다. 또는 누군가가 다른 곳에서 소싱한 데이터와 함께 사용하고 싶어할 수도 있습니다. 함수를 더 견고하게 만들기 위해 해당 열이 존재하는지 확인하는 초기 단계를 추가할 수 있습니다!
 
 :::
 
-Now, we can also think about adding arguments that a user *could* specify:
+이제 사용자가 지정할 *수 있는* 인수 추가에 대해서도 생각할 수 있습니다:
 
-* background color
-* primary color
-* secondary color
-* body font
-* title font
-  
-For these arguments, we can specify a default. This means that the function will work if a user doesn't want to choose their own colors, but they are free to customize them if they choose to. None of these parameter choices make a fundamental difference to the plot created (other than how aesthetically pleasing it is).
+* 배경색
+* 기본색
+* 보조색
+* 본문 글꼴
+* 제목 글꼴
+
+이러한 인수의 경우 기본값을 지정할 수 있습니다. 즉, 사용자가 자신의 색상을 선택하고 싶지 않은 경우 함수가 작동하지만 선택하는 경우 자유롭게 사용자 정의할 수 있습니다. 이러한 매개변수 선택 중 어느 것도 생성된 플롯에 근본적인 차이를 만들지 않습니다(미적으로 얼마나 만족스러운지는 제외).
 
 ::: {#tip-nobel-fonts .callout-tip}
 
-## Using fonts in functions
+## 함수에서 글꼴 사용
 
-Here, we've specified that the default title typeface is `"Passion One"`. A similar approach is used for the body typeface. Usually, such an approach is not recommended since there's no guarantee that a user will have the `"Passion One"` typeface installed or loaded when running the function. This makes it a bad choice of default typeface. 
+여기서 기본 제목 서체를 `"Passion One"`으로 지정했습니다. 본문 서체에도 비슷한 접근 방식이 사용됩니다. 일반적으로 사용자가 함수를 실행할 때 `"Passion One"` 서체를 설치하거나 로드했다는 보장이 없으므로 이러한 접근 방식은 권장되지 않습니다. 이것은 기본 서체로 나쁜 선택입니다.
 
-We *could* add the `font_add_google()` code inside the function, but this also isn't a good solution. We don't want to re-install the fonts every time we run the function. A better option is to specify one of the integrated typefaces as a default e.g. `title_font = "sans"`.
+함수 내에 `font_add_google()` 코드를 추가할 *수도* 있지만 이 또한 좋은 해결책은 아닙니다. 함수를 실행할 때마다 글꼴을 다시 설치하고 싶지는 않습니다. 더 나은 옵션은 `title_font = "sans"`와 같이 통합된 서체 중 하나를 기본값으로 지정하는 것입니다.
 
-(Or at the very least, add instructions for how to load the typefaces you've used as a default!)
+(또는 최소한 기본값으로 사용한 서체를 로드하는 방법에 대한 지침을 추가하십시오!)
 
 :::
 
-Now we can stitch together all the code we've used in this chapter, into the function body:
+이제 이 장에서 사용한 모든 코드를 함수 본문에 묶을 수 있습니다:
 
 ```{r}
 #| label: nobel-param-plot-func
@@ -676,7 +676,9 @@ category_plot <- function(
 }
 ```
 
-Now let's test if our function works with a completely different set of data! Let's use the Nobel Prize API again to download data on Nobel Peace Prize laureates. We edit the end of the API URL to use `nobelPrizeCategory=pea` (`pea` for *peace*) and then save the output to a CSV file, just as we did before for the physics data, this time using base R functions. \index{utils!write.csv} \index{utils!read.csv}
+
+
+이제 완전히 다른 데이터 세트로 함수가 작동하는지 테스트해 봅시다! 노벨 평화상 수상자에 대한 데이터를 다운로드하기 위해 노벨상 API를 다시 사용하겠습니다. API URL의 끝을 편집하여 `nobelPrizeCategory=pea`(*peace*의 경우 `pea`)를 사용한 다음 물리학 데이터에 대해 했던 것처럼 기본 R 함수를 사용하여 출력을 CSV 파일로 저장합니다. \index{utils!write.csv} \index{utils!read.csv}
 
 ::: {.content-visible when-format="html"}
 
@@ -719,7 +721,7 @@ write.csv(
 
 :::
 
-Again, we can either keep working with the loaded data from the API, or read in the data from the CSV file: \index{readr!read\_csv}
+다시, 로드된 데이터를 API에서 계속 사용하거나 CSV 파일에서 데이터를 읽어올 수 있습니다: \index{readr!read\_csv}
 
 ```{r}
 #| label: nobel-load-peace
@@ -727,12 +729,12 @@ Again, we can either keep working with the loaded data from the API, or read in 
 nobel_peace <- read_csv("data/nobel_peace.csv")
 ```
 
-Then we pass the `"Peace"` category into our `category_plot()` function, alongside out newly downloaded `nobel_peace` data. The `nobel_peace` data doesn't have quite as many observations as the `nobel_physics` data, so we can reduce the radius (` r`) slightly and start the text a little bit closer to the middle of the circle. We can also choose some different colors for the visualization (but leave the defaults for the fonts):
+그런 다음 새로 다운로드한 `nobel_peace` 데이터와 함께 `"Peace"` 범주를 `category_plot()` 함수에 전달합니다. `nobel_peace` 데이터에는 `nobel_physics` 데이터만큼 관측치가 많지 않으므로 반지름(`r`)을 약간 줄이고 텍스트를 원의 중심에 조금 더 가깝게 시작할 수 있습니다. 또한 시각화를 위해 다른 색상을 선택할 수도 있습니다(하지만 글꼴의 경우 기본값 유지):
 
 ```{r}
 #| label: fig-nobel-peace-plot
-#| fig-cap: "The names of Nobel Peace Prize awardees arranged in an anti-clockwise direction, with female awardees highlighted in pink."
-#| fig-alt: "The names of Nobel Peace Prize awardees arranged in an anti-clockwise direction, with female awardees highlighted in pink."
+#| fig-cap: "반시계 방향으로 배열된 노벨 평화상 수상자의 이름으로, 여성 수상자는 분홍색으로 강조 표시됩니다."
+#| fig-alt: "반시계 방향으로 배열된 노벨 평화상 수상자의 이름으로, 여성 수상자는 분홍색으로 강조 표시됩니다."
 peace_plot <- category_plot(
   "Peace",
   nobel_peace,
@@ -744,17 +746,17 @@ peace_plot <- category_plot(
 peace_plot
 ```
 
-What you might notice about this version of the chart is that a third color has appeared! In `scale_color_manual()`, we only specified which colors relate to `"male"` and `"female"` laureates. However, the Nobel Peace Prize can also be awarded to an organization, not just an individual. The (newly appeared) gray text relates to organisations listed in the `nobel_peace` data.
+이 차트 버전에서 눈치챘을지도 모르는 것은 세 번째 색상이 나타났다는 것입니다! `scale_color_manual()`에서는 `"male"` 및 `"female"` 수상자와 관련된 색상만 지정했습니다. 그러나 노벨 평화상은 개인이 아닌 단체에도 수여될 수 있습니다. (새로 나타난) 회색 텍스트는 `nobel_peace` 데이터에 나열된 단체와 관련이 있습니다.
 
 ::: {#tip-nobel-extension .callout-tip}
 
-## Building your own **`ggplot2`** extension
+## 나만의 **`ggplot2`** 확장 만들기
 
-Once you've built a custom chart type with core **`ggplot2`** functions, you might be considering turning it into a **`ggplot2`** extension package to make it easier for you and other people to use. The *Everyday ggplot2 extension* website [@Reynolds2025] provides advice and tutorials for building your first (or next) extension.
+핵심 **`ggplot2`** 함수로 사용자 정의 차트 유형을 구축한 후에는 자신과 다른 사람들이 더 쉽게 사용할 수 있도록 **`ggplot2`** 확장 패키지로 전환하는 것을 고려할 수 있습니다. *Everyday ggplot2 extension* 웹사이트 [@Reynolds2025]는 첫 번째(또는 다음) 확장을 구축하기 위한 조언과 튜토리얼을 제공합니다.
 
 :::
 
-We can save a copy of the visualization using `ggsave()`: \index{ggplot2!ggsave}
+`ggsave()`를 사용하여 시각화 사본을 저장할 수 있습니다: \index{ggplot2!ggsave}
 
 ```{r}
 #| label: nobel-save-plot
@@ -770,28 +772,28 @@ ggsave(
 
 ::: {#tip-nobel-ggtextcircle .callout-tip}
 
-## Circular text with **`ggtextcircle`**
+## **`ggtextcircle`**을 사용한 원형 텍스트
 
-The **`ggtextcircle`** package [@ggtextcircle] implements this type of visualization in a generic way - if you want to create something similar with a different data set!
+**`ggtextcircle`** 패키지 [@ggtextcircle]는 이 유형의 시각화를 일반적인 방식으로 구현합니다 - 다른 데이터 세트로 비슷한 것을 만들고 싶다면요!
 
 :::
 
-## Reflection
+## 회고
 
-When we're evaluating our visualizations, it's important to remember the purpose for which we built it and evaluate how well it achieves that purposes. This visualization of the gender split of Nobel Laureates is not a standard plot that aims to communicate numbers as efficiently as possible. 
+시각화를 평가할 때 시각화를 구축한 목적을 기억하고 그 목적을 얼마나 잘 달성했는지 평가하는 것이 중요합니다. 이 노벨상 수상자 성별 구분 시각화는 가능한 한 효율적으로 숫자를 전달하는 것을 목표로 하는 표준 플롯이 아닙니다.
 
-There are a few *standard* aspects of this visualization we may wish to improve:
+개선하고 싶은 이 시각화의 몇 가지 *표준적인* 측면이 있습니다:
 
-* It's quite a hard visualization to understand without knowing what the colors and the order of the names represents. With a little bit of time and thought, a reader will likely pick out that the pink (for the Peace category plot) text represents female laureates. However, the ordering of the names in an anti-clockwise direction showing that the number of females laureates is generally increasing over time is much more difficult to pick up on. Add some text below the existing title and category label to explain how to interpret the visualization will help interested readers get the full message. 
+* 색상과 이름의 순서가 무엇을 나타내는지 알지 못하면 이해하기 꽤 어려운 시각화입니다. 약간의 시간과 생각을 투자하면 독자는 분홍색 텍스트(평화상 범주 플롯의 경우)가 여성 수상자를 나타낸다는 것을 알아낼 것입니다. 그러나 반시계 방향으로 이름이 정렬되어 여성 수상자의 수가 일반적으로 시간이 지남에 따라 증가하고 있음을 보여주는 것은 파악하기 훨씬 더 어렵습니다. 기존 제목 및 범주 레이블 아래에 시각화를 해석하는 방법을 설명하는 텍스트를 추가하면 관심 있는 독자가 전체 메시지를 얻는 데 도움이 될 것입니다.
 
-* It's a minimal visualization by design. But that means it doesn't tell a reader the whole story. As we discussed earlier, Nobel Prizes can be awarded to multiple individuals. However, this visualization only shows laureates, and not whether they shared the prize with anyone else. Are female laureates more or less likely to share a prize than their male counterparts? You can't tell from this visualization.
+* 디자인상 최소한의 시각화입니다. 하지만 그것은 독자에게 전체 이야기를 말해주지 않는다는 것을 의미합니다. 앞서 논의했듯이 노벨상은 여러 개인에게 수여될 수 있습니다. 그러나 이 시각화는 수상자만 보여줄 뿐 다른 사람과 상을 공유했는지 여부는 보여주지 않습니다. 여성 수상자는 남성 수상자보다 상을 공유할 가능성이 더 높거나 낮습니까? 이 시각화에서는 알 수 없습니다.
 
-* From a technical (or artistic) perspective, we might also want to consider alternative designs. For example, placing the text to the left of, or below, the circle rather than to the right. We may want to include the start and finish positions of the text around the circle as arguments to the parameterized function.
+* 기술적(또는 예술적) 관점에서 대안적인 디자인을 고려할 수도 있습니다. 예를 들어 텍스트를 오른쪽이 아닌 원의 왼쪽이나 아래에 배치하는 것입니다. 원 주위의 텍스트 시작 및 종료 위치를 매개변수화된 함수의 인수로 포함할 수 있습니다.
 
-Despite the shortcomings when compared to more traditional visualizations, this approach is eye-catching and it does attract attention. Sometimes it's not about the data visualization. Sometimes it's about the art.
+보다 전통적인 시각화와 비교할 때 단점이 있음에도 불구하고 이 접근 방식은 눈길을 끌고 주의를 끕니다. 때로는 데이터 시각화에 관한 것이 아닙니다. 때로는 예술에 관한 것입니다.
 
-## Exercises
+## 연습 문제
 
-* Edit the `category_plot()` to add another argument for the `"Organisation"` category. Make sure the function still works when there are no organisations in the data e.g. for the Physics data.
+* `"Organisation"` 범주에 대한 또 다른 인수를 추가하도록 `category_plot()`을 편집하십시오. 물리학 데이터와 같이 데이터에 단체가 없는 경우에도 함수가 여전히 작동하는지 확인하십시오.
 
-* Download data for another category e.g. Chemistry and use the `category_plot()` function again to create a version of the plot for that category.
+* 다른 범주(예: 화학)에 대한 데이터를 다운로드하고 `category_plot()` 함수를 다시 사용하여 해당 범주에 대한 플롯 버전을 만드십시오.

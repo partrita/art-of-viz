@@ -11,17 +11,17 @@ execute:
 #| file: R/options.R
 ```
 
-# UK museums: highlighting line charts with **`gghighlight`** {#sec-museums}
+# 영국 박물관: **`gghighlight`**로 선형 차트 강조하기 {#sec-museums}
 
-In this chapter we'll consider different ways of visualising data that varies over time, aiming to avoid *spaghetti charts*, and instead highlight subsets of the data to better demonstrate trends and relationships.
+이 장에서는 시간이 지남에 따라 변하는 데이터를 시각화하는 다양한 방법을 고려하여 *스파게티 차트(spaghetti charts)*를 피하고, 대신 데이터의 부분집합을 강조하여 추세와 관계를 더 잘 보여주는 것을 목표로 합니다.
 
-By the end of this chapter, you'll be able to:
+이 장을 마치면 다음을 할 수 있게 됩니다:
 
-* Compare line charts and area charts for showing data over time, alongside whether to create small multiples or show all data on one chart.
-* Decide whether color is necessary for a chart, choose accessible palettes, and load palettes from other R packages; 
-* Highlight subsets of data on a chart to make trends clearer while still allowing easy comparisons.
+* 시간 경과에 따른 데이터를 보여주기 위해 선형 차트와 영역 차트를 비교하고, 작은 다중 차트(small multiples)를 만들지 아니면 모든 데이터를 하나의 차트에 표시할지 결정할 수 있습니다.
+* 차트에 색상이 필요한지 결정하고, 접근 가능한 팔레트를 선택하고, 다른 R 패키지에서 팔레트를 로드할 수 있습니다.
+* 차트에서 데이터의 부분집합을 강조 표시하여 추세를 더 명확하게 만들면서 동시에 비교하기 쉽게 만들 수 있습니다.
 
-We begin by loading the packages required in this chapter.
+이 장에서 필요한 패키지를 로드하는 것으로 시작합니다.
 
 ```{r}
 #| label: museums-pkgs-req
@@ -40,20 +40,20 @@ library(tidytuesdayR)
 library(viridis)
 ```
 
-The new packages we'll be exploring for the first time in this chapter are:
+이 장에서 처음으로 살펴볼 새로운 패키지는 다음과 같습니다:
 
-* **`gghighlight`**: which makes it easy to highlight specific data in **`ggplot2`** plots while fading the rest.
-* **`purrr`**: for easily repeating actions on lists or vectors.
-* **`tibble`**: another one of the core **`tidyverse`** packages that provides a modern, tidy version of data frames that’s easier to use and prints nicely.
-* **`viridis`**: which provides colorblind-friendly and perceptually uniform color palettes.
+* **`gghighlight`**: **`ggplot2`** 플롯에서 특정 데이터를 쉽게 강조 표시하고 나머지는 흐리게 처리할 수 있습니다.
+* **`purrr`**: 리스트나 벡터에 대한 작업을 쉽게 반복할 수 있습니다.
+* **`tibble`**: 데이터 프레임을 더 사용하기 쉽고 깔끔하게 출력하는 현대적인 버전의 데이터 프레임을 제공하는 핵심 **`tidyverse`** 패키지 중 하나입니다.
+* **`viridis`**: 색각 이상 친화적이고 지각적으로 균일한 색상 팔레트를 제공합니다.
 
 \index{gghighlight} \index{viridis} \index{tibble} \index{purrr}
 
-## Data
+## 데이터
 
-The [Mapping Museums](https://museweb.dcs.bbk.ac.uk/data) project [@museums_data] has collected data relating to over 4,000 museums in the UK, covering museums from 1960 onward. The data can be downloaded from the Mapping Museums website at {{< monolink "https://museweb.dcs.bbk.ac.uk/home" "museweb.dcs.bbk.ac.uk" >}}. It was also used as a TidyTuesday\index{TidyTuesday} [@tidytuesday] data set in November 2022 (after being suggested by [Tom Mock](https://github.com/jthomasmock)), and we'll use that version for this chapter.
+[Mapping Museums](https://museweb.dcs.bbk.ac.uk/data) 프로젝트 [@museums_data]는 1960년 이후 영국의 4,000개 이상의 박물관과 관련된 데이터를 수집했습니다. 데이터는 Mapping Museums 웹사이트 {{< monolink "https://museweb.dcs.bbk.ac.uk/home" "museweb.dcs.bbk.ac.uk" >}}에서 다운로드할 수 있습니다. 이 데이터는 2022년 11월에 TidyTuesday\index{TidyTuesday} [@tidytuesday] 데이터 셋으로도 사용되었으며([Tom Mock](https://github.com/jthomasmock)의 제안에 따라), 이 장에서는 해당 버전을 사용할 것입니다.
 
-Let's start by reading in the data using the **`tidytuesdayR`** R package [@tidytuesdayR] and looking at the definitions of the variables: \index{tidytuesdayR!tt\_load}
+**`tidytuesdayR`** R 패키지 [@tidytuesdayR]를 사용하여 데이터를 읽고 변수의 정의를 살펴보는 것으로 시작하겠습니다: \index{tidytuesdayR!tt\_load}
 
 ```{r}
 #| label: load-museums-data-show
@@ -71,79 +71,79 @@ museums <- tuesdata$museums
 museums <- readr::read_csv("data/museums.csv")
 ```
 
-The data contains information for `r ncol(museums)` different variables on `r nrow(museums)` museums. After the first `museum_id` columns, the next 8 columns provide information on the location of the museum - including address and co-ordinates. The next set of columns provides information about the museums such as whether it's an accredited museum, how it's governed, what types of items it has, and when it was open. Since this is a collated data set, information is also provided on the original source of the data for some of these variables. The remaining columns provide information on the area in which the museum is located, including information about different deprivation indices and geo-demographic group (type of area e.g. `"University Towns and Cities"`). A full glossary of the terms used can be found on the Mapping Museums website at {{< monolink "https://museweb.dcs.bbk.ac.uk/glossary" "museweb.dcs.bbk.ac.uk/glossary" >}}.
+데이터에는 `r nrow(museums)`개 박물관에 대한 `r ncol(museums)`개 변수 정보가 포함되어 있습니다. 첫 번째 `museum_id` 열 다음의 8개 열은 주소 및 좌표를 포함한 박물관 위치에 대한 정보를 제공합니다. 다음 열 세트에는 인증된 박물관인지, 운영 방식, 보유 아이템 유형, 개장 시기 등 박물관에 대한 정보가 제공됩니다. 이는 수집된 데이터 셋이므로 일부 변수에 대해서는 데이터의 원본 소스에 대한 정보도 제공됩니다. 나머지 열은 박물관이 위치한 지역에 대한 정보를 제공하며, 여기에는 다양한 박탈 지수(deprivation indices) 및 지리 인구학적 그룹(지역 유형, 예: `"University Towns and Cities"`)에 대한 정보가 포함됩니다. 사용된 용어에 대한 전체 용어집은 Mapping Museums 웹사이트 {{< monolink "https://museweb.dcs.bbk.ac.uk/glossary" "museweb.dcs.bbk.ac.uk/glossary" >}}에서 찾을 수 있습니다.
 
-## Exploratory work
+## 탐색적 작업
 
-Let's start exploring what these variables look like!
+이 변수들이 어떤 모습인지 탐색해 봅시다!
 
-### Data exploration
+### 데이터 탐색
 
-There are many different aspects of this data we could inspect:
+이 데이터에는 검사할 수 있는 다양한 측면이 있습니다:
 
-* How are museums spread out across the UK? Is there a higher concentration of museums in more affluent areas?
-* What types of museums are most prevalent in the UK? Does this vary based on whether the museum is accredited?
-* How is the number of open museums changing over time? Are more museums opening than closing?
+* 박물관은 영국 전역에 어떻게 분포되어 있나요? 더 부유한 지역에 박물관이 더 많이 집중되어 있나요?
+* 영국에서 가장 널리 퍼진 박물관 유형은 무엇인가요? 박물관의 인증 여부에 따라 달라지나요?
+* 운영 중인 박물관 수는 시간이 지남에 따라 어떻게 변하고 있나요? 문을 닫는 것보다 더 많은 박물관이 개관하고 있나요?
 
-Some of the variables, such as `DOMUS_Subject_Matter` have quite a lot of missing values which makes it more difficult to visualize and interpret them. Although these columns definitely warrant further exploration, we'll ignore them for now.
+`DOMUS_Subject_Matter`와 같은 일부 변수에는 결측값이 상당히 많아 시각화하고 해석하기가 더 어렵습니다. 이러한 열은 확실히 추가 탐색이 필요하지만 지금은 무시하겠습니다.
 
-Given the wealth of information around deprivation indices (8 different variables), that's the first aspect of the data that jumps out. How does the number of museums vary by index of deprivation?
+박탈 지수(8가지 다른 변수)에 대한 풍부한 정보를 고려할 때, 이것이 가장 먼저 눈에 띄는 데이터 측면입니다. 박물관 수는 박탈 지수에 따라 어떻게 달라질까요?
 
 ```{r, echo=-1}
 #| label: fig-museums-barplot
-#| fig-cap: "Bar chart of number of museums per level of deprivation, with higher numbers of museums shown in levels 5 and 6."
-#| fig-alt: "Bar chart of 10 bars, one for each level of deprivation from 1 to 10, which exhibits a bell-shaped curve with the maximum value around 600."
+#| fig-cap: "박탈 수준별 박물관 수 막대 차트. 5와 6 수준에서 박물관 수가 더 많습니다."
+#| fig-alt: "1에서 10까지의 각 박탈 수준에 대한 10개의 막대가 있는 막대 차트로, 600 주변에서 최대값을 갖는 종 모양 곡선을 나타냅니다."
 par(mar = c(4.1, 4.1, 2.1, 2.1), cex.axis = 0.5, cex.names = 0.5)
 barplot(table(museums$Area_Deprivation_index))
 ```
 
-Here, `1` is the most deprived, and `10` is the least deprived. This is quite an interesting relationship - there have been more museums in places with a moderate level of deprivation compared to higher or lower level. This might feel a little bit counter-intuitive, we might expect there to be more museums in more affluent areas.
+여기서 `1`은 가장 박탈된 지역이고 `10`은 가장 덜 박탈된 지역입니다. 이것은 꽤 흥미로운 관계입니다. 더 높거나 낮은 수준에 비해 중간 수준의 박탈 지역에 더 많은 박물관이 있었습니다. 이것은 약간 직관에 반하는 것처럼 느껴질 수 있습니다. 더 부유한 지역에 박물관이 더 많을 것으로 예상할 수 있기 때문입니다.
 
 ::: {#tip-museums-graphics .callout-tip}
 
-## Alternative graphics packages
+## 대안 그래픽 패키지
 
-This book focuses on building graphics with **`ggplot2`** (and its various extension packages), in combination with using base R graphics for basic data exploration. However, these are not the only two graphics systems available for creating plots in R. \index{lattice} \index{tidyplots} 
+이 책은 **`ggplot2`**(및 다양한 확장 패키지)로 그래픽을 구축하고 기본 데이터 탐색을 위해 기본 R 그래픽을 사용하는 데 중점을 둡니다. 그러나 이것들이 R에서 플롯을 만드는 데 사용할 수 있는 유일한 두 가지 그래픽 시스템은 아닙니다. \index{lattice} \index{tidyplots} 
 
-Just a few of the many alternatives:
+많은 대안 중 몇 가지만 소개합니다:
 
-* **`lattice`** [@lattice]: provides a framework for creating *trellis graphics* (also called small multiples or facet plots).
+* **`lattice`** [@lattice]: *트렐리스 그래픽(trellis graphics)* (작은 다중 차트 또는 패면 플롯이라고도 함)을 만들기 위한 프레임워크를 제공합니다.
 
-* **`tidyplots`** [@tidyplots]: a newer graphics package aiming to make it easier to create publication-ready plots for scientific papers. It allows you to pipe together different functions, and add statistical summaries more easily. It also integrates with existing **`ggplot2`** functions.
+* **`tidyplots`** [@tidyplots]: 과학 논문용 출판 준비가 된 플롯을 더 쉽게 만들 수 있도록 하는 새로운 그래픽 패키지입니다. 다양한 함수를 파이프로 연결하고 통계적 요약을 더 쉽게 추가할 수 있습니다. 또한 기존 **`ggplot2`** 함수와 통합됩니다.
 
-Packages for interactive visualizations are also discussed in @sec-house.
+대화형 시각화를 위한 패키지는 @sec-house 에서도 논의됩니다.
 
 :::
 
-By looking at the total number of museums per index of deprivation in @fig-museums-barplot, we don't get the whole story. How many of these museums were open at once? How many are still open today? To get a better understanding of the relationship between deprivation and the number of museums, we could look at how the number of museums changed for each index of deprivation has changed since 1960 (the earliest date in the data set). Then we might be able to tell whether more are opening or closing, and how this varies across the different levels of deprivation.
+@fig-museums-barplot 에서 박탈 지수별 총 박물관 수를 살펴보는 것만으로는 전체 이야기를 알 수 없습니다. 이 박물관 중 한 번에 몇 개가 문을 열었습니까? 오늘날에도 여전히 운영 중인 박물관은 몇 개입니까? 박탈과 박물관 수 사이의 관계를 더 잘 이해하기 위해 1960년(데이터 셋의 가장 이른 날짜) 이후 각 박탈 지수별로 박물관 수가 어떻게 변했는지 살펴볼 수 있습니다. 그러면 더 많이 개관하는지 폐관하는지, 그리고 이것이 다양한 박탈 수준에 따라 어떻게 달라지는지 알 수 있을 것입니다.
 
-### Exploratory sketches
+### 탐색적 스케치
 
-We have 10 deciles of deprivation, so we'll have 10 time series that we want to plot that show the number of museums over time. There are different options for plotting time series like this. We need to think about some different choices:
+박탈의 10 분위수가 있으므로 시간 경과에 따른 박물관 수를 보여주는 10개의 시계열을 플로팅하려고 합니다. 이와 같은 시계열을 플로팅하는 데는 다양한 옵션이 있습니다. 몆 가지 다른 선택에 대해 생각해야 합니다:
 
-* What type of *geometry* will we use? Lines, points, shaded areas? Lines are the most common approach for time series data.
-* Do we plot all 10 lines on the same chart and use color to denote the different levels of deprivation?
-* Or do we use faceting to split it into multiple smaller plots by deprivation index?
+* 어떤 유형의 *기하학적 형태(geometry)*를 사용할 것인가? 선, 점, 음영 영역? 선은 시계열 데이터에 가장 일반적인 접근 방식입니다.
+* 10개의 선을 모두 같은 차트에 플로팅하고 색상을 사용하여 다른 박탈 수준을 나타낼 것인가?
+* 아니면 패면 분류(faceting)를 사용하여 박탈 지수별로 여러 개의 작은 플롯으로 나눌 것인가?
 
-If we go with line charts, and faceting by deprivation index, that might look something like this: 
+선형 차트를 사용하고 박탈 지수별로 패면 분류를 한다면 다음과 같은 모습일 것입니다:
 
 ![Initial sketch of a faceted line chart showing change over time for each level of deprivation.](images/sketch-museums.png){#fig-museums-sketch fig-align="center" fig-alt="Sketch of 10 small charts arranged in 2 rows and 5 columns, labelled from 1-10. Scribbles indicate the position of the title and caption text."}
 
-We could achieve something this type of plot using `geom_line()` and `facet_wrap()` from **`ggplot2`** \index{ggplot2!facet\_wrap} \index{ggplot2!geom\_line}. We've talked about faceting before in @sec-programming but we haven't really thought much about the layouts of those facets. In @sec-programming, we used faceting with only 3 categories, where the layout choice is fairly obvious: either one column or one row. Here, we have a little bit more flexibility and we might want to think about controlling that layout.
+우리는 **`ggplot2`**의 `geom_line()`과 `facet_wrap()`을 사용하여 이와 같은 플롯을 만들 수 있습니다 \index{ggplot2!facet\_wrap} \index{ggplot2!geom\_line}. 우리는 @sec-programming 에서 패면 분류에 대해 이야기했지만 그 패면의 레이아웃에 대해서는 많이 생각하지 않았습니다. @sec-programming 에서는 3개의 범주만 있는 패면 분류를 사용했는데, 레이아웃 선택이 꽤 분명했습니다(한 열 또는 한 행). 여기서는 유연성이 조금 더 있으며 레이아웃을 제어하는 것에 대해 생각하고 싶을 수 있습니다.
 
-If we leave it to the default options, **`ggplot2`** usually tries to coerce it into something *square-ish*. Here, it would likely give us a 3x4 grid filled with 10 plots (for the 10 levels of deprivation) and 2 blank spaces. It's not always possible, but plots without those blank spaces often look a lot cleaner and tidier. We could do either a 5x2 (or 2x5) grid, or a 10x1 (or 1x10) grid to fit our small multiple plots into a perfect rectangle. A 5x2 grid works better here since we don't want to make a very wide but very short plot.
+기본 옵션에 맡기면 **`ggplot2`**는 일반적으로 *정사각형 모양*으로 강제하려고 시도합니다. 여기서는 10개의 플롯(10개 수준의 박탈에 대해)과 2개의 빈 공간으로 채워진 3x4 그리드를 제공할 가능성이 큽니다. 항상 가능한 것은 아니지만 빈 공간이 없는 플롯이 훨씬 더 깨끗하고 정돈되어 보이는 경우가 많습니다. 작은 다중 플롯을 완벽한 직사각형에 맞추기 위해 5x2(또는 2x5) 그리드나 10x1(또는 1x10) 그리드를 수행할 수 있습니다. 매우 넓지만 매우 짧은 플롯을 만들고 싶지 않기 때문에 여기서는 5x2 그리드가 더 잘 작동합니다.
 
-## Preparing a plot
+## 플롯 준비하기
 
-So let's get started on preparing the data to create this plot!
+이제 이 플롯을 만들기 위해 데이터를 준비해 봅시다!
 
-### Data wrangling
+### 데이터 랭글링
 
-This is one of those very *real* datasets - the data wrangling is not straightforward for the data. In fact, the two columns relating to opening and closing dates are the two that will require the most attention.
+이것은 매우 *현실적인* 데이터셋 중 하나입니다. 데이터 랭글링이 간단하지 않습니다. 사실, 개관 및 폐관 날짜와 관련된 두 열은 가장 많은 주의가 필요한 두 열입니다.
 
-First, let's drop any columns that we don't actually need using the `select()` function from **`dplyr`** - we only need the `Year_opened`, `Year_closed`, and `Area_Deprivation_index` columns to calculate the number of museums open each year\index{dplyr!select}. There are a few `NA` values in the `Area_Deprivation_index` column so we'll drop those rows using `drop_na()` from **`tidyr`**\index{tidyr!drop\_na}.
+먼저, **`dplyr`**의 `select()` 함수를 사용하여 실제로 필요하지 않은 열을 삭제합시다 - 매년 운영 중인 박물관 수를 계산하려면 `Year_opened`, `Year_closed`, `Area_Deprivation_index` 열만 필요합니다 \index{dplyr!select}. `Area_Deprivation_index` 열에 몇 개의 `NA` 값이 있으므로 **`tidyr`**의 `drop_na()`를 사용하여 해당 행을 삭제합니다 \index{tidyr!drop\_na}.
 
-Now let's start dealing with the year columns. If you look at the values, you'll notice that they're not exactly what you'd expect in a *year* column:
+이제 연도 열을 처리하기 시작해 봅시다. 값을 보면 *연도* 열에서 기대하는 것과 정확히 같지는 않다는 것을 알 수 있습니다:
 
 ```{r}
 #| label: museums-year
@@ -151,9 +151,9 @@ head(museums$Year_opened, 4)
 head(museums$Year_closed, 4)
 ```
 
-Each entry is in fact two years, separated by a `:`. According to the [Mapping Museums glossary]([museweb.dcs.bbk.ac.uk](https://museweb.dcs.bbk.ac.uk/home)), this is because these are actually date ranges. For some museums, it wasn't possible to establish an exact opening or closing date, and instead a date range is given based on partial information. For example, a value of `"2007:2017"` means the museum opened (or closed) sometime between 2007 and 2017.
+각 항목은 실제로 `:`으로 구분된 두 연도입니다. [Mapping Museums 용어집]([museweb.dcs.bbk.ac.uk](https://museweb.dcs.bbk.ac.uk/home))에 따르면 이는 실제로 날짜 범위(date ranges)이기 때문입니다. 일부 박물관의 경우 정확한 개관 또는 폐관 날짜를 확정할 수 없었으며, 대신 부분적인 정보를 기반으로 날짜 범위가 제공됩니다. 예를 들어 `"2007:2017"` 값은 박물관이 2007년에서 2017년 사이에 개관(또는 폐관)했음을 의미합니다.
 
-Let's separate out these year values into four columns instead of two using the `separate_wider_delim()` function from **`tidyr`** \index{tidyr!separate\_wider\_delim}. We separate based on the `:`, and create two new columns, `opened1` and `opened2` from the `Year_opened` column. We do the same thing for the `Year_closed` closed column. We also want to make sure that these new columns are numeric rather than character columns, so we use `mutate()` and `across()` from **`dplyr`** to convert them using `as.numeric()`\index{dplyr!mutate} \index{dplyr!across}. We can also convert the `Area_Deprivation_index` to a factor rather than a numeric and make sure the order is correct. 
+**`tidyr`**의 `separate_wider_delim()` 함수를 사용하여 이 연도 값을 두 개 대신 네 개의 열로 분리해 봅시다 \index{tidyr!separate\_wider\_delim}. `:`을 기준으로 분리하고 `Year_opened` 열에서 `opened1`과 `opened2`라는 두 개의 새 열을 만듭니다. `Year_closed` 열에 대해서도 동일한 작업을 수행합니다. 또한 이 새 열이 문자 열이 아닌 숫자 열인지 확인하고 싶으므로 **`dplyr`**의 `mutate()`와 `across()`를 사용하여 `as.numeric()`으로 변환합니다 \index{dplyr!mutate} \index{dplyr!across}. 또한 `Area_Deprivation_index`를 숫자가 아닌 팩터(factor)로 변환하고 순서가 올바른지 확인할 수 있습니다.
 
 ```{r}
 #| label: museums-wrangle1
@@ -185,26 +185,26 @@ museum_subset <- museums |>
 
 ::: {#tip-museums-separate .callout-tip}
 
-## Using `separate()` from **`tidyr`**
+## **`tidyr`**의 `separate()` 사용
 
-In older versions of **`tidyr`**, the `separate()` function would have been used instead of `separate_wider_delim()`. The `separate()` function has now been superseded. \index{tidyr!separate}
+**`tidyr`**의 이전 버전에서는 `separate_wider_delim()` 대신 `separate()` 함수가 사용되었을 것입니다. `separate()` 함수는 이제 대체되었습니다. \index{tidyr!separate}
 
 :::
 
-Now we need to think about how to deal with all of these *year* columns: 
+이제 이 모든 *연도* 열을 처리하는 방법에 대해 생각해야 합니다:
 
-* If the date before the `:` and the date after the `:` are the same, we want to treat it as an exact year and only keep one value.
-* If the dates do not match, we need to decide a way of choosing which year to use. The simplest approach is to take the midpoint of the date range. 
-* If the value in the `Year_closed` column is `"9999:9999"`, this means that the museum is still open. 
+* `:` 앞의 날짜와 `:` 뒤의 날짜가 같으면 정확한 연도로 취급하고 하나의 값만 유지하려고 합니다.
+* 날짜가 일치하지 않으면 어떤 연도를 사용할지 선택하는 방법을 결정해야 합니다. 가장 간단한 접근 방식은 날짜 범위의 중간 지점을 취하는 것입니다.
+* `Year_closed` 열의 값이 `"9999:9999"`이면 박물관이 여전히 운영 중임을 의미합니다.
 
-Let's start with the last of these issues first. For the `closed1` and `closed2` columns, if the value is `"9999"`, we'll convert it to an `NA_real_` value. We can do this using a combination of `mutate()`, `across()`, and `if_else()` from **`dplyr`** \index{dplyr!mutate} \index{dplyr!across} \index{dplyr!if\_else}.
+이 문제 중 마지막 문제부터 시작해 봅시다. `closed1` 및 `closed2` 열의 경우 값이 `"9999"`이면 `NA_real_` 값으로 변환합니다. **`dplyr`**의 `mutate()`, `across()`, `if_else()`를 조합하여 이를 수행할 수 있습니다 \index{dplyr!mutate} \index{dplyr!across} \index{dplyr!if\_else}.
 
-The remaining two issues can be dealt with at the same time using `case_when()` from **`dplyr`** \index{dplyr!case\_when}. We can create a new column called `closed` which:
+나머지 두 문제는 **`dplyr`**의 `case_when()`을 사용하여 동시에 처리할 수 있습니다 \index{dplyr!case\_when}. 다음과 같은 `closed`라는 새 열을 만들 수 있습니다:
 
-* if `closed1` and `closed2` are equal, takes this equal value;
-* if `closed1` and `closed2` are not equal, takes the value in the middle (rounded so that we work only with whole year values).
+* `closed1`과 `closed2`가 같으면 이 같은 값을 취합니다;
+* `closed1`과 `closed2`가 같지 않으면 중간 값을 취합니다(정수 연도 값만 사용하도록 반올림).
 
-The same approach is then applied to create another new column called `opened`. There are no instances in the data where one of the closing dates is `NA` but the other is not, so we don't need to worry about that. We can also tidy up the output by dropping any columns we don't need, renaming the `Area_Deprivation_index` to something a little bit shorter and easier to work with, and arranging the data by level of deprivation. \index{dplyr!rename} \index{dplyr!arrange} \index{dplyr!select} 
+동일한 접근 방식이 `opened`라는 또 다른 새 열을 만드는 데 적용됩니다. 데이터에는 폐관 날짜 중 하나가 `NA`이지만 다른 하나는 아닌 경우가 없으므로 걱정할 필요가 없습니다. 또한 필요하지 않은 열을 삭제하고, `Area_Deprivation_index`를 좀 더 짧고 작업하기 쉬운 이름으로 변경하고, 박탈 수준별로 데이터를 정렬하여 출력을 정리할 수 있습니다. \index{dplyr!rename} \index{dplyr!arrange} \index{dplyr!select} 
 
 ```{r}
 #| label: museums-wrangle2
@@ -226,16 +226,16 @@ museum_data <- museum_subset |>
   arrange(deprivation)
 ```
 
-This gives us data that looks like this:
+그러면 다음과 같은 데이터가 생성됩니다:
 
 ```{r}
 #| label: museums-data-show
 head(museum_data)
 ```
 
-The first entry in `museums_data` is a museum in the most deprived decile which opened in (approximately) 1988 and is still open.
+`museums_data`의 첫 번째 항목은 가장 박탈된 분위수에 있는 박물관으로 (대략) 1988년에 개관하여 여전히 운영 중입니다.
 
-What we want to know is how many museums were open in a given year for each level of deprivation. Let's create a function that takes three inputs: a year of interest, a level of deprivation, and the `museum_data`. Inside the function, we can then `filter()` the data to only the level of deprivation we're interested in. Then we can count how many museums opened before or in the year we're interested in. We can then do the same for how many museums closed (remembering to deal with the `NA` values for museums that are still open). The difference between the two will be how many were open in that year. \index{dplyr!filter}
+우리가 알고 싶은 것은 각 박탈 수준에 대해 특정 연도에 운영 중이었던 박물관의 수입니다. 관심 있는 연도, 박탈 수준, `museum_data`의 세 가지 입력을 받는 함수를 만들어 봅시다. 함수 내부에서 데이터에 `filter()`를 적용하여 관심 있는 박탈 수준만 남길 수 있습니다. 그런 다음 관심 있는 연도 이전에 또는 해당 연도에 개관한 박물관 수를 셀 수 있습니다. 그런 다음 폐관한 박물관 수에 대해서도 동일한 작업을 수행할 수 있습니다(여전히 운영 중인 박물관의 `NA` 값을 처리하는 것을 기억하세요). 둘의 차이가 해당 연도에 운영 중이었던 박물관 수가 됩니다. \index{dplyr!filter}
 
 ```{r}
 #| label: museums-count-function
@@ -248,14 +248,14 @@ num_year <- function(year, dep, data = museum_data) {
 }
 ```
 
-Let's test it works:
+작동하는지 테스트해 봅시다:
 
 ```{r}
 #| label: museums-count-test
 num_year(1980, 3)
 ```
 
-There were `r num_year(1980, 3)` museums open in 1980, in an area in the third deprivation decile. Now, we need to run this function for every combination of year (from `1960` to `2021`) and deprivation level (from `1` to `10`). There are many different ways of doing this in R, and we're going to use the **`purrr`** package [@purrr]. We start by creating two variables with sequences of years and levels of deprivation - this is useful for testing if the code works because we can easily change it to a smaller number of years. Then we use `expand.grid` to create a `data.frame` with all of the combinations and pass this in as the first argument to `pmap_vec` from **`purrr`**. The second argument to `pmap_vec` is the function we want to apply (`num_year()`) that we defined above), where the first argument of `num_year()` comes from the first column of the grid of values, and the second argument from the second column. We can then convert the output into a matrix where each column is a level of deprivation, and each row is a year. \index{purrr!pmap\_vec} 
+1980년에 3분위 박탈 지역에 `r num_year(1980, 3)`개의 박물관이 운영 중이었습니다. 이제 연도(`1960`부터 `2021`까지)와 박탈 수준(`1`부터 `10`까지)의 모든 조합에 대해 이 함수를 실행해야 합니다. R에서 이를 수행하는 방법은 여러 가지가 있으며, 우리는 **`purrr`** 패키지 [@purrr]를 사용할 것입니다. 연도와 박탈 수준의 시퀀스가 있는 두 변수를 만드는 것으로 시작합니다 - 이것은 더 적은 수의 연도로 쉽게 변경할 수 있기 때문에 코드가 작동하는지 테스트하는 데 유용합니다. 그런 다음 `expand.grid`를 사용하여 모든 조합이 있는 `data.frame`을 만들고 이를 **`purrr`**의 `pmap_vec`에 첫 번째 인수로 전달합니다. `pmap_vec`의 두 번째 인수는 적용하려는 함수(`num_year()`)입니다. 여기서 `num_year()`의 첫 번째 인수는 값 그리드의 첫 번째 열에서, 두 번째 인수는 두 번째 열에서 옵니다. 그런 다음 출력을 각 열이 박탈 수준이고 각 행이 연도인 행렬로 변환할 수 있습니다. \index{purrr!pmap\_vec} 
 
 ```{r}
 #| label: museums-count-1
@@ -264,7 +264,7 @@ deps <- 1:10
 output <- pmap_vec(
   expand.grid(all_years, deps),
   ~ num_year(year = .x, dep = .y)
-)
+  )
 results <- matrix(output,
   nrow = length(all_years),
   byrow = FALSE
@@ -272,14 +272,14 @@ results <- matrix(output,
 colnames(results) <- 1:10
 ```
 
-Now, our data looks like this:
+이제 데이터는 다음과 같습니다:
 
 ```{r}
 #| label: museums-count-2
 head(results)
 ```
 
-We're almost ready to start plotting our data! We just need to convert this into a `tibble()` (or `data.frame`), add the `year` column using `mutate()`, and put the data into a long format using `pivot_longer` from **`tidyr`** \index{tibble!as\_tibble} \index{dplyr!mutate} \index{tidyr!pivot\_longer}. We want to end up with a 3 column data set, where the 3 columns are: `year`, `deprivation`, and `museums` (number of open museums).
+이제 데이터를 플로팅 할 준비가 거의 되었습니다! `tibble()`(또는 `data.frame`)로 변환하고 `mutate()`를 사용하여 `year` 열을 추가한 다음 **`tidyr`**의 `pivot_longer`를 사용하여 데이터를 긴 형식으로 바꾸면 됩니다 \index{tibble!as\_tibble} \index{dplyr!mutate} \index{tidyr!pivot\_longer}. 우리는 `year`, `deprivation`, `museums`(운영 중인 박물관 수)의 3개 열이 있는 데이터 셋을 만들고 싶습니다.
 
 ```{r}
 #| label: museums-count-3
@@ -296,14 +296,13 @@ plot_data <- results |>
   )
 ```
 
-### The first plot
-
-One of most common approaches to visualising multiple time series, is to plot multiple lines on the same plot. Although we're already thinking about facets, it's still worth seeing what those line charts look like. It can help us to understand the overall variability of the data. We can create the initial plot using `ggplot()` to define the data and the aesthetic mapping with the `aes()` function. We have `year` on the x-axis, `museums` on the y-axis, and each line will have a different color based on `deprivation`. The actual lines are then added with `geom_line()`. \index{ggplot2!geom\_line} \index{ggplot2!aes} \index{ggplot2!ggplot} \index{line chart}
+### 첫 번째 플롯
+여러 시계열을 시각화하는 가장 일반적인 접근 방식 중 하나는 동일한 플롯에 여러 선을 그리는 것입니다. 이미 패면을 고려하고 있지만, 선형 차트가 어떻게 보이는지 확인하는 것은 여전히 가치가 있습니다. 이는 데이터의 전반적인 변동성을 이해하는 데 도움이 될 수 있습니다. `ggplot()`을 사용하여 초기 플롯을 만들고 `aes()` 함수로 데이터와 미적 매핑을 정의할 수 있습니다. x축에는 `year`, y축에는 `museums`가 있으며 `deprivation`에 따라 각 선의 색상이 달라집니다. 실제 선은 `geom_line()`으로 추가됩니다. \index{ggplot2!geom\_line} \index{ggplot2!aes} \index{ggplot2!ggplot} \index{line chart}
 
 ```{r}
 #| label: fig-museums-basic-plot-1
-#| fig-cap: "A line chart of total number of museums open per year for each level of deprivation, with the overlapping lines resembling spaghetti!"
-#| fig-alt: "A line chart with 10 lines showing the number of open museums for each level of deprivation. Many of the lines overlap and are similar colors, making it difficult to read the values. Line go from 1980 to 2020 and show a general increase from around 100 to 500."
+#| fig-cap: "각 박탈 수준에 대해 연도별 운영 중인 총 박물관 수를 보여주는 선형 차트로, 겹치는 선이 스파게티처럼 보입니다!"
+#| fig-alt: "각 박탈 수준에 대한 운영 중인 박물관 수를 보여주는 10개의 선이 있는 선형 차트. 많은 선이 겹치고 색상이 비슷하여 값을 읽기 어렵습니다. 선은 1980년부터 2020년까지 이어지며 약 100에서 500으로 전반적으로 증가함을 보여줍니다."
 #| message: false
 ggplot(
   data = plot_data,
@@ -316,18 +315,19 @@ ggplot(
   geom_line()
 ```
 
-There are a few things that jump out immediately about this plot:
+이 플롯에서 즉시 눈에 띄는 몇 가지 사항이 있습니다:
 
-* The variability is increasing over time: in 1960 the gap between the highest and lowest values is much smaller than the gap between the highest and lowest values in 2020.
-* It's difficult to tell which line belongs to which level of deprivation: some of the colors are quite similar, many of the lines intersect, and the order of the legend is generally in reverse to the order of the lines.
-* It's what we might call a *spaghetti plot*: it shows the overall trend across all levels, but it's hard to tell the difference between different levels of deprivation.
+* 변동성은 시간이 지남에 따라 증가하고 있습니다: 1960년에는 가장 높은 값과 가장 낮은 값 사이의 격차가 2020년의 가장 높은 값과 가장 낮은 값 사이의 격차보다 훨씬 작습니다.
+* 어떤 선이 어떤 박탈 수준에 속하는지 구별하기 어렵습니다: 일부 색상은 매우 비슷하고 많은 선이 교차하며 범례의 순서는 일반적으로 선의 순서와 반대입니다.
+* 이것은 우리가 *스파게티 플롯(spaghetti plot)*이라고 부를 수 있는 것입니다: 모든 수준의 전체 추세를 보여주지만 서로 다른 박탈 수준 간의 차이를 구별하기는 어렵습니다.
 
-Let's go back to our previous idea, and try separating out the deprivation levels into different facets. We can do this using `facet_wrap(~deprivation, nrow = 2)` , with the `nrow` argument used to create that 5x2 grid we talked about earlier. Let's also try changing `geom_line()` to `geom_area()`. Although line charts and area charts can both show the same data, line charts often cause us to focus more on the trend over time. In contrast, area charts often cause us to focus on the total volume over time - helping to highlight differences in total number of open museums over time rather than just increases and decreases. Remember to also change `color` to `fill` in the aesthetic mapping! \index{ggplot2!geom\_area} \index{ggplot2!facet\_wrap} \index{area chart}
+이전 아이디어로 돌아가서 박탈 수준을 서로 다른 패면으로 분리해 봅시다. 이전에 이야기했던 5x2 그리드를 만들기 위해 `nrow` 인수를 사용하여 `facet_wrap(~deprivation, nrow = 2)`를 사용할 수 있습니다. 또한 `geom_line()`을 `geom_area()`로 변경해 봅시다. 선형 차트와 영역 차트는 모두 동일한 데이터를 표시할 수 있지만 선형 차트는 종종 시간 경과에 따른 추세에 더 집중하게 만듭니다. 대조적으로 영역 차트는 종종 시간 경과에 따른 전체 볼륨에 집중하게 하여 단순히 증가 및 감소가 아니라 시간 경과에 따른 총 운영 박물관 수의 차이를 강조하는 데 도움이 됩니다. 미적 매핑에서 `color`를 `fill`로 변경하는 것을 잊지 마세요! \index{ggplot2!geom\_area} \index{ggplot2!facet\_wrap} \index{area chart}
+
 
 ```{r}
 #| label: fig-museums-basic-plot-2
-#| fig-cap: "An area chart of total number of museums open per year for each level of deprivation, with the each deprivation level in a different facet."
-#| fig-alt: "10 area charts arranged in a 5x2 grid, each one a different color and labeled based on deprivation. A legend appears on the right hand side. Areas in level 1, 2, and 10 appear smaller."
+#| fig-cap: "각 박탈 수준을 서로 다른 패면으로 하여 연도별 운영 중인 총 박물관 수를 보여주는 영역 차트."
+#| fig-alt: "5x2 그리드로 배열된 10개의 영역 차트로, 각각 다른 색상이며 박탈 수준에 따라 레이블이 지정되어 있습니다. 범례가 오른쪽에 나타납니다. 1, 2, 10 수준의 영역이 더 작게 나타납니다."
 ggplot(
   data = plot_data,
   mapping = aes(x = year, y = museums, fill = deprivation)
@@ -336,34 +336,34 @@ ggplot(
   facet_wrap(~deprivation, nrow = 2)
 ```
 
-This tells a similar story to the initial bar chart in @fig-museums-barplot - there are more museums open in the areas with moderate levels of deprivation. This plot still isn't ideal, for a couple of reasons:
+이것은 @fig-museums-barplot 의 초기 막대 차트와 유사한 이야기를 들려줍니다 - 중간 수준의 박탈 지역에 더 많은 박물관이 운영 중입니다. 이 플롯은 여전히 몇 가지 이유로 이상적이지 않습니다:
 
-* The number of open museums in 1960 is different in each faceted plot: since they all start at different levels, it makes it more difficult to compare the relative increases or decreases.
-* It's hard to directly compare one facet to another since each facet only contains one trend line: we have to imagine overlaying the lines in our head to compare one trend line to another.
+* 1960년 운영 중인 박물관 수는 각 패면 플롯마다 다릅니다: 모두 다른 수준에서 시작하기 때문에 상대적인 증가 또는 감소를 비교하기가 더 어렵습니다.
+* 각 패면에 하나의 추세선만 포함되어 있기 때문에 한 패면을 다른 패면과 직접 비교하기 어렵습니다: 한 추세선을 다른 추세선과 비교하려면 머릿속에서 선을 겹쳐 보아야 합니다.
 
 ::: {#tip-museums-vars .callout-tip}
 
-## Specifying variables for facets
+## 패면 변수 지정
 
-There are different ways to specify which variables are used for facets in **`ggplot2`**. Here, we've written `facet_wrap(~deprivation)` which makes use of the formula shorthand, `~`, to tell **`ggplot2`** to facet by the `deprivation` variable.
+**`ggplot2`**에서 패면에 사용되는 변수를 지정하는 다양한 방법이 있습니다. 여기서는 `facet_wrap(~deprivation)`을 작성했는데, 이는 수식 단축형 `~`를 사용하여 **`ggplot2`**에 `deprivation` 변수로 패면을 만들도록 지시합니다.
 
-However, you may also see facet variables specified using the `vars()` function, like `facet_wrap(vars(deprivation))`. Using the `vars()` function makes it easier to facet by multiple variables, but it's a more modern approach so you may see it less often if you're looking for other examples.
+그러나 `facet_wrap(vars(deprivation))`과 같이 `vars()` 함수를 사용하여 패면 변수가 지정된 것을 볼 수도 있습니다. `vars()` 함수를 사용하면 여러 변수로 패면을 만들기 더 쉽지만 더 현대적인 접근 방식이므로 다른 예제를 찾고 있다면 덜 자주 볼 수도 있습니다.
 
 :::
 
-We could solve these problems by making two changes:
+두 가지 변경을 통해 이러한 문제를 해결할 수 있습니다:
 
-* Rescale the data based on the number of museums open in 1960; and
-* Show all 10 lines on each faceted plot but highlight only one relating to each level of deprivation. 
+* 1960년 운영 중이었던 박물관 수를 기준으로 데이터를 다시 조정합니다; 그리고
+* 각 패면 플롯에 10개의 선을 모두 표시하지만 각 박탈 수준과 관련된 하나만 강조 표시합니다.
 
-### Highlighting with **`gghighlight`**
+### **`gghighlight`**로 강조 표시하기
 
-The second change can be implemented easily using the **`gghighlight`** package [@gghighlight]. **`gghighlight`** is a **`ggplot2`** extension package, specifically designed for highlighting points and lines based on some conditions. Let's switch back to `geom_line()` and add `gghighlight()`. We set `use_direct_label = FALSE` because **`gghighlight`** will otherwise add a label to each highlighted line - unnecessary since each line is labelled by it's facet label already. \index{gghighlight!gghighlight} \index{ggplot2!geom\_line} \index{line chart}
+두 번째 변경은 **`gghighlight`** 패키지 [@gghighlight]를 사용하여 쉽게 구현할 수 있습니다. **`gghighlight`**는 조건에 따라 점과 선을 강조 표시하도록 특별히 설계된 **`ggplot2`** 확장 패키지입니다. `geom_line()`으로 다시 전환하고 `gghighlight()`를 추가해 봅시다. `use_direct_label = FALSE`로 설정합니다. 그렇지 않으면 **`gghighlight`**가 강조 표시된 각 선에 레이블을 추가하기 때문입니다 - 각 선은 이미 패면 레이블에 의해 레이블이 지정되어 있으므로 불필요합니다. \index{gghighlight!gghighlight} \index{ggplot2!geom\_line} \index{line chart}
 
 ```{r}
 #| label: fig-museums-basic-plot-3
-#| fig-cap: "A line chart of total number of museums open per year for each level of deprivation, with the each deprivation level in a different facet and individual lines highlighted."
-#| fig-alt: "10 line charts arranged in a 5x2 grid, each with the same 10 lines, but one a different color and labeled based on deprivation. Values range from around 100 to 500. A legend appears on the right hand side."
+#| fig-cap: "각 박탈 수준을 서로 다른 패면으로 하고 개별 선을 강조 표시하여 연도별 운영 중인 총 박물관 수를 보여주는 선형 차트."
+#| fig-alt: "5x2 그리드로 배열된 10개의 선형 차트로, 각각 동일한 10개의 선이 있지만 하나는 다른 색상이며 박탈 수준에 따라 레이블이 지정되어 있습니다. 값은 약 100에서 500 사이입니다. 범례가 오른쪽에 나타납니다."
 #| message: false
 #| source-line-numbers: "11"
 ggplot(
@@ -379,7 +379,7 @@ ggplot(
   gghighlight(use_direct_label = FALSE)
 ```
 
-We can also perform an additional bit of data wrangling to rescale the values by their 1960 levels. We start by filtering the data to only include data from the year 1960 and keeping only the `deprivation` and `museums` columns \index{dplyr!filter} \index{dplyr!select}. Then, we join this baseline data back to our original data based on the `deprivation` level, and for each year calculate the percentage change since 1960 and save it in a new column called `change`. \index{dplyr!mutate} \index{dplyr!rename} \index{dplyr!left\_join} \index{dplyr!select}
+또한 1960년 수준으로 값을 다시 조정하기 위해 데이터 랭글링을 추가로 수행할 수 있습니다. 1960년의 데이터만 포함하고 `deprivation` 및 `museums` 열만 유지하도록 데이터를 필터링하는 것으로 시작합니다 \index{dplyr!filter} \index{dplyr!select}. 그런 다음 이 기준 데이터를 `deprivation` 수준을 기준으로 원본 데이터에 다시 조인하고, 각 연도에 대해 1960년 이후 변동 퍼센트를 계산하여 `change`라는 새 열에 저장합니다. \index{dplyr!mutate} \index{dplyr!rename} \index{dplyr!left\_join} \index{dplyr!select}
 
 ```{r}
 #| label: museums-wrangle-perc
@@ -400,12 +400,12 @@ new_plot_data <- plot_data |>
   select(year, deprivation, change)
 ```
 
-We can then re-do our line chart using the rescaled `change` data on the y-axis instead:
+그런 다음 y축에 재조정된 `change` 데이터를 사용하여 선형 차트를 다시 그릴 수 있습니다:
 
 ```{r}
 #| label: fig-museums-basic-plot-4
-#| fig-cap: "A line chart of percentage increase in museums (compared to 1960) for each level of deprivation, with the each deprivation level in a different facet and individual lines highlighted."
-#| fig-alt: "10 line charts arranged in a 5x2 grid, each with the same 10 lines, but one a different color and labeled based on deprivation. Values are percentages ranging from around 0 to 300. A legend appears on the right hand side."
+#| fig-cap: "각 박탈 수준을 서로 다른 패면으로 하고 개별 선을 강조 표시하여 각 박탈 수준에 대한 박물관의 증가 퍼센트(1960년 대비)를 보여주는 선형 차트."
+#| fig-alt: "5x2 그리드로 배열된 10개의 선형 차트로, 각각 동일한 10개의 선이 있지만 하나는 다른 색상이며 박탈 수준에 따라 레이블이 지정되어 있습니다. 값은 약 0에서 300 사이의 퍼센트입니다. 범례가 오른쪽에 나타납니다."
 #| message: false
 basic_plot <- ggplot(
   data = new_plot_data,
@@ -417,19 +417,19 @@ basic_plot <- ggplot(
 basic_plot
 ```
 
-This is starting to look promising, but there are still ways that we can style our chart to improve it.
+이것은 꽤 좋아 보이기 시작했지만 차트를 개선하기 위해 스타일을 지정할 수 있는 방법은 여전히 있습니다.
 
-## Advanced styling
+## 고급 스타일링
 
-So what can we do to make this chart better?
+그렇다면 이 차트를 더 좋게 만들기 위해 무엇을 할 수 있을까요?
 
-* We can get rid of the legend. The colors are based on the levels of deprivation, which are already labelled on the facet titles.
-* The default choice of color isn't great - they're not grayscale printing friendly, and they're not colorblind friendly either. 
-* It's not immediately clear what this chart shows: it could do with some text to explain what's going on.
+* 범례를 제거할 수 있습니다. 색상은 박탈 수준을 기반으로 하며 이미 패면 제목에 레이블이 지정되어 있습니다.
+* 기본 색상 선택이 훌륭하지 않습니다 - 흑백 인쇄에 친화적이지 않으며 색각 이상 친화적이지도 않습니다.
+* 이 차트가 무엇을 보여주는지 즉시 명확하지 않습니다: 무슨 일이 일어나고 있는지 설명하는 텍스트가 필요할 수 있습니다.
 
-### Colors
+### 색상
 
-Let's get started with choosing some colors. As discussed in @sec-programming, we'll save color codes as variables: either using hex codes or color names. Let's use `"black"` for text, and `"#fafafa"` for the background color. The use of a light gray rather than white for the background is primarily personal preference - it's less glaringly bright on a screen. Although, you do have to be a bit more careful around contrast of text against the background - hence the black text. \index{color}
+색상을 선택하는 것으로 시작해 봅시다. @sec-programming 에서 논의한 대로 색상 코드를 변수로 저장합니다: 16진수 코드 또는 색상 이름을 사용합니다. 텍스트에는 `"black"`을 사용하고 배경색에는 `"#fafafa"`를 사용해 봅시다. 흰색 대신 밝은 회색을 배경으로 사용하는 것은 주로 개인적인 선호입니다 - 화면에서 덜 눈부시게 밝습니다. 하지만 배경에 대한 텍스트 대비에 좀 더 주의해야 하므로 검은색 텍스트를 사용합니다. \index{color}
 
 ```{r}
 #| label: museums-colors
@@ -437,12 +437,12 @@ bg_col <- "#FAFAFA"
 text_col <- "black"
 ```
 
-For the colors of the lines, we can use the **`viridis`** package [@viridis]. The **`viridis`** package provides multiple different color palettes which are designed to be visually pleasing, perceptually-uniform ,and colorblind friendly. The default viridis palette includes purples, blues, greens, then yellows. Viridis color palettes are most commonly used with continuous data, rather than categorical data. However, since the categories that we wish to color (levels of deprivation) are ordered, they will work well here too. The **`viridis`** package includes functions to add the colors to plots made with **`ggplot2`**. Here, we use the `scale_color_viridis()` function, specify that we want a discrete palette and that the lowest values should have the yellow colors with `direction = -1` \index{viridis!scale\_color\_viridis}.
+선의 색상은 **`viridis`** 패키지 [@viridis]를 사용할 수 있습니다. **`viridis`** 패키지는 시각적으로 즐겁고, 지각적으로 균일하며, 색각 이상 친화적으로 설계된 다양한 색상 팔레트를 제공합니다. 기본 viridis 팔레트에는 보라색, 파란색, 녹색, 노란색이 포함됩니다. Viridis 색상 팔레트는 일반적으로 범주형 데이터보다는 연속형 데이터에 가장 일반적으로 사용됩니다. 그러나 색상을 지정하려는 범주(박탈 수준)가 순서가 있으므로 여기에서도 잘 작동합니다. **`viridis`** 패키지에는 **`ggplot2`**로 만든 플롯에 색상을 추가하는 함수가 포함되어 있습니다. 여기서는 `scale_color_viridis()` 함수를 사용하고, 이산 팔레트를 원하며 가장 낮은 값이 노란색을 갖도록 `direction = -1`로 지정합니다 \index{viridis!scale\_color\_viridis}.
 
 ```{r}
 #| label: fig-museums-style-plot-1
-#| fig-cap: "An updated version of the previous chart with colors chosen from the {viridis} R package."
-#| fig-alt: "10 line charts arranged in a 5x2 grid, each with the same 10 lines, but one a different color and labeled based on deprivation. Values are percentages ranging from around 0 to 300. A legend appears on the right hand side. Lines are colored yellows, blues, and purples."
+#| fig-cap: "{viridis} R 패키지에서 선택한 색상으로 이전 차트를 업데이트한 버전."
+#| fig-alt: "5x2 그리드로 배열된 10개의 선형 차트로, 각각 동일한 10개의 선이 있지만 하나는 다른 색상이며 박탈 수준에 따라 레이블이 지정되어 있습니다. 값은 약 0에서 300 사이의 퍼센트입니다. 범례가 오른쪽에 나타납니다. 선은 노란색, 파란색, 보라색으로 색칠되어 있습니다."
 col_plot <- basic_plot +
   scale_color_viridis(
     discrete = TRUE,
@@ -451,9 +451,9 @@ col_plot <- basic_plot +
 col_plot
 ```
 
-### Text and fonts
+### 텍스트와 글꼴
 
-Let's start by loading in a different typeface using `font_add_google()` from **`sysfonts`** and setting font options with **`showtext`**\index{sysfonts!font\_add\_google} \index{showtext!showtext\_auto} \index{showtext!showtext\_opts}. *Raleway* is a minimalist, sans serif typeface, and we'll use it for both body text and title text. We can save it as a single variable, `body_font`.
+**`sysfonts`**의 `font_add_google()`을 사용하여 다른 서체를 로드하고 **`showtext`**로 글꼴 옵션을 설정하는 것으로 시작해 봅시다 \index{sysfonts!font\_add\_google} \index{showtext!showtext\_auto} \index{showtext!showtext\_opts}. *Raleway*는 미니멀하고 산세리프 서체이며 본문 텍스트와 제목 텍스트 모두에 사용할 것입니다. 단일 변수 `body_font`로 저장할 수 있습니다.
 
 ```{r}
 #| label: museums-fonts
@@ -465,40 +465,40 @@ body_font <- "Raleway"
 
 ::: {#tip-museums-typeface .callout-tip}
 
-## Typeface vs. font vs. font family
+## 서체(Typeface) vs. 글꼴(font) vs. 글꼴 패밀리(font family)
 
-Thomas Lin Pederson's blog post about fonts in R [@Pedersen2025] highlights the different meanings of the words *typeface* and *font* (family), which are often (incorrectly) used interchangeably:
+Thomas Lin Pederson의 R 글꼴에 대한 블로그 게시물 [@Pedersen2025]은 종종 (부정확하게) 혼용되는 단어인 *서체*와 *글꼴* (패밀리)의 다른 의미를 강조합니다:
 
-* **Typeface**:the design of a set of characters e.g. *Arial*
+* **서체(Typeface)**: 문자 세트의 디자인 예: *Arial*
 
-* **Font**: a specific style and size of that typeface e.g. *Arial Bold 12pt*
+* **글꼴(Font)**: 해당 서체의 특정 스타일 및 크기 예: *Arial Bold 12pt*
 
-* **Font family**: a group of related fonts that share the same typeface but vary in styles e.g. *Arial Bold* and *Arial Italic*
+* **글꼴 패밀리(Font family)**: 동일한 서체를 공유하지만 스타일이 다른 글꼴 그룹 예: *Arial Bold* 및 *Arial Italic*
 
-Although these terms do have different meanings, in **`ggplot2`**, the `family` argument is often used to specify the typeface so you may see the terms used interchangeably in this book.
+이 용어들은 다른 의미를 가지고 있지만, **`ggplot2`**에서는 `family` 인수가 종종 서체를 지정하는 데 사용되므로 이 책에서는 용어가 혼용되는 것을 볼 수 있습니다.
 
 :::
 
-We also need to define a title, subtitle, and caption. Adding a question as a title can help guide readers towards what you want them to see, but also force them to look for themselves. Here, we ask *Are there fewer museums opening in more deprived areas?* in the title - telling readers to look at changes across the levels of deprivation, but not giving them the answer straight away. 
+또한 제목, 부제목, 캡션을 정의해야 합니다. 제목으로 질문을 추가하면 독자가 보기를 원하는 방향으로 안내할 수 있을 뿐만 아니라 스스로 찾아보게 만들 수도 있습니다. 여기서 우리는 제목에서 *박탈이 심한 지역에 개관하는 박물관이 더 적습니까?*라고 묻습니다 - 독자에게 박탈 수준에 따른 변화를 살펴보라고 말하지만 답을 바로 제공하지는 않습니다.
 
-The subtitle then goes onto explain what the answer is, and exactly what is shown in the chart. The caption is more extended here than you may see in many charts because it explains more about the source of the data and what the variables actually are. Understanding definitions of variables isn't something we should ever take for granted. Unless you are already familiar with indices of deprivation, it may not be clear that `1` means higher levels of deprivation. 
+그런 다음 부제목은 답이 무엇인지, 차트에 정확히 무엇이 표시되는지 설명합니다. 캡션은 데이터의 출처와 변수가 실제로 무엇인지 더 자세히 설명하기 때문에 많은 차트에서 볼 수 있는 것보다 여기서는 더 깁니다. 변수의 정의를 이해하는 것은 당연시해야 할 것이 아닙니다. 박탈 지수에 이미 익숙하지 않은 경우 `1`이 더 높은 수준의 박탈을 의미한다는 것이 명확하지 않을 수 있습니다.
 
 ```{r}
 #| label: museums-text
-title <- "Are there fewer museums opening in more deprived areas?"
-st <- "The change in the estimated number of open museums since 1960 is significantly lower in areas with higher levels of deprivation. *Since around 2000, the number of open museums has stagnated across all areas, regardless of deprivation index. However, the rate of growth prior to this stagnation is lower in more deprived areas."
-cap <- "*The Index of Multiple Deprivation (IMD) measures the relative deprivation of geographic areas in the UK, aggregating different dimensions (income, employment, education, health, crime, housing, and living environment). The index ranges from 1 (most deprived) to 10 (least deprived).<br><br>**In some instances it has been impossible to establish an exact opening or closing date for a museum. In these cases, museums’ opening and closing dates are taken to be the mid point of a specified range of possible dates.<br><br>N. Rennie | Data: museweb.dcs.bbk.ac.uk"
+title <- "박탈이 심한 지역에 개관하는 박물관이 더 적습니까?"
+st <- "1960년 이후 추정된 운영 중인 박물관 수의 변화는 박탈 수준이 높은 지역에서 훨씬 낮습니다. *2000년경부터 운영 중인 박물관 수는 박탈 지수에 관계없이 모든 지역에서 정체되었습니다. 그러나 이 정체 이전의 성장률은 박탈이 심한 지역에서 더 낮습니다."
+cap <- "*다중 박탈 지수(IMD)는 소득, 고용, 교육, 건강, 범죄, 주거 및 생활 환경과 같은 다양한 차원을 집계하여 영국 지리적 지역의 상대적 박탈을 측정합니다. 지수는 1(가장 박탈됨)에서 10(가장 덜 박탈됨)까지 다양합니다.<br><br>**일부 경우에는 박물관의 정확한 개관 또는 폐관 날짜를 확정하는 것이 불가능했습니다. 이러한 경우 박물관의 개관 및 폐관 날짜는 가능한 날짜 범위의 중간 지점으로 간주됩니다.<br><br>N. Rennie | Data: museweb.dcs.bbk.ac.uk"
 ```
 
 ::: {#tip-museums-html .callout-tip}
 
-## Adding line breaks using `<br>`
+## `<br>`을 사용하여 줄 바꿈 추가
 
-The caption includes HTML line breaks, `<br>`, since we'll be using `element_textbox_simple()` from **`ggtext`** for processing the text elements as we've done in previous chapters. \index{ggtext!element\_textbox\_simple}
+이전 장에서 했던 것처럼 **`ggtext`**의 `element_textbox_simple()`을 사용하여 텍스트 요소를 처리할 것이므로 캡션에 HTML 줄 바꿈 `<br>`이 포함되어 있습니다. \index{ggtext!element\_textbox\_simple}
 
 :::
 
-Let's add the title, subtitle, caption, and a y-axis label in using the `labs()` function. We can also remove the default column name label on the x-axis as it's very clear that the x-axis shows years. \index{ggplot2!labs}
+`labs()` 함수를 사용하여 제목, 부제목, 캡션 및 y축 레이블을 추가해 봅시다. x축이 연도를 보여준다는 것은 매우 명확하므로 x축의 기본 열 이름 레이블도 제거할 수 있습니다. \index{ggplot2!labs}
 
 ```{r}
 #| label: museums-style-plot-2
@@ -506,28 +506,28 @@ text_plot <- col_plot +
   labs(
     title = title, subtitle = st, caption = cap,
     x = "",
-    y = "% change in estimated number of\nopen museums since 1960**"
+    y = "1960년 이후 운영 중인 추정 박물관 수의\n% 변화**"
   )
 ```
 
-### Adjusting themes
+### 테마 조정
 
-Now we need to edit the `theme()` elements to apply the text fonts and styles, edit the background colors, and remove the legend. \index{ggplot2!theme}
+이제 `theme()` 요소를 편집하여 텍스트 글꼴 및 스타일을 적용하고 배경색을 편집하고 범례를 제거해야 합니다. \index{ggplot2!theme}
 
-In **`ggplot2`**, the axis limits are chosen automatically based on the range of the data. It's often useful to chose limits (and breaks) that are *nice* - it makes it easier to calculate where other values are. We can set `scale_y_continuous(limits = c(0, 300))` to make the range of the y-axis between 0 and 300. We can also set `coord_cartesian(expand = FALSE)` to remove the extra space around the plot area that is added by default - giving a slightly cleaner look. Using `theme_minimal()` as a base, we can set the default font size and family using `base_size = 7` and `base_family = body_font`. \index{ggplot2!theme\_minimal} \index{ggplot2!coord\_cartesian} \index{ggplot2!scale\_y\_continuous}
+**`ggplot2`**에서는 데이터 범위를 기반으로 축 제한이 자동으로 선택됩니다. *좋은* 제한(및 구분)을 선택하는 것이 종종 유용합니다 - 다른 값이 어디에 있는지 계산하기가 더 쉽습니다. `scale_y_continuous(limits = c(0, 300))`을 설정하여 y축 범위를 0에서 300 사이로 만들 수 있습니다. 또한 `coord_cartesian(expand = FALSE)`를 설정하여 기본적으로 추가되는 플롯 영역 주위의 여분의 공간을 제거하여 약간 더 깔끔한 모양을 제공할 수 있습니다. `theme_minimal()`을 기본으로 사용하여 `base_size = 7` 및 `base_family = body_font`를 사용하여 기본 글꼴 크기 및 패밀리를 설정할 수 있습니다. \index{ggplot2!theme\_minimal} \index{ggplot2!coord\_cartesian} \index{ggplot2!scale\_y\_continuous}
 
-Setting `legend.position = "none"` removes the legend on the right hand side. The `plot.title.position = "plot"` and `plot.caption.position = "plot"` arguments make sure that the title, subtitle, and caption text are all aligned with the left side of the plot area. The default is to align with the edge of the panel area (the area shaded gray by default), which doesn't look good when you have long axis labels, or a multiline axis title on the y-axis.
+`legend.position = "none"`을 설정하면 오른쪽의 범례가 제거됩니다. `plot.title.position = "plot"` 및 `plot.caption.position = "plot"` 인수는 제목, 부제목 및 캡션 텍스트가 모두 플롯 영역의 왼쪽과 정렬되도록 합니다. 기본값은 패널 영역(기본적으로 회색으로 음영 처리된 영역)의 가장자리와 정렬하는 것인데, 긴 축 레이블이나 y축에 여러 줄의 축 제목이 있을 때는 좋아 보이지 않습니다.
 
-The `panel.spacing` argument controls how close the facets are to each other -  this can help to stop the year labels on side-by-side plots from overlapping. Setting `plot.margin = margin(10, 15, 10, 10)` adds some extra space around the outside of the plot, with the higher value on the right hand side compensating and balancing out the space from the axis title on the left hand side. The `plot.background` and `panel.background` arguments set the background color of the plot and panel areas to be the `bg_col` variable previously defined.
+`panel.spacing` 인수는 패면이 서로 얼마나 가까운지를 제어합니다 - 이것은 나란히 있는 플롯의 연도 레이블이 서로 겹치는 것을 방지하는 데 도움이 될 수 있습니다. `plot.margin = margin(10, 15, 10, 10)`을 설정하면 플롯 바깥쪽에 여분의 공간이 추가되며 오른쪽의 더 높은 값은 왼쪽의 축 제목 공간을 보상하고 균형을 맞춥니다. `plot.background` 및 `panel.background` 인수는 플롯 및 패널 영역의 배경색을 이전에 정의한 `bg_col` 변수로 설정합니다.
 
-For the `plot.title`, `plot.subtitle`, and `plot.caption`, arguments, we use `element_textbox_simple()` from **`ggtext`** to make sure that any Markdown or HTML syntax is processed, and to automatically wrap the text in the subtitle and caption. The text is all left-aligned, with a `lineheight` of `0.5`, and set to use the `text_col` variable for the color. The title font is made slightly larger and in bold. The `axis.text` is also set to be `text_col` colored with a `lineheight` of `0.5` using `element_text()`. \index{ggplot2!element\_text} \index{ggplot2!theme}
+`plot.title`, `plot.subtitle` 및 `plot.caption` 인수의 경우 **`ggtext`**의 `element_textbox_simple()`을 사용하여 Markdown 또는 HTML 구문이 처리되도록 하고 부제목과 캡션의 텍스트를 자동으로 줄 바꿈합니다. 텍스트는 모두 왼쪽 정렬되고 `lineheight`는 `0.5`이며 `text_col` 변수를 색상으로 사용하도록 설정됩니다. 제목 글꼴은 약간 더 크고 굵게 만들어집니다. `axis.text`도 `element_text()`를 사용하여 `lineheight`가 `0.5`인 `text_col` 색상으로 설정됩니다. \index{ggplot2!element\_text} \index{ggplot2!theme}
 
-Now, we have our final plot:
+이제 최종 플롯이 완성되었습니다:
 
 ```{r}
 #| label: fig-museums-style-plot-3
-#| fig-cap: "A styled version of the previous plot - with a custom font, colored background, and better spacing."
-#| fig-alt: "10 line charts arranged in a 5x2 grid, each with the same 10 lines, but one a different color and labeled based on deprivation. Values are percentages ranging from around 0 to 300. Lines are colored yellows, blues, and purples. No legend appears,but title, subtitle, and caption text have appeared."
+#| fig-cap: "이전 플롯의 스타일이 지정된 버전 - 사용자 지정 글꼴, 색상 배경 및 더 나은 간격이 포함되어 있습니다."
+#| fig-alt: "5x2 그리드로 배열된 10개의 선형 차트로, 각각 동일한 10개의 선이 있지만 하나는 다른 색상이며 박탈 수준에 따라 레이블이 지정되어 있습니다. 값은 약 0에서 300 사이의 퍼센트입니다. 선은 노란색, 파란색, 보라색으로 색칠되어 있습니다. 범례는 나타나지 않지만 제목, 부제목 및 캡션 텍스트가 나타납니다."
 text_plot +
   scale_y_continuous(limits = c(0, 300)) +
   coord_cartesian(expand = FALSE) +
@@ -567,11 +567,11 @@ text_plot +
   )
 ```
 
-And we can save it to a file using `ggsave()` as we did in @sec-programming. In @sec-programming, when saving our final plot to a file, we saved it as a PNG file. However, that's not the only option. We could also have saved in as a JPG, PDF, TIFF, or SVG (to name just a few options). So how do we decide what file type to use? \index{ggplot2!ggsave}
+그리고 @sec-programming 에서 했던 것처럼 `ggsave()`를 사용하여 파일로 저장할 수 있습니다. @sec-programming 에서는 최종 플롯을 파일로 저장할 때 PNG 파일로 저장했습니다. 그러나 이것이 유일한 옵션은 아닙니다. JPG, PDF, TIFF 또는 SVG(몇 가지 옵션만 언급하자면)로 저장할 수도 있었습니다. 그렇다면 어떤 파일 형식을 사용할지 어떻게 결정해야 할까요? \index{ggplot2!ggsave}
 
-Formats such as PNG and JPG save *raster* images i.e. information is stored about each pixel. This means that they are able to capture highly detailed information. However, this also means that file sizes can be large. Raster images also don't scale well - when you increase the size of an image, it tends to become blurry and lower in quality. Formats such as PDF or SVG are *vector* images i.e. information is stored about each line and shape in the image. This means it's easier to rescale without losing quality, and file sizes can be smaller (at least for graphics that are not excessively complex).
+PNG 및 JPG와 같은 형식은 *래스터(raster)* 이미지를 저장합니다. 즉, 각 픽셀에 대한 정보가 저장됩니다. 이것은 매우 상세한 정보를 캡처할 수 있음을 의미합니다. 그러나 이는 파일 크기가 커질 수 있음을 의미하기도 합니다. 래스터 이미지는 스케일링이 잘 되지 않습니다 - 이미지 크기를 늘리면 흐릿해지고 품질이 저하되는 경향이 있습니다. PDF 또는 SVG와 같은 형식은 *벡터(vector)* 이미지입니다. 즉, 이미지의 각 선과 모양에 대한 정보가 저장됩니다. 이것은 품질을 잃지 않고 크기를 조정하기가 더 쉽고 파일 크기가 더 작을 수 있음을 의미합니다(과도하게 복잡하지 않은 그래픽의 경우).
 
-Raster images tend to be better for complex visualisations and images, or when fixed resolution is preferred such as in a website. Vector images tend to be better for graphics that are likely to need resizing or be interactive. For the remainder of this book, we'll continue to save in PNG format for consistency in the print version of the book. \index{image format}
+래스터 이미지는 복잡한 시각화 및 이미지 또는 웹 사이트와 같이 고정된 해상도가 선호될 때 더 좋은 경향이 있습니다. 벡터 이미지는 크기 조정이 필요하거나 대화형일 가능성이 있는 그래픽에 더 좋은 경향이 있습니다. 이 책의 나머지 부분에서는 책 인쇄 버전의 일관성을 위해 PNG 형식으로 계속 저장할 것입니다. \index{image format}
 
 ```{r}
 #| label: museums-save
@@ -584,22 +584,22 @@ ggsave(
 )
 ```
 
-## Reflection
+## 회고
 
-Is there anything that could still be improved about this plot? The axis text denoting the years only appears on the bottom row of faceted plots. This makes it a little bit tricky to see what's going on in the first row without first looking at the years in the row below. It's a fairly minor point, but adding year labels to the top row would just make it easier for a reader.
+이 플롯에서 아직 개선할 수 있는 부분이 있나요? 연도를 나타내는 축 텍스트는 패면 플롯의 맨 아래 행에만 나타납니다. 이 때문에 아래 행의 연도를 먼저 보지 않고는 첫 번째 행에서 무슨 일이 일어나고 있는지 보기가 조금 어렵습니다. 사소한 점이지만 맨 윗줄에 연도 레이블을 추가하면 독자가 더 쉽게 읽을 수 있습니다.
 
-We removed the legend from the plot with the reason that *the colors are based on the levels of deprivation, which are already labelled on the facet titles*. This same argument could be used to remove the colors altogether. There's no need to use color here to denote the deprivation levels when the deprivation levels are given by the facet titles. Especially since the yellow color is harder to see against the pale background color. Using a stronger color e.g. red for all highlighted lines, would be better for making the lines stand out, and reduce confusion about what the colors mean. \index{color}
+우리는 *색상은 박탈 수준을 기반으로 하며 이미 패면 제목에 레이블이 지정되어 있다*는 이유로 플롯에서 범례를 제거했습니다. 이 동일한 주장을 사용하여 색상을 모두 제거할 수도 있습니다. 박탈 수준이 패면 제목으로 주어질 때 박탈 수준을 나타내기 위해 여기서 색상을 사용할 필요가 없습니다. 특히 노란색은 옅은 배경색에 비해 보기가 더 어렵습니다. 예를 들어 강조 표시된 모든 선에 대해 빨간색과 같은 더 강한 색상을 사용하면 선이 눈에 띄게 하고 색상이 무엇을 의미하는지에 대한 혼란을 줄이는 데 더 좋을 것입니다. \index{color}
 
 ::: {.content-visible when-format="html"}
 
-Each plot created during the process of developing the original version of this visualization was captured using **`camcorder`**, and is shown in the gif below. If you'd like to learn more about how **`camcorder`** can be used in the data visualization process, see @sec-camcorder.
+이 시각화의 원래 버전을 개발하는 과정에서 생성된 각 플롯은 **`camcorder`**를 사용하여 캡처되었으며 아래 gif에 표시됩니다. **`camcorder`**가 데이터 시각화 프로세스에서 어떻게 사용될 수 있는지 자세히 알고 싶다면 @sec-camcorder 를 참조하세요.
 
-![](images/uk-museums.gif){fig-align="center" fig-alt="Gif showing the process of creating the final line chart, going through iterations of area charts first."}
+![](images/uk-museums.gif){fig-align="center" fig-alt="영역 차트 반복을 거쳐 최종 선형 차트를 만드는 과정을 보여주는 Gif."}
 
 :::
 
-## Exercises
+## 연습 문제
 
-* Edit the visualization to use a single color (of your choice) to highlight each line, instead of the `viridis` color palette.
+* `viridis` 색상 팔레트 대신 단일 색상(원하는 색상)을 사용하여 각 선을 강조 표시하도록 시각화를 편집하세요.
 
-* Edit the facet labels to indicate directly on the chart which ones are the *least deprived* and *most deprived*.
+* 패면 레이블을 편집하여 어느 것이 *가장 덜 박탈됨*이고 *가장 많이 박탈됨*인지 차트에 직접 나타내세요.

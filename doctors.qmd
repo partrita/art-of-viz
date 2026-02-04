@@ -37,17 +37,17 @@ library(sysfonts)
 #| file: R/source_caption.R
 ```
 
-# Doctors across the world: making maps with **`ggplot2`** {#sec-doctors}
+# 전 세계 의사 분포: **`ggplot2`**로 지도 만들기 {#sec-doctors}
 
-In this chapter we'll learn how to identify open data sources, make maps with **`ggplot2`** using data from the **`maps`** package, and create title panels with an unorthodox use of facets.
+이 장에서는 공개 데이터 소스를 식별하고, **`maps`** 패키지의 데이터를 사용하여 **`ggplot2`**로 지도를 만들고, 패싯(facet)을 독창적으로 사용하여 제목 패널을 만드는 방법을 배웁니다.
 
-By the end of this chapter, you'll be able to:
+이 장을 마치면 다음을 할 수 있습니다:
 
-* Create a simple choropleth map using only functions available in the core **`ggplot2`** package;
-* Obtain country boundary data and understand why coordinate systems matter for spatial data; and
-* Manipulate plot elements in a **`ggplot2`** chart to create a colored background area for the plot title.
+* 핵심 **`ggplot2`** 패키지에 있는 함수만 사용하여 간단한 등치 지역도(choropleth map)를 만듭니다;
+* 국가 경계 데이터를 얻고 공간 데이터에서 좌표계가 왜 중요한지 이해합니다;
+* **`ggplot2`** 차트의 플롯 요소를 조작하여 플롯 제목에 색상 배경 영역을 만듭니다.
 
-We begin by loading the packages required in this chapter.
+이 장에 필요한 패키지를 로드하는 것으로 시작합니다.
 
 ```{r}
 #| label: doctors-pkgs-req
@@ -62,15 +62,15 @@ library(showtext)
 library(sysfonts)
 ```
 
-This package introduces another new package, **`MetBrewer`**, which is another color palette package, similar to **`rcartocolor`** introduced in @sec-turbines. We also need to make sure the **`maps`** package is installed, although we don't need to explicitly load it with `library()` because we'll be accessing it through **`ggplot2`**.
+이 장에서는 @sec-turbines 에서 소개한 **`rcartocolor`**와 유사한 또 다른 색상 팔레트 패키지인 **`MetBrewer`**를 소개합니다. 또한 **`maps`** 패키지가 설치되어 있는지 확인해야 하지만, **`ggplot2`**를 통해 액세스할 것이므로 `library()`로 명시적으로 로드할 필요는 없습니다.
 
 \index{maps} \index{MetBrewer}
 
-## Data 
+## 데이터
 
-We'll visualize data on *Medical doctors per 1,000 people* using the dataset from the Our World in Data website ({{< monolink "https://ourworldindata.org/" "ourworldindata.org" >}}) [@doctors_data]. The aim of Our World in Data, according to their website, is to *publish the research and data to make progress against the world’s largest problems*. There are datasets on everything from energy and environment, to poverty and education, to name a few. Their website also has many examples of beautiful, effective data visualizations if you're ever looking for inspiration.\index{Our World in Data}
+Our World in Data 웹사이트({{< monolink "https://ourworldindata.org/" "ourworldindata.org" >}}) [@doctors_data]의 데이터 세트를 사용하여 *인구 1,000명당 의사 수*에 대한 데이터를 시각화할 것입니다. 웹사이트에 따르면 Our World in Data의 목표는 *세계의 가장 큰 문제에 대한 진전을 이루기 위한 연구와 데이터를 게시하는 것*입니다. 에너지와 환경에서 빈곤과 교육에 이르기까지 모든 것에 대한 데이터 세트가 있습니다. 그들의 웹사이트에는 영감을 찾고 있다면 아름답고 효과적인 데이터 시각화의 예가 많이 있습니다.\index{Our World in Data}
 
- You can either download the CSV file from {{< monolink "https://ourworldindata.org/grapher/physicians-per-1000-people" "ourworldindata.org/grapher/physicians-per-1000-people" >}} manually or you can do as we did in @sec-turbines, and download it directly into R using the URL. Simply pass the URL into the `read_csv()` function from **`readr`** (or `read.csv()` from base R if you prefer). As in @sec-turbines, we split the URL into the base URL and the specific page of interest to make it easier to later load in other datasets if we choose to. \index{readr!read\_csv} \index{utils!read.csv}
+{{< monolink "https://ourworldindata.org/grapher/physicians-per-1000-people" "ourworldindata.org/grapher/physicians-per-1000-people" >}}에서 CSV 파일을 수동으로 다운로드하거나 @sec-turbines 에서 했던 것처럼 URL을 사용하여 R로 직접 다운로드할 수 있습니다. **`readr`**의 `read_csv()` 함수(또는 선호하는 경우 기본 R의 `read.csv()`)에 URL을 전달하기만 하면 됩니다. @sec-turbines 에서와 마찬가지로 나중에 다른 데이터 세트를 더 쉽게 로드할 수 있도록 URL을 기본 URL과 관심 있는 특정 페이지로 분리합니다. \index{readr!read\_csv} \index{utils!read.csv}
 
 ```{r}
 #| label: doctors-load-data-csv-show
@@ -94,9 +94,9 @@ doctors <- read_csv("data/doctors.csv")
 
 ::: {#tip-doctors-owid .callout-tip}
 
-## Connecting to Our World in Data via R
+## R을 통해 Our World in Data에 연결하기
 
-The **`owidapi`** R package [@owidapi] provides an R interface to the Our World in Data website, allowing you to search and download data in R without having to navigate through the website. However, it's not much less complicated than passing in the URL to `read_csv()`.  \index{owidapi!owid\_get}
+**`owidapi`** R 패키지 [@owidapi]는 Our World in Data 웹사이트에 대한 R 인터페이스를 제공하여 웹사이트를 탐색하지 않고도 R에서 데이터를 검색하고 다운로드할 수 있습니다. 그러나 `read_csv()`에 URL을 전달하는 것보다 훨씬 덜 복잡하지는 않습니다. \index{owidapi!owid\_get}
 
 ```{r}
 #| label: doctors-load-data-show
@@ -106,47 +106,47 @@ library(owidapi)
 doctors <- owid_get("physicians-per-1000-people")
 ```
 
-Previously the **`owidR`** package [@owidR] also provided a similar interface, but at the time of writing, it hasn't been updated to use the newest Our World in Data API which results in errors when accessing data. \index{owidR!owid}
+이전에는 **`owidR`** 패키지 [@owidR]도 유사한 인터페이스를 제공했지만, 작성 당시 데이터를 액세스할 때 오류가 발생하는 최신 Our World in Data API를 사용하도록 업데이트되지 않았습니다. \index{owidR!owid}
 
 :::
 
 ::: {#tip-doctors-view .callout-tip}
 
-## Saving data for later use
+## 나중에 사용할 수 있도록 데이터 저장하기
 
-You may choose to save a copy of `doctors` as a CSV file for later use by using `write.csv()` or `write_csv()` from **`readr`**. This means you don't have to download the data each time you open R and don't have to worry about the data updating when you're halfway through your analysis. You can then later read in the data with `read.csv` or `read_csv()` from **`readr`**. \index{readr!read\_csv} \index{readr!write\_csv} \index{utils!read.csv} \index{utils!write.csv}
+나중에 사용할 수 있도록 **`readr`**의 `write.csv()` 또는 `write_csv()`를 사용하여 `doctors`의 사본을 CSV 파일로 저장할 수 있습니다. 즉, R을 열 때마다 데이터를 다운로드할 필요가 없으며 분석 중간에 데이터가 업데이트되는 것에 대해 걱정할 필요가 없습니다. 그런 다음 나중에 **`readr`**의 `read.csv` 또는 `read_csv()`로 데이터를 읽을 수 있습니다. \index{readr!read\_csv} \index{readr!write\_csv} \index{utils!read.csv} \index{utils!write.csv}
 
 :::
 
 ::: {#tip-doctors-open-data .callout-tip}
 
-## Finding sources of data
+## 데이터 소스 찾기
 
-There's often a *Bring Your Own Data* week each year of TidyTuesday\index{TidyTuesday} [@tidytuesday], where participants are encouraged to source their own data. Some use their own data - visualizing how many times they've gone for a run over the past year, or recreating GitHub contributions graphs. Others choose to find and visualize other sources of data. So where do you find publicly available data?
+TidyTuesday\index{TidyTuesday} [@tidytuesday]에는 매년 *Bring Your Own Data(나만의 데이터 가져오기)* 주간이 있어 참가자들이 자신의 데이터를 소싱하도록 권장합니다. 일부는 지난 1년 동안 얼마나 많이 달렸는지 시각화하거나 GitHub 기여 그래프를 다시 만드는 등 자신의 데이터를 사용합니다. 다른 사람들은 다른 공개 데이터 소스를 찾아 시각화하는 것을 선택합니다. 그렇다면 공개적으로 사용 가능한 데이터는 어디에서 찾을 수 있을까요?
 
-There are many open sources of data, covering a wide range of topics, time frames, and regions across the world. Some government organisations have data portals, some companies have APIs you can access, some academic papers have accompanying data, or the Google dataset search engine ({{< monolink "https://datasetsearch.research.google.com/" "datasetsearch.research.google.com" >}}) might also help you to identify data you're interested in.
+주제, 기간 및 전 세계 지역을 아우르는 많은 공개 데이터 소스가 있습니다. 일부 정부 기관에는 데이터 포털이 있고, 일부 회사에는 액세스할 수 있는 API가 있으며, 일부 학술 논문에는 데이터가 함께 제공되거나 Google 데이터 세트 검색 엔진({{< monolink "https://datasetsearch.research.google.com/" "datasetsearch.research.google.com" >}})이 관심 있는 데이터를 식별하는 데 도움이 될 수도 있습니다.
 
 :::
 
-## Exploratory work
+## 탐색 작업
 
-Let's start by exploring the data to see if there are interesting patterns that can be visualized. 
+데이터를 탐색하여 시각화할 수 있는 흥미로운 패턴이 있는지 확인하는 것으로 시작하겠습니다.
 
-### Data exploration
+### 데이터 탐색
 
-The data is reasonably small, containing only `r ncol(doctors)` columns: `Entity` (denoting the country or a larger region), `Code` (the country code), `Year` (year the data relates to), and `Physicians (per 1,000 people)`. The `r nrow(doctors)` rows of data cover `r length(unique(doctors$Entity))` different regions (some aggregates of others), with data covering `r length(unique(doctors$Year))` years.
+데이터는 `Entity`(국가 또는 더 큰 지역을 나타냄), `Code`(국가 코드), `Year`(데이터가 관련된 연도) 및 `Physicians (per 1,000 people)`의 `r ncol(doctors)`개 열만 포함하여 합리적으로 작습니다. `r nrow(doctors)`행의 데이터는 `r length(unique(doctors$Entity))`개의 서로 다른 지역(일부는 다른 지역의 집계)을 다루며 데이터는 `r length(unique(doctors$Year))`년을 다룹니다.
 
 ```{r}
 #| label: doctors-head-data
 head(doctors)
 ```
 
-Often when there's a time component to data, one of the most obvious patterns to consider is how other variables change over time. Although line charts are probably most common for visualizing time series data, a simple scatter plot can also indicate if there's a general trend in the data. Sometimes scatter plots also look cleaner than line charts - a line for each region in this chart would very much look like a *spaghetti chart* as discussed in @sec-museums. \index{scatter plot}
+데이터에 시간 구성 요소가 있을 때 고려해야 할 가장 분명한 패턴 중 하나는 다른 변수가 시간이 지남에 따라 어떻게 변하는지입니다. 시계열 데이터를 시각화하는 데는 선형 차트가 아마도 가장 일반적이지만 간단한 산점도도 데이터에 일반적인 추세가 있는지 나타낼 수 있습니다. 때로는 산점도가 선형 차트보다 깔끔해 보이기도 합니다. 이 차트의 각 지역에 대한 선은 @sec-museums 에서 논의한 것처럼 *스파게티 차트*처럼 보일 것입니다. \index{scatter plot}
 
 ```{r, echo=-1}
 #| label: fig-doctors-base-plot
-#| fig-cap: "Simple non-styled scatterplot of number of physicians per 1,000 people over time showing an increasing trend, created in base R."
-#| fig-alt: "Simple non-styled scatterplot of number of physicians per 1,000 people over time showing an increasing trend, created in base R."
+#| fig-cap: "기본 R로 만든, 시간이 지남에 따라 인구 1,000명당 의사 수가 증가하는 추세를 보여주는 스타일이 지정되지 않은 간단한 산점도."
+#| fig-alt: "기본 R로 만든, 시간이 지남에 따라 인구 1,000명당 의사 수가 증가하는 추세를 보여주는 스타일이 지정되지 않은 간단한 산점도."
 par(mar = c(3.1, 4.1, 1.1, 2.1), cex.axis = 0.5, cex.names = 0.5)
 plot(
   x = doctors$Year,
@@ -156,23 +156,23 @@ plot(
 )
 ```
 
-There seems to be a general increasing trend between 1960 and 2020. The other important component of this data that we may want to explore is the spatial aspect - is there a pattern over space as well as over time? 
+1960년과 2020년 사이에 전반적으로 증가하는 추세가 있는 것 같습니다. 우리가 탐색하고 싶어 할 수 있는 이 데이터의 또 다른 중요한 구성 요소는 공간적 측면입니다 - 시간뿐만 아니라 공간에 따른 패턴도 있을까요?
 
-### Exploratory sketches
+### 탐색적 스케치
 
-The most common approach to visualizing spatial data is, of course, to plot it on a map. If the aim is to show how a variable changes across different countries (or other defined regions), it's very common to color the country based on the value of the variable. These are often termed *choropleth maps*.\index{choropleth map}
+공간 데이터를 시각화하는 가장 일반적인 접근 방식은 물론 지도에 표시하는 것입니다. 목표가 다른 국가(또는 기타 정의된 지역)에 따라 변수가 어떻게 변하는지 보여주는 것이라면 변수 값에 따라 국가의 색상을 지정하는 것이 매우 일반적입니다. 이를 종종 *등치 지역도(choropleth maps)*라고 합니다.\index{choropleth map}
 
-![Initial sketch of a map of the world, showing title enclosed in a box and legend positioned horizontally in the bottom right](images/sketch-doctors.png){#fig-doctors-sketch fig-align="center" fig-alt="Initial sketch of a map of the world, showing title enclosed in a box and legend positioned horizontally in the bottom right"}
+![상자 안에 제목이 있고 오른쪽 하단에 범례가 수평으로 배치된 세계 지도의 초기 스케치](images/sketch-doctors.png){#fig-doctors-sketch fig-align="center" fig-alt="상자 안에 제목이 있고 오른쪽 하단에 범례가 수평으로 배치된 세계 지도의 초기 스케치"}
 
-At this point, it's also often a good time to start thinking about the orientation and aspect ratio of the plot you'll create. This will depend a lot of where the plot is going to end up - for example, plots in a single column academic article will typically be landscape graphs. The choice of orientation and aspect ratio can also affect how clearly your data is displayed - choosing a very wide plot for time series data can stretch the series and obliterate any appearance of trend. With maps, you're a little bit more constrained because there is already an underlying aspect ratio in the plot you're creating. For this map, a landscape orientation with a 6x4 aspect ratio should work reasonably well. \index{aspect ratio} \index{orientation}
+이 시점은 또한 만들 플롯의 방향과 종횡비에 대해 생각하기 시작하기에 좋은 시기입니다. 이는 플롯이 결국 어디에 위치할지에 따라 많이 달라질 것입니다. 예를 들어, 단일 열 학술 기사의 플롯은 일반적으로 가로형 그래프가 될 것입니다. 방향과 종횡비의 선택은 데이터가 얼마나 명확하게 표시되는지에도 영향을 미칠 수 있습니다. 시계열 데이터에 대해 매우 넓은 플롯을 선택하면 계열이 늘어나 추세의 모양이 사라질 수 있습니다. 지도의 경우 만들고 있는 플롯에 이미 기본 종횡비가 있기 때문에 조금 더 제한적입니다. 이 지도의 경우 6x4 종횡비의 가로 방향이 합리적으로 잘 작동할 것입니다. \index{aspect ratio} \index{orientation}
 
-## Preparing a plot
+## 플롯 준비하기
 
-To create the map sketched out in @fig-doctors-sketch, we need to do two things (i) decide which data to plot: which regions, and which years; and (ii) source some spatial data beyond just region names and country codes.
+@fig-doctors-sketch 에 스케치된 지도를 만들려면 두 가지 작업을 수행해야 합니다. (i) 플롯할 데이터 결정: 어떤 지역, 어떤 연도; (ii) 지역 이름과 국가 코드 이상의 공간 데이터 소싱.
 
-### Data wrangling
+### 데이터 랭글링
 
-Since this data is already fairly tidy, there isn't too much data wrangling to be done. The only processing we really need to do is getting rid of the data we don't need, and renaming a couple of columns to make them easier to work with. We can use the `rename()` function from **`dplyr`** to rename the `Entity` column to `region` (for reasons that will become clear in the next paragraph!)\index{dplyr!rename}. We also rename the `Physicians (per 1,000 people)` column to `doctors` to make it easier to work with, and rename `Year` to `year` for consistency. The data has multiple entries for each country, spanning different years. We *could* make an animated map to show how the number of doctors is changing over time, but for now we'll keep it simple with a static map showing a snapshot at one point in time. However, there's a bit of a problem. If you inspect the data, you'll see that not every country has an entry for each year - let's use the most recent data available for each country. For each `region`, we keep the row with only the most recent year using a combination of `group_by()`\index{dplyr!group\_by} and `slice_max()`\index{dplyr!slice\_max} from {dplyr}.
+이 데이터는 이미 상당히 깔끔하므로 데이터 랭글링을 많이 할 필요는 없습니다. 우리가 정말로 해야 할 유일한 처리는 필요하지 않은 데이터를 제거하고 작업하기 쉽도록 몇 개의 열 이름을 바꾸는 것입니다. **`dplyr`**의 `rename()` 함수를 사용하여 `Entity` 열의 이름을 `region`으로 바꿀 수 있습니다(그 이유는 다음 단락에서 명확해질 것입니다!).\index{dplyr!rename}. 또한 작업하기 쉽도록 `Physicians (per 1,000 people)` 열의 이름을 `doctors`로 바꾸고 일관성을 위해 `Year`를 `year`로 바꿉니다. 데이터에는 각 국가에 대해 여러 항목이 있으며 다른 연도에 걸쳐 있습니다. 시간이 지남에 따라 의사 수가 어떻게 변하는지 보여주는 애니메이션 지도를 만들 *수도* 있지만 지금은 한 시점의 스냅샷을 보여주는 정적 지도로 간단하게 유지하겠습니다. 하지만 약간의 문제가 있습니다. 데이터를 살펴보면 모든 국가에 매년 항목이 있는 것은 아니라는 것을 알 수 있습니다. 각 국가에 대해 가장 최근에 사용 가능한 데이터를 사용해 보겠습니다. 각 `region`에 대해 {dplyr}의 `group_by()`\index{dplyr!group\_by} 및 `slice_max()`\index{dplyr!slice\_max} 조합을 사용하여 가장 최근 연도만 있는 행을 유지합니다.
 
 ```{r}
 #| label: doctors-wrangle
@@ -189,7 +189,7 @@ doctors <- doctors |>
   ungroup()
 ```
 
-To plot this data on a world map, we also need data for the country borders. Luckily, the `map_data()` function built into **`ggplot2`**\index{ggplot2!map\_data} can help us with that! This function takes data from the **`maps`** package\index{maps} and turns it into an object you can plot directly with **`ggplot2`**.
+이 데이터를 세계 지도에 플롯하려면 국가 경계 데이터도 필요합니다. 다행히도 **`ggplot2`**\index{ggplot2!map\_data}에 내장된 `map_data()` 함수가 도움이 될 수 있습니다! 이 함수는 **`maps`** 패키지\index{maps}의 데이터를 가져와 **`ggplot2`**로 직접 플롯할 수 있는 객체로 변환합니다.
 
 ```{r}
 #| label: map-doctors
@@ -197,17 +197,17 @@ To plot this data on a world map, we also need data for the country borders. Luc
 world <- map_data("world")
 ```
 
-Of course, it's never quite that straightforward. We need to join the `world` map data to our `doctors` data, and to do that we need a column in each data sets to join by - we'll use the `region` column. If you try to join these two data sets using the `region` column, you'll notice that you end up with some unexpected `NA` values. So what's going on?
+물론, 그렇게 간단하지는 않습니다. `world` 지도 데이터를 `doctors` 데이터에 결합해야 하며, 그렇게 하려면 두 데이터 세트에 결합할 열이 필요합니다. 우리는 `region` 열을 사용할 것입니다. `region` 열을 사용하여 이 두 데이터 세트를 결합하려고 하면 예상치 못한 `NA` 값이 생기는 것을 알 수 있습니다. 무슨 일일까요?
 
 ::: {#tip-doctors-join .callout-tip}
 
-## Renaming columns
+## 열 이름 바꾸기
 
-You don't need to rename columns in your data to be able to join them, but you may find it easier to work with the data after renaming `Entity` to `region` to maintain consistency across datasets.
+결합하기 위해 데이터의 열 이름을 바꿀 필요는 없지만, 데이터 세트 간의 일관성을 유지하기 위해 `Entity`를 `region`으로 바꾼 후 데이터를 작업하는 것이 더 쉬울 수 있습니다.
 
 :::
 
-There are two issues here. Firstly, there are more regions in the `world` data than there are in the `doctors` data:
+여기에는 두 가지 문제가 있습니다. 첫째, `doctors` 데이터보다 `world` 데이터에 더 많은 지역이 있습니다:
 
 ```{r}
 #| label: map-doctors-length
@@ -215,9 +215,9 @@ length(unique(world$region))
 length(unique(doctors$region))
 ```
 
-This is partly due to the fact that the `doctors` data has implicitly missing values - if no data is available for a region, no rows exists in the data for that region. It isn't listed with `NA` values. Note that there are also some *regions* in `doctors` which do not exist in `world` - for example, the entity `"Upper-middle-income countries"` is listed within `doctors`.
+이는 부분적으로 `doctors` 데이터에 암시적으로 누락된 값이 있다는 사실 때문입니다. 지역에 대한 데이터를 사용할 수 없는 경우 해당 지역에 대한 데이터에 행이 존재하지 않습니다. `NA` 값으로 나열되지 않습니다. `doctors`에는 `world`에 존재하지 않는 일부 *지역*도 있습니다. 예를 들어 `"Upper-middle-income countries"` 엔티티는 `doctors` 내에 나열됩니다.
 
-Secondly, if you inspect the region names, you'll see that for some countries, their names are encoded differently. For example, in the `world` data, the United States is listed as `"USA"` whilst in the `doctors` data, it's listed as `"United States"`. Here, the easiest thing to do is manually rename the values that differ in one of the datasets. We can use the `recode()` function from **`dplyr`** to do that.\index{dplyr!recode} Note that `recode()` has the rather unusual (for the **`tidyverse`**) syntax of `old_name = new_name`:
+둘째, 지역 이름을 살펴보면 일부 국가의 경우 이름이 다르게 인코딩되어 있음을 알 수 있습니다. 예를 들어 `world` 데이터에서 미국은 `"USA"`로 나열되고 `doctors` 데이터에서는 `"United States"`로 나열됩니다. 여기서 가장 쉬운 방법은 데이터 세트 중 하나에서 다른 값을 수동으로 이름을 바꾸는 것입니다. **`dplyr`**의 `recode()` 함수를 사용하여 이를 수행할 수 있습니다.\index{dplyr!recode} `recode()`는 `old_name = new_name`이라는 다소 특이한(**`tidyverse`**의 경우) 구문을 가지고 있습니다:
 
 ```{r}
 #| label: map-doctors-wrangle-1
@@ -235,7 +235,7 @@ plot_data <- doctors |>
   )
 ```
 
-The entries in the `region` column of `doctors` that don't correspond to countries e.g. `"Upper-middle-income countries"` are not values that are required for the map. Therefore a `left_join()` can be performed, with `world` on the left - keeping all the countries listed in `world` and joining only those with a corresponding value in `doctors`. The remaining countries in `world` with no match in `doctors` are listed with `NA` values. The rows for `"Antarctica"` are filtered out - Antarctica is often given a disproportionate amount of space on world maps (at least those not centered on Antarctica) in the process of projecting a sphere onto a rectangle. \index{dplyr!filter} \index{dplyr!left\_join}
+국가에 해당하지 않는 `doctors`의 `region` 열 항목(예: `"Upper-middle-income countries"`)은 지도에 필요한 값이 아닙니다. 따라서 `left_join()`을 수행할 수 있으며, `world`를 왼쪽에 두고 `world`에 나열된 모든 국가를 유지하고 `doctors`에 해당 값이 있는 국가만 결합합니다. `doctors`에 일치하는 항목이 없는 `world`의 나머지 국가는 `NA` 값으로 나열됩니다. `"Antarctica"`에 대한 행은 필터링됩니다. 남극 대륙은 구를 직사각형으로 투영하는 과정에서 종종 세계 지도(적어도 남극 대륙을 중심으로 하지 않는 지도)에서 불균형한 공간을 차지합니다. \index{dplyr!filter} \index{dplyr!left\_join}
 
 ```{r}
 #| label: map-doctors-wrangle-2
@@ -247,28 +247,28 @@ map_data <- left_join(
   filter(region != "Antarctica")
 ```
 
-Now, we have everything we need to create a simple map.\index{map}
+이제 간단한 지도를 만드는 데 필요한 모든 것이 준비되었습니다.\index{map}
 
-### The first plot
+### 첫 번째 플롯
 
-We start, as almost always, with the `ggplot()` function, and pass in the data and aesthetic mappings that will apply to the whole plot. The longitude (`long`) and latitude (`lat`) are passed to the `x` and `y` axes; and we specify that the `fill` color of each country should be based on the `doctors` column. We also specify `map_id` - an aesthetic mapping that isn't seen as often as the others. This is used to tell `geom_map()` which column defines each region polygon (not entirely unlike the `group` aesthetic). Then, we use `geom_map()` to actually draw the map. \index{ggplot2!ggplot} \index{ggplot2!geom\_map}\index{ggplot2!aes}
+거의 항상 그렇듯이 `ggplot()` 함수로 시작하고 전체 플롯에 적용될 데이터와 미학적 매핑을 전달합니다. 경도(`long`)와 위도(`lat`)는 `x` 및 `y` 축에 전달됩니다. 각 국가의 `fill` 색상은 `doctors` 열을 기반으로 해야 한다고 지정합니다. 또한 `map_id`를 지정합니다. 이는 다른 것들만큼 자주 보이지 않는 미학적 매핑입니다. 이것은 `geom_map()`에 각 지역 폴리곤을 정의하는 열을 알려주는 데 사용됩니다(`group` 미학과는 다릅니다). 그런 다음 `geom_map()`을 사용하여 실제로 지도를 그립니다. \index{ggplot2!ggplot} \index{ggplot2!geom\_map}\index{ggplot2!aes}
 
 ::: {#tip-doctors-polygon .callout-tip}
 
-## Alternatives to `geom_map()`
+## `geom_map()`의 대안
 
-Both `geom_sf()` and `geom_polygon()` can be used as an alternative to `geom_map()` for creating maps within **`ggplot2`**.
+`geom_sf()`와 `geom_polygon()` 모두 **`ggplot2`** 내에서 지도를 만들기 위한 `geom_map()`의 대안으로 사용할 수 있습니다.
 
-However, they expect different formats of data. The `geom_sf()` function expects an `sf` object, in contrast to `geom_map()` which works with coordinates as columns in a `data.frame` or `tibble`. For examples of using `geom_sf()`, see @sec-time-zones. \index{ggplot2!geom\_map}\index{ggplot2!geom\_sf}
+그러나 그들은 다른 형식의 데이터를 기대합니다. `geom_sf()` 함수는 `data.frame` 또는 `tibble`의 열로서의 좌표와 함께 작동하는 `geom_map()`과 달리 `sf` 객체를 기대합니다. `geom_sf()` 사용 예는 @sec-time-zones 를 참조하십시오. \index{ggplot2!geom\_map}\index{ggplot2!geom\_sf}
 
-You could also use `geom_polygon()` to plot `map_data` instead of `geom_map()`, but it makes it more difficult to project the map in the way we want to. \index{ggplot2!geom\_polygon}
+`geom_map()` 대신 `map_data`를 플롯하기 위해 `geom_polygon()`을 사용할 수도 있지만 원하는 방식으로 지도를 투영하는 것이 더 어렵습니다. \index{ggplot2!geom\_polygon}
 
 :::
 
 ```{r}
 #| label: fig-doctors-basic-plot-1
-#| fig-cap: "Map of the world with countries colored based on number of doctors per 1,000 people. The map looks stretched."
-#| fig-alt: "Map of the world with countries colored based on number of doctors per 1,000 people. The map looks stretched."
+#| fig-cap: "인구 1,000명당 의사 수에 따라 국가가 색으로 구분된 세계 지도. 지도가 늘어난 것처럼 보입니다."
+#| fig-alt: "인구 1,000명당 의사 수에 따라 국가가 색으로 구분된 세계 지도. 지도가 늘어난 것처럼 보입니다."
 basic_plot <- ggplot(
   data = map_data,
   mapping = aes(
@@ -282,23 +282,23 @@ basic_plot <- ggplot(
 basic_plot
 ```
 
-We now have a simple map that shows our data, but there are several problems with it: 
+이제 데이터를 보여주는 간단한 지도가 생겼지만 몇 가지 문제가 있습니다:
 
-* The map looks as if someone has stretched it vertically, since there's no map projection specified. Countries are still recognizable, but not quite the right shape.
-* The color palette is not ideal. It's more intuitive for brighter or lighter colors to represent smaller values, and for darker colors to represent higher values - at least for light colored backgrounds [@Schloss]. The default gradient color scale in **`ggplot2`** is the opposite way around.
-* There are labels that don't need to be there (`lat` and `long`), and missing labels that should be there (`title` and `subtitle`, for example).
+* 지도 투영법이 지정되어 있지 않아 누군가 수직으로 늘린 것처럼 보입니다. 나라는 여전히 알아볼 수 있지만 모양이 딱 맞지는 않습니다.
+* 색상 팔레트가 이상적이지 않습니다. 적어도 밝은 색상의 배경에서는 더 밝거나 연한 색상이 더 작은 값을 나타내고 어두운 색상이 더 높은 값을 나타내는 것이 더 직관적입니다[@Schloss]. **`ggplot2`**의 기본 그라데이션 색상 스케일은 반대입니다.
+* 없어야 할 레이블(`lat` 및 `long`)이 있고 있어야 할 레이블(예: `title` 및 `subtitle`)이 없습니다.
 
-So let's fix those elements of the initial plot.
+따라서 초기 플롯의 요소를 수정해 보겠습니다.
 
-## Advanced styling
+## 고급 스타일링
 
-We'll start by considering alternative color palettes, then think about what text that should be added, before finalizing the layout. 
+대체 색상 팔레트를 고려한 다음 레이아웃을 마무리하기 전에 어떤 텍스트를 추가해야 할지 생각하는 것으로 시작하겠습니다.
 
-### Colors
+### 색상
 
-There are many, many color palette R packages in existence, and even more outside of the R ecosystem. In fact, the **`paletteer`** package [@paletteer] is designed to give a common interface to a comprehensive collection of color palettes in R. A popular color palette R package is **`MetBrewer`** [@MetBrewer] - a collection of color palettes inspired by works of art at the Metropolitan Museum of Art in New York. It has many beautiful palettes, and many that work in traditional data visualizations. You can view all available palettes using `display_all(colorblind_only = TRUE)`. Since `doctors` is a continuous variable, we'll look at the sequential palettes only. \index{paletteer} \index{MetBrewer} \index{color}
+존재하는 R 패키지에는 정말 많은 색상 팔레트가 있으며 R 생태계 외부에는 더 많이 있습니다. 사실 **`paletteer`** 패키지 [@paletteer]는 R의 포괄적인 색상 팔레트 컬렉션에 대한 공통 인터페이스를 제공하도록 설계되었습니다. 인기 있는 색상 팔레트 R 패키지는 **`MetBrewer`** [@MetBrewer]입니다. 뉴욕 메트로폴리탄 미술관의 예술 작품에서 영감을 얻은 색상 팔레트 컬렉션입니다. 아름다운 팔레트가 많으며 전통적인 데이터 시각화에서도 잘 작동하는 팔레트가 많습니다. `display_all(colorblind_only = TRUE)`을 사용하여 사용 가능한 모든 팔레트를 볼 수 있습니다. `doctors`는 연속 변수이므로 순차적 팔레트만 살펴보겠습니다. \index{paletteer} \index{MetBrewer} \index{color}
 
-**`MetBrewer`** does have functions that interface directly with **`ggplot2`** (such as `scale_fill_met_c()`) but we're going to use some of the colors in the palette to also define variables for the highlight and text colors. To get a good range of colors, we extract 20 colors from the `"Hokusai2"` palette. The `text_col` is the 18th color and `highlight_col` is the 15th color. A variable containing the background color, `bg_col`, is also defined.
+**`MetBrewer`**에는 **`ggplot2`**와 직접 인터페이스하는 함수(예: `scale_fill_met_c()`)가 있지만 팔레트의 일부 색상을 사용하여 강조 및 텍스트 색상에 대한 변수도 정의할 것입니다. 좋은 색상 범위를 얻기 위해 `"Hokusai2"` 팔레트에서 20가지 색상을 추출합니다. `text_col`은 18번째 색상이고 `highlight_col`은 15번째 색상입니다. 배경색을 포함하는 변수 `bg_col`도 정의됩니다.
 
 ```{r}
 #| label: doctors-colors
@@ -309,25 +309,25 @@ highlight_col <- col_palette[15]
 bg_col <- "#EADEDA"
 ```
 
-These colors can then be passed into `scale_fill_gradientn()` from **`ggplot2`**\index{ggplot2!scale\_fill\_gradientn}. The limits of the color scale can also be set. Rather than adding labels for values on the legend, we can add text labels for *Fewer doctors* and *More doctors*. These are positioned 0.8 in from the limits of the color scale.
+이 색상들은 **`ggplot2`**\index{ggplot2!scale\_fill\_gradientn}의 `scale_fill_gradientn()`에 전달될 수 있습니다. 색상 스케일의 제한도 설정할 수 있습니다. 범례에 값에 대한 레이블을 추가하는 대신 *더 적은 의사(Fewer doctors)* 및 *더 많은 의사(More doctors)*에 대한 텍스트 레이블을 추가할 수 있습니다. 이들은 색상 스케일의 제한에서 0.8인치 위치에 배치됩니다.
 
 ```{r}
 #| label: fig-doctors-style-plot-1
-#| fig-cap: "Map of the world with countries colored based on number of doctors per 1,000 people, showing a different color scheme."
-#| fig-alt: "Map of the world with countries colored based on number of doctors per 1,000 people, showing a different color scheme."
+#| fig-cap: "인구 1,000명당 의사 수에 따라 국가가 색으로 구분된 세계 지도, 다른 색상 체계를 보여줍니다."
+#| fig-alt: "인구 1,000명당 의사 수에 따라 국가가 색으로 구분된 세계 지도, 다른 색상 체계를 보여줍니다."
 col_plot <- basic_plot +
   scale_fill_gradientn(
     colors = col_palette,
     limits = c(0, 10),
     breaks = c(0.8, 9.2),
-    labels = c("Fewer doctors", "More doctors")
+    labels = c("더 적은 의사", "더 많은 의사")
   )
 col_plot
 ```
 
-### Text and fonts
+### 텍스트와 글꼴
 
-As in previous chapters, fonts can be defined using the **`sysfonts`**\index{sysfonts} and **`showtext`**\index{showtext} packages. Here, the *Roboto* typeface is loaded through Google Fonts for the main font used, and *Roboto Slab* is loaded for use in the title. \index{sysfonts!font\_add\_google} \index{showtext!showtext\_auto} \index{showtext!showtext\_opts}
+이전 장에서와 마찬가지로 **`sysfonts`**\index{sysfonts} 및 **`showtext`**\index{showtext} 패키지를 사용하여 글꼴을 정의할 수 있습니다. 여기서는 Google Fonts를 통해 *Roboto* 서체를 로드하여 주요 글꼴로 사용하고, 제목에는 *Roboto Slab*을 사용합니다. \index{sysfonts!font\_add\_google} \index{showtext!showtext\_auto} \index{showtext!showtext\_opts}
 
 ```{r}
 #| label: doctors-font
@@ -339,15 +339,15 @@ body_font <- "Roboto"
 title_font <- "Roboto Slab"
 ```
 
-Now, we can define some text for the title, subtitle, and caption. As in previous chapters, we'll be using **`ggtext`** for formatting which means we can use HTML syntax to add line breaks.
+이제 제목, 부제목 및 캡션에 대한 텍스트를 정의할 수 있습니다. 이전 장에서와 마찬가지로 **`ggtext`**를 사용하여 서식을 지정하므로 HTML 구문을 사용하여 줄 바꿈을 추가할 수 있습니다.
 
 ```{r}
 #| label: doctors-text
-title <- "Doctors across the world"
-subtitle <- "This map show the number of doctors per thousand people, revealing which countries* may be more likely to struggle in providing care for a population.<br><br>*using the most recent available data for each country."
+title <- "전 세계 의사"
+subtitle <- "이 지도는 인구 1,000명당 의사 수를 보여주며, 인구에게 의료 서비스를 제공하는 데 어려움을 겪을 가능성이 더 높은 국가*를 보여줍니다.<br><br>*각 국가에 대해 가장 최근에 사용 가능한 데이터 사용."
 ```
 
-Let's create a custom caption that includes Font Awesome icons, as described in @sec-cats, which is passed into the `source_caption()` function we defined in @sec-turbines: \index{social\_caption} \index{source\_caption}
+@sec-cats 에서 설명한 대로 Font Awesome 아이콘을 포함하는 사용자 정의 캡션을 만들어 @sec-turbines 에서 정의한 `source_caption()` 함수에 전달합니다: \index{social\_caption} \index{source\_caption}
 
 ```{r}
 #| label: doctors-style-3
@@ -363,7 +363,7 @@ caption <- source_caption(
 )
 ```
 
-These text variables can then be passed into the `labs()` function. \index{ggplot2!labs}
+이러한 텍스트 변수는 `labs()` 함수에 전달될 수 있습니다. \index{ggplot2!labs}
 
 ```{r}
 #| label: doctors-style-plot-2
@@ -375,18 +375,18 @@ text_plot <- col_plot +
   )
 ```
 
-To apply our chosen typefaces to the plot, the `theme` elements need to be adjusted. \index{ggplot2!theme}
+선택한 서체를 플롯에 적용하려면 `theme` 요소를 조정해야 합니다. \index{ggplot2!theme}
 
-### Adjusting themes
+### 테마 조정
 
-We start by adding `theme_void()` from **`ggplot2`**. The `theme_void` function removes all `theme` elements - including grid lines, axis labels, and the background. The legend and specified titles and subtitles remain. This theme is especially useful for maps where it's more common for axis lines, axis titles, and grid lines not to be displayed. Like other built-in theme options, we can still set the `base_size` and `base_family` to set the default size and typeface for any text that is displayed. \index{ggplot2!theme\_void}
+**`ggplot2`**의 `theme_void()`를 추가하는 것으로 시작합니다. `theme_void` 함수는 그리드 선, 축 레이블 및 배경을 포함한 모든 `theme` 요소를 제거합니다. 범례와 지정된 제목 및 부제목은 유지됩니다. 이 테마는 축 선, 축 제목 및 그리드 선이 표시되지 않는 것이 더 일반적인 지도에 특히 유용합니다. 다른 기본 제공 테마 옵션과 마찬가지로 `base_size` 및 `base_family`를 설정하여 표시되는 텍스트의 기본 크기와 서체를 설정할 수 있습니다. \index{ggplot2!theme\_void}
 
-We also set the `plot.title`, `plot.subtitle`, and `plot.caption` to use `element_textbox_simple` from **`ggtext`** to allow the markdown syntax and automatically wrap long subtitles as we've seen in previous chapters.\index{ggtext!element\_textbox\_simple}
+또한 `plot.title`, `plot.subtitle` 및 `plot.caption`을 **`ggtext`**의 `element_textbox_simple`을 사용하도록 설정하여 이전 장에서 본 것처럼 마크다운 구문을 허용하고 긴 부제목을 자동으로 줄 바꿈합니다.\index{ggtext!element\_textbox\_simple}
 
 ```{r}
 #| label: fig-doctors-style-plot-3
-#| fig-cap: "Map of the world with countries colored based on number of doctors per 1,000 people. The map looks stretched, and the fonts in the title and subtitle are close together."
-#| fig-alt: "Map of the world with countries colored based on number of doctors per 1,000 people. The map looks stretched, and the fonts in the title and subtitle are close together."
+#| fig-cap: "인구 1,000명당 의사 수에 따라 국가가 색으로 구분된 세계 지도. 지도가 늘어난 것처럼 보이고 제목과 부제목의 글꼴이 서로 가깝습니다."
+#| fig-alt: "인구 1,000명당 의사 수에 따라 국가가 색으로 구분된 세계 지도. 지도가 늘어난 것처럼 보이고 제목과 부제목의 글꼴이 서로 가깝습니다."
 text_plot +
   theme_void(base_size = 8, base_family = body_font) +
   theme(
@@ -411,7 +411,7 @@ text_plot +
   )
 ```
 
-One of the aesthetic design choices we might want to make here, is to include the title within a banner with a different colored background. Although this might seem like a fairly straightforward thing to want, it's actually not that easy with **`ggplot2`**. There are some solutions to the problem using packages like **`cowplot`** [@cowplot] or **`grid`** [@rproj] to draw rectangles and text. But we can do this within **`ggplot2`** - by using facets in a way they were not designed to be used. Let's start by adding an additional column called `label` to `map_data` that contains the title (for every row in the data): \index{cowplot} \index{grid}
+여기서 우리가 만들고 싶어 할 수 있는 미적 디자인 선택 중 하나는 다른 색상의 배경이 있는 배너 안에 제목을 넣는 것입니다. 이것은 꽤 간단한 일처럼 보일 수 있지만 사실 **`ggplot2`**로는 그렇게 쉽지 않습니다. **`cowplot`** [@cowplot]이나 **`grid`** [@rproj]와 같은 패키지를 사용하여 사각형과 텍스트를 그리는 등 문제에 대한 몇 가지 해결책이 있습니다. 그러나 **`ggplot2`** 내에서 이 작업을 수행할 수 있습니다. 즉, 원래 설계되지 않은 방식으로 패싯을 사용하는 것입니다. `map_data`에 `label`이라는 추가 열을 추가하여(데이터의 모든 행에 대해) 제목을 포함시키는 것으로 시작하겠습니다: \index{cowplot} \index{grid}
 
 ```{r}
 #| label: doctors-facets
@@ -420,26 +420,26 @@ map_data$label <- title
 
 ::: {#tip-doctors-label .callout-tip}
 
-## Choosing a column name
+## 열 이름 선택
 
-This column does not need to be called `label`, you can use any name you choose as long as it's not an existing column.
+이 열의 이름은 `label`일 필요는 없으며 기존 열이 아닌 한 원하는 이름을 사용할 수 있습니다.
 
-You could also pass the title directly into `facet_wrap()` instead of creating a new column:
+새 열을 만드는 대신 제목을 `facet_wrap()`에 직접 전달할 수도 있습니다:
 
 ```{r}
 #| echo: true
 #| eval: false
-facet_wrap(~"Doctors across the world")
+facet_wrap(~"전 세계 의사")
 ```
 
 :::
 
-Then we can use `facet_wrap()` and facet across the `label` column. Since there's only one value of `label` in the data, this just adds the title as strip text at the top of the plot. While we're here, let's make the country outlines in the map the same color as the background, and make the lines a little bit thicker. \index{ggplot2!facet\_wrap}
+그런 다음 `facet_wrap()`을 사용하여 `label` 열 전체에 패싯을 적용할 수 있습니다. 데이터에 `label` 값이 하나만 있으므로 제목만 플롯 상단에 스트립 텍스트로 추가됩니다. 여기에 있는 동안 지도의 국가 윤곽선을 배경과 같은 색으로 만들고 선을 조금 더 두껍게 만들어 보겠습니다. \index{ggplot2!facet\_wrap}
 
 ```{r}
 #| label: fig-doctors-style-plot-4
-#| fig-cap: "Map of the world with duplicated title in the facet strip text, with dark text against a dark blue background."
-#| fig-alt: "Map of the world with duplicated title in the facet strip text, with dark text against a dark blue background."
+#| fig-cap: "패싯 스트립 텍스트에 제목이 복제된 세계 지도, 진한 파란색 배경에 어두운 텍스트."
+#| fig-alt: "패싯 스트립 텍스트에 제목이 복제된 세계 지도, 진한 파란색 배경에 어두운 텍스트."
 styled_plot <- ggplot(
   data = map_data,
   mapping = aes(
@@ -458,7 +458,7 @@ styled_plot <- ggplot(
     colors = col_palette,
     limits = c(0, 10),
     breaks = c(0.8, 9.2),
-    labels = c("Fewer doctors", "More doctors")
+    labels = c("더 적은 의사", "더 많은 의사")
   ) +
   labs(
     title = title,
@@ -496,16 +496,16 @@ styled_plot <- ggplot(
 styled_plot
 ```
 
-It's obvious that there are some issues with this plot now that the strip text contains the title:
+스트립 텍스트에 제목이 포함되어 있으므로 이 플롯에 몇 가지 문제가 있다는 것은 분명합니다:
 
-* There is a duplicate title set using `labs()`, and the `strip.text` title is too dark to read against the blue background.
-* The subtitle is above the title.
-* The map still appears stretched.
-* The legend is taking up quite a lot of space, and the white ticks in the colorbar are distracting.
+* `labs()`를 사용하여 설정한 중복 제목이 있으며 `strip.text` 제목은 파란색 배경에 비해 너무 어두워서 읽을 수 없습니다.
+* 부제목이 제목 위에 있습니다.
+* 지도가 여전히 늘어나 보입니다.
+* 범례가 꽤 많은 공간을 차지하고 컬러바의 흰색 눈금이 산만합니다.
 
-To solve the first two problems, the `title` and `subtitle` arguments of `labs()` can be set to `NULL` to remove them from the plot. Instead, the `tag` argument in `labs()` can be used to set the subtitle. The nice thing about using `tag` is the `plot.tag.position` argument within `theme()` which allows you to position the text anywhere on the plot. The `strip.text` and `plot.tag` arguments of theme should also be set using `element_textbox_simple()` from **`ggtext`** to allow the text to be styled as we wish. The top, left, and right margins of the plot should be set to `0` using `plot.margin` to make sure that the strip text banner goes to the edge of the plot. \index{ggplot2!theme} \index{ggplot2!labs}
+처음 두 문제를 해결하기 위해 `labs()`의 `title` 및 `subtitle` 인수를 `NULL`로 설정하여 플롯에서 제거할 수 있습니다. 대신 `labs()`의 `tag` 인수를 사용하여 부제목을 설정할 수 있습니다. `tag`를 사용하는 것의 장점은 `theme()` 내의 `plot.tag.position` 인수를 사용하여 텍스트를 플롯의 어느 곳에나 배치할 수 있다는 것입니다. 테마의 `strip.text` 및 `plot.tag` 인수도 **`ggtext`**의 `element_textbox_simple()`을 사용하여 설정해야 텍스트의 스타일을 원하는 대로 지정할 수 있습니다. 스트립 텍스트 배너가 플롯의 가장자리까지 가도록 `plot.margin`을 사용하여 플롯의 위쪽, 왼쪽, 오른쪽 여백을 `0`으로 설정해야 합니다. \index{ggplot2!theme} \index{ggplot2!labs}
 
-To solve the third problem of the map looking stretched, we can apply `coord_sf()` which applies the World Geodetic System 1984 (WGS84) CRS (coordinate reference system). @sec-time-zones discusses coordinate reference systems in more detail. The upper limit of the `y` axis can also be extended beyond the range of the data to make room for the subtitle added using `tag`. \index{ggplot2!theme} \index{ggplot2!coord\_sf}
+세 번째 문제인 지도가 늘어나 보이는 문제를 해결하기 위해 WGS84(World Geodetic System 1984) CRS(좌표 참조 시스템)를 적용하는 `coord_sf()`를 적용할 수 있습니다. @sec-time-zones 에서는 좌표 참조 시스템에 대해 더 자세히 설명합니다. `y` 축의 상한도 데이터 범위를 넘어 확장하여 `tag`를 사용하여 추가된 부제목을 위한 공간을 만들 수 있습니다. \index{ggplot2!theme} \index{ggplot2!coord\_sf}
 
 ```{r}
 #| label: doctors-style-plot-4
@@ -513,10 +513,10 @@ styled_plot2 <- styled_plot +
   labs(
     title = NULL, subtitle = NULL, tag = subtitle
   ) +
-  # add space for the tag (subtitle) text
+  # tag(부제목) 텍스트를 위한 공간 추가
   coord_sf(ylim = c(-60, 140)) +
   theme(
-    # move and format the tag (subtitle) text
+    # tag(부제목) 텍스트 이동 및 서식 지정
     plot.margin = margin(0, 0, 5, 0),
     plot.tag.position = c(0.015, 0.8),
     plot.tag = element_textbox_simple(
@@ -525,14 +525,14 @@ styled_plot2 <- styled_plot +
       hjust = 0,
       maxwidth = 0.98
     ),
-    # add margin for caption
+    # 캡션 여백 추가
     plot.caption = element_textbox_simple(
       hjust = 0,
       color = text_col,
       margin = margin(l = 5),
       lineheight = 0.6
     ),
-    # change title text color
+    # 제목 텍스트 색상 변경
     strip.text = element_textbox_simple(
       color = bg_col,
       family = title_font,
@@ -543,41 +543,41 @@ styled_plot2 <- styled_plot +
   )
 ```
 
-Note that the values used in `plot.tag.position = c(0.015, 0.8)` and the `strip.text` argument `margin = margin(7, 5, 7, 5)` took a lot of trial and error to get *just right*. There's no magic involved in choosing these values!
+`plot.tag.position = c(0.015, 0.8)`과 `strip.text` 인수 `margin = margin(7, 5, 7, 5)`에 사용된 값은 *딱 맞게* 만들기 위해 많은 시행착오가 필요했다는 점에 유의하십시오! 이 값을 선택하는 데 마법은 없습니다!
 
-To solve the final problem of the legend appearance, we can edit the style elements in `theme`. The `legend.title` is removed by setting it to a blank element with `element_blank()`, and the legend text labels are styled with `element_text()`. \index{ggplot2!theme} \index{ggplot2!element\_text} \index{ggplot2!element\_blank}
+범례 모양의 마지막 문제를 해결하기 위해 `theme`의 스타일 요소를 편집할 수 있습니다. `legend.title`은 `element_blank()`로 빈 요소로 설정하여 제거하고 범례 텍스트 레이블은 `element_text()`로 스타일을 지정합니다. \index{ggplot2!theme} \index{ggplot2!element\_text} \index{ggplot2!element\_blank}
 
-The placement of the legend is set through the `legend.position`, `legend.justification.bottom`, `legend.margin`, and `legend.direction` arguments.
+범례의 위치는 `legend.position`, `legend.justification.bottom`, `legend.margin`, `legend.direction` 인수를 통해 설정됩니다.
 
 ::: {#tip-doctors-ggplot .callout-tip}
 
-## Styling guides in **`ggplot2`**
+## **`ggplot2`**의 스타일링 가이드
 
-Since version 3.5.0 of **`ggplot2`**, you can also style the `theme` of individual legends from inside the `guide_*()` functions. Prior to version 3.5.0, `legend.position` was used to position the legend inside the plot before `legend.position.inside` and `legend.justification.bottom` were introduced to allow custom legend positions more easily.
+**`ggplot2`** 버전 3.5.0부터는 `guide_*()` 함수 내부에서 개별 범례의 `theme` 스타일을 지정할 수도 있습니다. 버전 3.5.0 이전에는 `legend.position`을 사용하여 플롯 내부에 범례를 배치한 다음 `legend.position.inside` 및 `legend.justification.bottom`이 도입되어 사용자 정의 범례 위치를 더 쉽게 허용했습니다.
 
-The other difference is that `legend.ticks = element_blank()` can be used to remove the white tick marks inside the colorbar legend. In older versions of **`ggplot2`**, `guides(fill = guide_colorbar(ticks = FALSE))` would be used instead. \index{ggplot2!guides} \index{ggplot2!guide\_colorbar}
+다른 점은 `legend.ticks = element_blank()`를 사용하여 컬러바 범례 내부의 흰색 눈금을 제거할 수 있다는 것입니다. **`ggplot2`**의 이전 버전에서는 대신 `guides(fill = guide_colorbar(ticks = FALSE))`가 사용되었습니다. \index{ggplot2!guides} \index{ggplot2!guide\_colorbar}
 
 :::
 
-The size of the legend is controlled through the `legend.key.width` and `legend.key.height` arguments.
+범례의 크기는 `legend.key.width` 및 `legend.key.height` 인수를 통해 제어됩니다.
 
 ```{r}
 #| label: fig-doctors-style-plot-5
-#| fig-cap: "Final styled plot showing a map of the world, with title inside a blue banner and a horizontal colorbar legend at the bottom right of the page."
-#| fig-alt: "Final styled plot showing a map of the world, with title inside a blue banner and a horizontal colorbar legend at the bottom right of the page."
+#| fig-cap: "파란색 배너 안에 제목이 있고 페이지 오른쪽 하단에 수평 컬러바 범례가 있는 세계 지도를 보여주는 최종 스타일 지정된 플롯."
+#| fig-alt: "파란색 배너 안에 제목이 있고 페이지 오른쪽 하단에 수평 컬러바 범례가 있는 세계 지도를 보여주는 최종 스타일 지정된 플롯."
 styled_plot2 +
   theme(
-    # legend text
+    # 범례 텍스트
     legend.title = element_blank(),
     legend.text = element_text(
       color = text_col,
       lineheight = 0.5,
       hjust = 0.5
     ),
-    # legend size
+    # 범례 크기
     legend.key.width = unit(1.5, "cm"),
     legend.key.height = unit(0.3, "cm"),
-    # legend position
+    # 범례 위치
     legend.position = "bottom",
     legend.justification.bottom = "right",
     legend.margin = margin(-5, 5, 0, 0),
@@ -586,7 +586,7 @@ styled_plot2 +
   )
 ```
 
-We can then finally save a copy with `ggsave()`: \index{ggplot2!ggsave}
+마지막으로 `ggsave()`를 사용하여 사본을 저장할 수 있습니다: \index{ggplot2!ggsave}
 
 ```{r}
 #| label: doctors-save
@@ -599,22 +599,23 @@ ggsave(
 )
 ```
 
-## Reflection
+## 회고
 
-The color scale in @fig-doctors-style-plot-5 is quite hard to interpret and the choice was made to use *Fewer doctors* and *More doctors* labels instead of values. When the underlying data is simple and easy to interpret, having the values on the legend would add more useful information. The title could probably also be changed to something more informative. \index{color}
+@fig-doctors-style-plot-5 의 색상 스케일은 해석하기 꽤 어렵고 값 대신 *더 적은 의사* 및 *더 많은 의사* 레이블을 사용하기로 결정했습니다. 기본 데이터가 단순하고 해석하기 쉬울 때 범례에 값을 표시하면 더 유용한 정보가 추가됩니다. 제목도 아마 더 유익한 것으로 변경될 수 있을 것입니다. \index{color}
 
-When the data was processed, the choice was made to plot a map showing the values for the most recently available data. This means that for some countries the data is more recent (and therefore perhaps more reliable), whilst for others it's much older. In fact, running `range(doctors$year)` shows that the most recent data in the plot is from 2019, whilst the oldest is from 1980 - a gap of almost 40 years! That makes it much harder to accurately compare between countries, and there's no indication for each country on this map how recent the data is. Readers might end up drawing conclusions that show differences between countries, when actually the difference is between time periods. Showing uncertainty on maps is tricky, and there's no straightforward solution here. Perhaps setting the colors to a binary scale showing whether the value is above or below average, with the intensity of the color denoting the recentness of the data, is one approach. The **`Vizumap`** package [@Vizumap], which provides functions for visualizing uncertainty on maps, could be used to create a bivariate map showing both the value and how recent it is. Or at least a more detailed explanation about the range of time the data relates to could be included within the subtitle. 
+데이터가 처리될 때 가장 최근에 사용 가능한 데이터에 대한 값을 보여주는 지도를 플롯하기로 결정했습니다. 이것은 일부 국가의 경우 데이터가 더 최근(따라서 아마도 더 신뢰할 수 있음)인 반면 다른 국가의 경우 훨씬 더 오래되었다는 것을 의미합니다. 실제로 `range(doctors$year)`를 실행하면 플롯의 가장 최근 데이터는 2019년의 것이고 가장 오래된 데이터는 1980년의 것으로 거의 40년의 격차가 있음을 알 수 있습니다! 이로 인해 국가 간을 정확하게 비교하기가 훨씬 어렵고 이 지도에는 각 국가에 대해 데이터가 얼마나 최근인지에 대한 표시가 없습니다. 독자는 국가 간의 차이를 보여주는 결론을 도출할 수 있지만 실제로는 시기 간의 차이입니다. 지도에 불확실성을 표시하는 것은 까다롭고 여기에 간단한 해결책은 없습니다. 아마도 값이 평균보다 위인지 아래인지에 따라 이진 스케일로 색상을 설정하고 색상의 강도로 데이터의 최신성을 나타내는 것이 한 가지 접근 방식일 것입니다. 지도에 불확실성을 시각화하는 기능을 제공하는 **`Vizumap`** 패키지 [@Vizumap]를 사용하여 값과 최신성을 모두 보여주는 이변량 지도를 만들 수 있습니다. 또는 적어도 데이터가 관련된 시간 범위에 대한 더 자세한 설명을 부제목에 포함할 수 있습니다.
 
 ::: {.content-visible when-format="html"}
 
-Each plot created during the process of developing the original version of this visualization was captured using **`camcorder`**, and is shown in the gif below. If you'd like to learn more about how **`camcorder`** can be used in the data visualization process, see @sec-camcorder.
+이 시각화의 원본 버전을 개발하는 과정에서 생성된 각 플롯은 **`camcorder`**를 사용하여 캡처되었으며 아래 gif에 표시됩니다. 데이터 시각화 프로세스에서 **`camcorder`**를 사용하는 방법에 대해 자세히 알아보려면 @sec-camcorder 를 참조하십시오.
 
-![](images/doctors.gif){fig-align="center" fig-alt="Gif of the process of building the chart"}
+![](images/doctors.gif){fig-align="center" fig-alt="차트 작성 과정의 Gif"}
 
 :::
 
-## Exercises
+## 연습 문제
 
-* Subset the data to create a map for only the following regions: `c("France", "Spain", "Italy", "Portugal", "Switzerland")`. Do you need to change the limits of the x- and y-axes?
+* `c("France", "Spain", "Italy", "Portugal", "Switzerland")` 지역에 대한 지도만 생성하도록 데이터를 부분 집합으로 만드십시오. x축과 y축의 제한을 변경해야 합니까?
 
-* Can you keep the countries that border these regions on the map, but fill them with a neutral gray color?
+* 이 지역과 국경을 접하는 국가를 지도에 유지하되 중립적인 회색으로 채울 수 있습니까?
+

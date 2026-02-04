@@ -18,17 +18,17 @@ fig-asp: 0.75
 knitr::opts_chunk$set(dev = "ragg_png")
 ```
 
-# Canadian wind turbines: waffle plots and pictograms {#sec-turbines}
+# 캐나다 풍력 터빈: 와플 차트와 픽토그램 {#sec-turbines}
 
-In this chapter, we'll learn how to read in data from an Excel file via a URL, create waffle plots using the **`waffle`** package, and write a subtitle with colored text to be used as an alternative to a traditional legend.
+이 장에서는 URL을 통해 Excel 파일에서 데이터를 읽는 방법, **`waffle`** 패키지를 사용하여 와플 차트를 만드는 방법, 기존 범례 대신 사용할 색상 텍스트가 포함된 부제목을 작성하는 방법을 배웁니다.
 
-By the end of this chapter, you'll be able to:
+이 장을 마치면 다음을 할 수 있습니다:
 
-* Load data from Excel files, including those hosted online;
-* Create waffle plots using custom icons; and
-* Write your own source text function to keep a consistent style across different charts.
+* 온라인에 호스팅된 파일을 포함하여 Excel 파일에서 데이터를 로드합니다;
+* 사용자 정의 아이콘을 사용하여 와플 차트를 만듭니다;
+* 다양한 차트에서 일관된 스타일을 유지하기 위해 자신만의 소스 텍스트 함수를 작성합니다.
 
-We begin by loading the packages required in this chapter.
+이 장에서 필요한 패키지를 로드하는 것으로 시작합니다.
 
 ```{r}
 #| label: turbines-pkgs-req
@@ -48,39 +48,39 @@ library(sysfonts)
 library(waffle)
 ```
 
-As in previous chapters, we'll again be using **`ggplot2`** for plotting, alongside **`dplyr`** for importing and manipulating data, with **`glue`** used again for creating data-driven character strings. The **`sysfonts`** and **`showtext`** packages will be used again for loading and rendering different fonts.
+이전 장에서와 같이 **`ggplot2`**를 사용하여 플롯을 작성하고 **`dplyr`**을 사용하여 데이터를 가져오고 조작하며 **`glue`**를 사용하여 데이터 기반 문자열을 생성합니다. **`sysfonts`** 및 **`showtext`** 패키지는 다양한 글꼴을 로드하고 렌더링하는 데 다시 사용됩니다.
 
-This chapter introduces quite a few packages that we haven't used yet. Try not to be overwhelmed by the number of new ideas introduced - we'll use many of them again in later chapters to become more familiar with these packages!
+이 장에서는 아직 사용하지 않은 꽤 많은 패키지를 소개합니다. 도입된 새로운 아이디어의 수에 압도되지 마십시오. 나중에 이러한 패키지에 익숙해지기 위해 더 많은 장에서 다시 사용할 것입니다!
 
-* **`GGally`**: for quick exploratory charts to look at relationships between variables.
-* **`marquee`**: for richtext formatting in charts, similar to the way we've used **`ggtext`** in previous chapters.
-* **`openxlsx`**: for importing data from Excel files.
-* **`rcartocolor`**: a color palette package.
-* **`readr`**: for importing data, including from both CSV and Excel files.
-* **`stringr`**: for manipulating character strings.
-* **`waffle`**: for creating waffle charts and pictograms.
+* **`GGally`**: 변수 간의 관계를 살펴보기 위한 빠른 탐색적 차트용.
+* **`marquee`**: 이전 장에서 **`ggtext`**를 사용했던 방식과 유사하게 차트에서 서식 있는 텍스트(richtext) 서식을 지정하기 위해.
+* **`openxlsx`**: Excel 파일에서 데이터를 가져오기 위해.
+* **`rcartocolor`**: 색상 팔레트 패키지.
+* **`readr`**: CSV 및 Excel 파일 모두에서 데이터를 가져오기 위해.
+* **`stringr`**: 문자열을 조작하기 위해.
+* **`waffle`**: 와플 차트와 픽토그램을 만들기 위해.
 
 \index{GGally} \index{marquee} \index{openxlsx} \index{rcartocolor} \index{readr} \index{stringr} \index{waffle}
 
-## Data
+## 데이터
 
-Back in October 2020, data on wind turbines in Canada from the Government of Canada Open Data portal was used as a [TidyTuesday dataset](https://github.com/rfordatascience/tidytuesday/tree/master/data/2020/2020-10-27) [@tidytuesday]. The Canadian Wind Turbine Database provides information about wind turbines installed in Canada, including their power capacity and geographic location [@turbines_data]. Rather than reading in the data using the **`tidytuesdayR`** package as we've done in previous chapters, let's read in the data directly from the {{< monolink "https://open.canada.ca/en" "open.canada.ca" >}} website.
+2020년 10월, 캐나다 정부 오픈 데이터 포털의 풍력 터빈 데이터가 [TidyTuesday 데이터 세트](https://github.com/rfordatascience/tidytuesday/tree/master/data/2020/2020-10-27)로 사용되었습니다 [@tidytuesday]. 캐나다 풍력 터빈 데이터베이스는 전력 용량 및 지리적 위치를 포함하여 캐나다에 설치된 풍력 터빈에 대한 정보를 제공합니다 [@turbines_data]. 이전 장에서 했던 것처럼 **`tidytuesdayR`** 패키지를 사용하여 데이터를 읽는 대신 {{< monolink "https://open.canada.ca/en" "open.canada.ca" >}} 웹사이트에서 직접 데이터를 읽어 봅시다.
 
 ::: {#tip-turbines-open .callout-tip}
 
-## Open Government data in Canada
+## 캐나다의 오픈 정부 데이터
 
-The Canadian Wind Turbine data contains information licensed under the [Open Government Licence - Canada](https://open.canada.ca/en/open-government-licence-canada). You can search for more open data at {{< monolink "https://search.open.canada.ca/opendata/" "search.open.canada.ca/opendata" >}}. See @sec-doctors for further discussion of open data sources.
+캐나다 풍력 터빈 데이터에는 [Open Government Licence - Canada](https://open.canada.ca/en/open-government-licence-canada)에 따라 라이선스가 부여된 정보가 포함되어 있습니다. {{< monolink "https://search.open.canada.ca/opendata/" "search.open.canada.ca/opendata" >}}에서 더 많은 오픈 데이터를 검색할 수 있습니다. 오픈 데이터 소스에 대한 자세한 논의는 @sec-doctors 를 참조하십시오.
 
 :::
 
-### Reading data with **`openxlsx`**
+### **`openxlsx`**로 데이터 읽기
 
-Though the **`readxl`** package [@readxl] package can be used to read Excel files stored locally, it doesn't work for reading in Excel files directly from a URL. We could visit the relevant {{< monolink "https://open.canada.ca/data/dataset/" "open.canada.ca/data/dataset" >}} website, manually download the file, and then read it in using  **`readxl`**. Alternatively, we can use the **`openxlsx`** package [@openxlsx] which allows us to pass in a URL.
+**`readxl`** 패키지 [@readxl]는 로컬에 저장된 Excel 파일을 읽는 데 사용할 수 있지만 URL에서 직접 Excel 파일을 읽는 데는 작동하지 않습니다. 관련 {{< monolink "https://open.canada.ca/data/dataset/" "open.canada.ca/data/dataset" >}} 웹사이트를 방문하여 파일을 수동으로 다운로드한 다음 **`readxl`**을 사용하여 읽을 수 있습니다. 또는 URL을 전달할 수 있는 **`openxlsx`** 패키지 [@openxlsx]를 사용할 수 있습니다.
 
-Of course, we still need to know what the URL of this file is. If you visit the following webpage for the wind turbines data ({{< monolink "https://open.canada.ca/data/dataset/79fdad93-9025-49ad-ba16-c26d718cc070" "open.canada.ca/data/dataset/79fdad93-9025-49ad-ba16-c26d718cc070" >}}), and right-click on the link to the Excel file you can then copy the link address. We save that link address as a character string called `url`. If you plan to download other datasets from the same site, it can be useful to save the main website as the `base_url` variable so that you can reuse this string later.
+물론 이 파일의 URL이 무엇인지 알아야 합니다. 풍력 터빈 데이터에 대한 다음 웹페이지({{< monolink "https://open.canada.ca/data/dataset/79fdad93-9025-49ad-ba16-c26d718cc070" "open.canada.ca/data/dataset/79fdad93-9025-49ad-ba16-c26d718cc070" >}})를 방문하여 Excel 파일 링크를 마우스 오른쪽 버튼으로 클릭하면 링크 주소를 복사할 수 있습니다. 해당 링크 주소를 `url`이라는 문자열로 저장합니다. 동일한 사이트에서 다른 데이터 세트를 다운로드할 계획이라면 나중에 다시 사용할 수 있도록 기본 웹사이트를 `base_url` 변수로 저장하는 것이 유용할 수 있습니다.
 
-We then use the `read.xlsx()` function from **`openxlsx`**, where we pass in the `url` variable to the `xlsxFile` argument: \index{openxlsx!read.xlsx} 
+그런 다음 **`openxlsx`**의 `read.xlsx()` 함수를 사용하며, 여기서 `url` 변수를 `xlsxFile` 인수에 전달합니다: \index{openxlsx!read.xlsx} 
 
 ::: {.content-visible when-format="html"}
 
@@ -115,40 +115,40 @@ wind_turbines <- read.xlsx(xlsxFile = url)
 
 :::
 
-There are some features of Excel files that can make them more human-friendly but less computer-friendly:
+Excel 파일에는 사람에게는 친숙하지만 컴퓨터에는 덜 친숙하게 만드는 몇 가지 기능이 있습니다:
 
-* Multiple sheets
-* Empty rows
-* Merged cells
+* 여러 시트
+* 빈 행
+* 병합된 셀
 
-Luckily, the `.xlsx` file we've downloaded is both human-friendly and computer-friendly so we don't have to deal with these issues right now.
+다행히 다운로드한 `.xlsx` 파일은 사람에게 친숙하면서도 컴퓨터에게도 친숙하므로 지금은 이러한 문제를 처리할 필요가 없습니다.
 
 ::: {#tip-turbines-excel-1 .callout-tip}
 
-## Dealing with multiple sheets from Excel
+## Excel의 여러 시트 처리
 
-Excel files may contain multiple sheets of data. You can use the `sheet` argument in `read.xlsx()` to specify the name or index of the sheet you want to read in. Using the sheet name is usually a little bit more robust, as it means your code can withstand (accidental) changes to the order of sheets.
+Excel 파일에는 여러 데이터 시트가 포함될 수 있습니다. `read.xlsx()`의 `sheet` 인수를 사용하여 읽으려는 시트의 이름이나 인덱스를 지정할 수 있습니다. 시트 이름을 사용하는 것이 일반적으로 조금 더 강력합니다. 즉, 시트 순서가 (우발적으로) 변경되어도 코드가 견딜 수 있습니다.
 
 :::
 
 ::: {#tip-turbines-excel-2 .callout-tip}
 
-## Skipping empty rows from Excel
+## Excel에서 빈 행 건너뛰기
 
-The `read.xlsx()` function always skips empty rows at the start of the file. However, sometimes the author of the spreadsheet may add a title row then a few empty rows before the *real* data begins. You can use the `startRow` argument to specify which rows the data actually starts on.
+`read.xlsx()` 함수는 항상 파일 시작 부분의 빈 행을 건너뜁니다. 그러나 때로는 스프레드시트 작성자가 제목 행을 추가한 다음 *실제* 데이터가 시작되기 전에 빈 행을 몇 개 추가할 수 있습니다. `startRow` 인수를 사용하여 데이터가 실제로 시작되는 행을 지정할 수 있습니다.
 
 :::
 
 
 ::: {#tip-turbines-excel-3 .callout-tip}
 
-## Processing merged cells from Excel
+## Excel에서 병합된 셀 처리
 
-Merged cells are hard to deal with because it means your data no longer fits into a nice rectangular structure. It depends on where the merged cells are, and what they contain, how difficult they are to deal with. If they're at the top of the file (e.g. with the title information) then using `startRow` might be enough. Otherwise, setting `fillMergedCells = TRUE` in `read.xlsx()` means that *the value in a merged cell is given to all cells within the merge* [@openxlsx].
+병합된 셀은 데이터가 더 이상 멋진 직사각형 구조에 맞지 않기 때문에 처리하기 어렵습니다. 병합된 셀이 어디에 있고 무엇을 포함하느냐에 따라 처리 난이도가 달라집니다. 파일 상단(예: 제목 정보 포함)에 있는 경우 `startRow`를 사용하는 것으로 충분할 수 있습니다. 그렇지 않으면 `read.xlsx()`에서 `fillMergedCells = TRUE`를 설정하면 *병합된 셀의 값이 병합 내의 모든 셀에 부여됨*을 의미합니다 [@openxlsx].
 
 :::
 
-We don't want to have to re-download the data from the URL each time we want to work on it (especially if the data may be updated), so let's save a copy locally. We could simply save the Excel file (or we could have used `download.file()` instead of `read_csv()`). However, it would be better to save it as a CSV file instead because they are smaller in size, and can be opened in a simple text editor. Luckily the `wind_turbines` data is well formatted - there are no merged cells, multiple sheets, or empty rows we need to deal with. This means we can save it as a CSV file using `write.csv()` with an appropriate file name (and setting `row.names = FALSE` to avoid adding an additional column of row names). \index{utils!write.csv}
+작업하고 싶을 때마다 URL에서 데이터를 다시 다운로드하고 싶지는 않으므로(특히 데이터가 업데이트될 수 있는 경우) 로컬에 사본을 저장해 봅시다. 단순히 Excel 파일을 저장할 수도 있습니다(또는 `read_csv()` 대신 `download.file()`을 사용할 수도 있음). 그러나 CSV 파일은 크기가 더 작고 간단한 텍스트 편집기에서 열 수 있으므로 CSV 파일로 저장하는 것이 좋습니다. 다행히도 `wind_turbines` 데이터는 형식이 잘 갖추어져 있습니다. 병합된 셀, 여러 시트 또는 처리해야 할 빈 행이 없습니다. 즉, 적절한 파일 이름으로(그리고 행 이름의 추가 열을 추가하지 않도록 `row.names = FALSE`를 설정하여) `write.csv()`를 사용하여 CSV 파일로 저장할 수 있습니다. \index{utils!write.csv}
 
 ```{r}
 #| label: turbines-download-2
@@ -161,7 +161,7 @@ write.csv(
 )
 ```
 
-We can then use either `read.csv()` or `read_csv()` from **`readr`** to read the CSV file back in: \index{readr!read\_csv}
+그런 다음 **`readr`**의 `read.csv()` 또는 `read_csv()`를 사용하여 CSV 파일을 다시 읽을 수 있습니다: \index{readr!read\_csv}
 
 ```{r}
 #| label: turbines-data
@@ -169,31 +169,31 @@ We can then use either `read.csv()` or `read_csv()` from **`readr`** to read the
 wind_turbines <- read_csv("data/wind_turbines.csv")
 ```
 
-The `wind_turbines` data has `r nrow(wind_turbines)` rows and `r ncol(wind_turbines)` columns. The first few rows of the data are as follows:
+`wind_turbines` 데이터에는 `r nrow(wind_turbines)`개의 행과 `r ncol(wind_turbines)`개의 열이 있습니다. 데이터의 처음 몇 행은 다음과 같습니다:
 
 ```{r}
 #| label: turbines-head
 head(wind_turbines)
 ```
 
-The `OBJECTID` column is a unique row identifier. The data has a row for each wind turbine - with some of the data given on the turbine level and some data on the project level. For the variables related to project level data, this means values can be repeated multiple times within a column for turbines in the same project.
+`OBJECTID` 열은 고유 행 식별자입니다. 데이터에는 각 풍력 터빈에 대한 행이 있으며, 일부 데이터는 터빈 수준에서, 일부 데이터는 프로젝트 수준에서 제공됩니다. 프로젝트 수준 데이터와 관련된 변수의 경우, 이는 동일한 프로젝트의 터빈에 대해 열 내에서 값이 여러 번 반복될 수 있음을 의미합니다.
 
-The `Province/Territory` column specifies which geographic region the turbine is in, with the `Latitude` and `Longitude` column giving the exact coordinates. The `Project.name` gives the name of the project that each wind turbine is associated with, and `Total.project.capacity.(MW)` the total power capacity of the project in megawatts. The `Turbine.identifier` column gives a unique ID for each turbine - it is a combination of an abbreviation of the project name, and a number identifying the number of the turbine within the project (also listed in the `Turbine.number.in.project` as a fraction of the total number of turbines per project). The capacity (in kilowatts) of each individual turbine is given in `Turbine.rated.capacity.(kW)` (adding up the individual capacities for all turbines in a project gives the value in `Total.project.capacity.(MW)` multiplied by 100).
+`Province/Territory` 열은 터빈이 있는 지리적 지역을 지정하고 `Latitude` 및 `Longitude` 열은 정확한 좌표를 제공합니다. `Project.name`은 각 풍력 터빈이 연결된 프로젝트의 이름을 제공하고 `Total.project.capacity.(MW)`는 프로젝트의 총 전력 용량을 메가와트 단위로 제공합니다. `Turbine.identifier` 열은 각 터빈의 고유 ID를 제공합니다. 이는 프로젝트 이름의 약어와 프로젝트 내 터빈 번호를 식별하는 번호의 조합입니다(`Turbine.number.in.project`에도 프로젝트 당 총 터빈 수의 분수로 나열됨). 각 개별 터빈의 용량(킬로와트)은 `Turbine.rated.capacity.(kW)`에 제공됩니다(프로젝트의 모든 터빈에 대한 개별 용량을 합산하면 `Total.project.capacity.(MW)`의 값에 100을 곱한 값이 됨).
 
-The rotor diameter and hub height of each turbine are given by `Rotor.diameter.(m)` and `Hub.height.(m)`, respectively. The manufacturer and model are also given by the `Manufacturer` and `Model` columns. The commissioning date is given in the `Commissioning.date` column - it appears that some may be given on the project level, whereas others vary for turbines within a project. The `Notes` column contains free text data with additional information for some turbines. Most of these values are empty, but the column may provide information about whether the capacity of turbines have changed or assumptions about how values were calculated.
+각 터빈의 로터 직경과 허브 높이는 각각 `Rotor.diameter.(m)` 및 `Hub.height.(m)`로 제공됩니다. 제조업체와 모델은 `Manufacturer` 및 `Model` 열에도 제공됩니다. 시운전 날짜는 `Commissioning.date` 열에 제공됩니다. 일부는 프로젝트 수준에서 제공되는 반면 다른 일부는 프로젝트 내 터빈마다 다른 것으로 보입니다. `Notes` 열에는 일부 터빈에 대한 추가 정보가 포함된 자유 텍스트 데이터가 포함되어 있습니다. 이 값의 대부분은 비어 있지만 열에는 터빈 용량이 변경되었는지 여부 또는 값 계산 방법에 대한 가정에 대한 정보를 제공할 수 있습니다.
 
-## Exploratory work
+## 탐색 작업
 
-There are quite a few variables that we might be interested in looking at here - particularly since there are several variables about individual turbines that might be related to each other. For example, do turbines with a larger rotor diameter have a higher capacity? What is the relationship between rotor diameter and hub height? Which manufacturers are most common? Which regions have the most turbines? We might also want to look at the spatial distribution of turbines across Canada since we have the geographic coordinates - we'll look at plotting spatial data a little bit later in @sec-doctors, @sec-time-zones, and @sec-house.
+여기서 살펴볼 만한 꽤 많은 변수가 있습니다. 특히 서로 관련될 수 있는 개별 터빈에 대한 여러 변수가 있기 때문입니다. 예를 들어 로터 직경이 더 큰 터빈의 용량이 더 높습니까? 로터 직경과 허브 높이 사이의 관계는 무엇입니까? 어떤 제조업체가 가장 일반적입니까? 어느 지역에 터빈이 가장 많습니까? 지리적 좌표가 있으므로 캐나다 전역의 터빈 공간 분포를 살펴볼 수도 있습니다. 공간 데이터 플롯은 @sec-doctors, @sec-time-zones, 및 @sec-house 에서 조금 더 나중에 살펴볼 것입니다.
 
-### Data exploration
+### 데이터 탐색
 
-Let's start by exploring the hypothesis that wind turbines with a larger rotor diameter also have a higher capacity. We can make a scatter plot of these two variables as an initial step. The `Turbine.rated.capacity.(kW)` column is currently a character column even though it contains numeric values, so we wrap the column in `as.numeric()` before plotting it:
+로터 직경이 더 큰 풍력 터빈은 용량도 더 높다는 가설을 탐색하는 것으로 시작하겠습니다. 초기 단계로 이 두 변수의 산점도를 만들 수 있습니다. `Turbine.rated.capacity.(kW)` 열은 숫자 값을 포함하고 있음에도 불구하고 현재 문자 열이므로 플롯하기 전에 `as.numeric()`으로 래핑합니다:
 
 ```{r, echo=-1}
 #| label: fig-turbines-scatter
-#| fig-cap: "Scatter plot showing the relationship between rotor diameter and turbine capacity."
-#| fig-alt: "Scatter plot showing the relationship between rotor diameter and turbine capacity. There looks to be some vertical lines forming from the points."
+#| fig-cap: "로터 직경과 터빈 용량 간의 관계를 보여주는 산점도."
+#| fig-alt: "로터 직경과 터빈 용량 간의 관계를 보여주는 산점도. 점들로 형성된 수직선이 일부 있는 것 같습니다."
 par(mar = c(4.1, 4.1, 2.1, 2.1))
 plot(
   x = wind_turbines$`Rotor.diameter.(m)`,
@@ -205,28 +205,28 @@ plot(
 )
 ```
 
-This scatter plot highlights a few issues:
+이 산점도는 몇 가지 문제를 강조합니다:
 
-* We get a warning message about `NA` values.
-  
+* `NA` 값에 대한 경고 메시지가 표시됩니다.
+
   > `Warning message: In xy.coords(x, y, xlabel, ylabel, log) : NAs introduced by coercion`
-  
-  This comes from the `as.numeric` transformation of the `Turbine.rated.capacity.(kW)` column. If we inspect this column more closely, you'll see that there are a few unusual values such as `"1903/2126/2221"`. If we look at the `Notes` column for an explanation, we can see that these values exist because `"Some turbines derated such that the farm has an maximum operating capacity of 180 MW"`. Unfortunately, we don't know which individual turbines this derating applies to which makes it difficult to create a scatter plot.
 
-* The other issue with this scatter plot is that many of the observations are the same, but it's not shown clearly on the plot. If we later wanted to fit some statistical models to explore this relationship further, a common assumption is that each observation is independent. That's not true here - many individual turbines belong to the same project, and so are the same model with the same rotor diameter and capacity. Instead, we might want to group the unique values and use the number of turbines of a particular model as a weighting. This could be better visualized as a bubble chart, with the size of the bubbles showing the number of turbines in each diameter-capacity combination.
+  이것은 `Turbine.rated.capacity.(kW)` 열의 `as.numeric` 변환에서 발생합니다. 이 열을 더 자세히 살펴보면 `"1903/2126/2221"`과 같은 몇 가지 비정상적인 값이 있음을 알 수 있습니다. 설명에 대해 `Notes` 열을 보면 `"Some turbines derated such that the farm has an maximum operating capacity of 180 MW"(팜의 최대 작동 용량이 180MW가 되도록 일부 터빈 등급이 낮아짐)` 때문에 이러한 값이 존재함을 알 수 있습니다. 불행히도 우리는 이 등급 낮춤이 어떤 개별 터빈에 적용되는지 모르기 때문에 산점도를 만들기 어렵습니다.
+
+* 이 산점도의 다른 문제는 많은 관측치가 동일하지만 플롯에 명확하게 표시되지 않는다는 것입니다. 나중에 어떤 통계 모델을 적합하여 이 관계를 더 자세히 탐색하려는 경우 일반적인 가정은 각 관측치가 독립적이라는 것입니다. 여기서는 그렇지 않습니다. 많은 개별 터빈이 동일한 프로젝트에 속하므로 로터 직경과 용량이 동일한 동일한 모델입니다. 대신 고유 값을 그룹화하고 특정 모델의 터빈 수를 가중치로 사용할 수 있습니다. 이것은 각 직경-용량 조합의 터빈 수를 보여주는 거품 크기가 있는 버블 차트로 더 잘 시각화될 수 있습니다.
 
 ::: {#tip-turbines-view .callout-tip}
 
-## Inspecting data
+## 데이터 검사
 
-Remember that you can use `View(wind_turbines)` to inspect the data in a more human-readable format. In addition to looking at the data, obtaining summaries of the columns, and creating exploratory graphics with base R, there are many packages available to help with exploratory data analysis. 
+`View(wind_turbines)`를 사용하여 사람이 읽기에 더 편한 형식으로 데이터를 검사할 수 있음을 기억하십시오. 데이터를 보고, 열의 요약을 얻고, 기본 R로 탐색적 그래픽을 만드는 것 외에도 탐색적 데이터 분석을 돕는 많은 패키지를 사용할 수 있습니다.
 
-For example, the **`GGally`** package [@GGally] makes it easy to create pairwise comparison plots and correlation matrices for the purposes of exploring some or all columns in your data.
+예를 들어 **`GGally`** 패키지 [@GGally]를 사용하면 데이터의 일부 또는 모든 열을 탐색하기 위해 쌍별 비교 플롯과 상관 행렬을 쉽게 만들 수 있습니다.
 
 ```{r, echo=-1}
 #| label: fig-turbines-ggally
-#| fig-cap: "A 3x3 grid of comparisons between three columns in the `wind_turbines` data relationships using correlation, density plots, bar charts, scatter plots, and box plots."
-#| fig-alt: "A 3x3 grid of comparisons between three columns in the `wind_turbines` data relationships using correlation, density plots, bar charts, scatter plots, and box plots."
+#| fig-cap: "상관 관계, 밀도 플롯, 막대 차트, 산점도 및 상자 그림을 사용하여 `wind_turbines` 데이터 관계의 세 열 간의 비교를 보여주는 3x3 그리드."
+#| fig-alt: "상관 관계, 밀도 플롯, 막대 차트, 산점도 및 상자 그림을 사용하여 `wind_turbines` 데이터 관계의 세 열 간의 비교를 보여주는 3x3 그리드."
 #| fig-asp: 1
 #| message: false
 theme_set(theme_gray(base_size = 7))
@@ -247,12 +247,12 @@ theme_set(theme_gray(base_size = 11))
 
 :::
 
-Let's instead look at the number of turbines in each region, by creating an ordered bar chart. We use the `table()` function to get a count of the number per region, and `sort()` to order the counts from smallest to largest. We then use the `barplot()` function to make the chart, setting `horiz = TRUE` to make the bars horizontal for easier reading.
+대신 정렬된 막대 차트를 만들어 각 지역의 터빈 수를 살펴봅시다. `table()` 함수를 사용하여 지역별 수를 얻고 `sort()`를 사용하여 가장 작은 것부터 가장 큰 것까지 순서를 정합니다. 그런 다음 `barplot()` 함수를 사용하여 차트를 만들고 `horiz = TRUE`를 설정하여 막대를 가로로 만들어 읽기 쉽게 만듭니다.
 
 ```{r, echo=-1}
 #| label: fig-turbines-barplot
-#| fig-cap: "Ordered bar chart showing the number of wind turbines commissioned in each province or territory."
-#| fig-alt: "Ordered bar chart showing the number of wind turbines commissioned in each province or territory. Ontario is highest at around 2500."
+#| fig-cap: "각 주 또는 준주에서 커미셔닝된 풍력 터빈 수를 보여주는 정렬된 막대 차트."
+#| fig-alt: "각 주 또는 준주에서 커미셔닝된 풍력 터빈 수를 보여주는 정렬된 막대 차트. 온타리오가 약 2500으로 가장 높습니다."
 par(mar = c(3.1, 6.6, 1.1, 2.1), cex.axis = 0.5, cex.names = 0.5)
 barplot(
   sort(table(wind_turbines$`Province/Territory`)),
@@ -261,12 +261,12 @@ barplot(
 )
 ```
 
-Most of the turbines are located in Ontario, but has this always been the case? We also have information on the commissioning date of each turbine. We could recreate this bar chart for different time periods to see how the geographic spread of turbines has changed over time. We can add `wind_turbines$Commissioning.date` into the `table()` function to create a stacked bar chart for each year:
+대부분의 터빈은 온타리오에 있지만 항상 그랬습니까? 각 터빈의 시운전 날짜에 대한 정보도 있습니다. 다른 기간에 대해 이 막대 차트를 다시 작성하여 터빈의 지리적 확산이 시간이 지남에 따라 어떻게 변했는지 확인할 수 있습니다. `wind_turbines$Commissioning.date`를 `table()` 함수에 추가하여 각 연도에 대한 누적 막대 차트를 만들 수 있습니다:
 
 ```{r, echo=-1}
 #| label: fig-turbines-barplot-2
-#| fig-cap: "Ordered bar chart showing the number of wind turbines commissioned in time period, with stacked bars showing how many are in each province or territory."
-#| fig-alt: "Ordered bar chart showing the number of wind turbines commissioned in time period, with stacked bars showing how many are in each province or territory. It looks a bit of a jumbled mess with lots of different date formats."
+#| fig-cap: "각 주 또는 준주에 얼마나 많은지 보여주는 누적 막대가 있는 기간 내에 커미셔닝된 풍력 터빈 수를 보여주는 정렬된 막대 차트."
+#| fig-alt: "각 주 또는 준주에 얼마나 많은지 보여주는 누적 막대가 있는 기간 내에 커미셔닝된 풍력 터빈 수를 보여주는 정렬된 막대 차트. 날짜 형식이 다양해서 약간 뒤죽박죽인 것처럼 보입니다."
 par(mar = c(3.1, 4.1, 1.1, 2.1), cex.axis = 0.5, cex.names = 0.5)
 barplot(
   table(
@@ -278,48 +278,48 @@ barplot(
 )
 ```
 
-As you can see from the y-axis of @fig-turbines-barplot-2, the `Commissioning.date` isn't always given as a year. Instead it's sometimes given as a year range. Let's start drafting out a more aesthetically pleasing version of this plot before we deal with processing the `Commissioning.date` data.
+@fig-turbines-barplot-2 의 y축에서 볼 수 있듯이 `Commissioning.date`가 항상 연도로 제공되는 것은 아닙니다. 대신 때로는 연도 범위로 제공됩니다. `Commissioning.date` 데이터를 처리하기 전에 이 플롯의 미적으로 더 만족스러운 초안을 작성해 봅시다.
 
-### Exploratory sketches
+### 탐색적 스케치
 
-There are some years for which we have very few observations, and some turbines for which we don't know the exact year of the commissioning date. Rather than plotting the number of turbines per year, let's plot the number of turbines in different multiyear time periods. The choice of these time periods is open to designer choice. For this visualization, let's start by considering four, 5-year time periods: 2000 - 2004, 2005 - 2009, 2010 - 2014, and 2015 - 2019.
+관측치가 매우 적은 연도와 시운전 날짜의 정확한 연도를 알 수 없는 터빈이 있습니다. 연도별 터빈 수를 그리는 대신 여러 해의 기간 동안 터빈 수를 플롯해 봅시다. 이러한 기간의 선택은 디자이너의 선택에 달려 있습니다. 이 시각화에서는 2000 - 2004, 2005 - 2009, 2010 - 2014, 2015 - 2019의 4개 5년 기간을 고려하는 것으로 시작하겠습니다.
 
-Rather than making a stacked bar chart for each year, which can make it difficult to compare one region to another, let's look at an alternative: a *waffle chart*. Waffle charts are sometimes referred to as *square pie charts*. Most commonly, they are visualized on a 10x10 grid, with each grid square representing 1%. The colors of the grid squares represent different categories. The advantage of waffle charts over pie charts (and to some extent bar charts), is that it's easy for a user to read the percentages - they can simply count the squares! The disadvantage is that if there is less than 1% of values in a category, there's no easy way to visualise this (although partially colored squares are an option). \index{waffle chart} \index{pie chart}
+한 지역을 다른 지역과 비교하기 어렵게 만들 수 있는 각 연도에 대한 누적 막대 차트를 만드는 대신 *와플 차트(waffle chart)*라는 대안을 살펴봅시다. 와플 차트는 *사각형 파이 차트(square pie charts)*라고도 합니다. 가장 일반적으로 10x10 그리드로 시각화되며 각 그리드 사각형은 1%를 나타냅니다. 그리드 사각형의 색상은 다른 범주를 나타냅니다. 파이 차트(및 어느 정도 막대 차트)에 비해 와플 차트의 장점은 사용자가 백분율을 쉽게 읽을 수 있다는 것입니다. 사각형을 세기만 하면 됩니다! 단점은 범주의 값이 1% 미만인 경우 이를 시각화할 쉬운 방법이 없다는 것입니다(부분적으로 채색된 사각형이 옵션이긴 하지만). \index{waffle chart} \index{pie chart}
 
-Waffle charts can also be used to show counts rather than percentages. For example, each square may represent a wind turbine and the color of the square the region it is in. For example, a waffle chart of counts might look something like @fig-sketch-turbines.
+와플 차트는 백분율 대신 카운트를 표시하는 데에도 사용할 수 있습니다. 예를 들어, 각 사각형은 풍력 터빈을 나타내고 사각형의 색상은 해당 터빈이 있는 지역을 나타낼 수 있습니다. 예를 들어 카운트의 와플 차트는 @fig-sketch-turbines 와 같을 수 있습니다.
 
-![Initial sketch of a faceted waffle chart showing turbines over time.](images/sketch-turbines.png){#fig-sketch-turbines fig-align="center" fig-alt="Initial sketch of a faceted waffle chart. Notes indicate color by province and how one icon represents X turbines."}
+![시간에 따른 터빈을 보여주는 패싯 와플 차트의 초기 스케치.](images/sketch-turbines.png){#fig-sketch-turbines fig-align="center" fig-alt="패싯 와플 차트의 초기 스케치. 메모는 지역별 색상과 하나의 아이콘이 X개의 터빈을 나타내는 방법을 나타냅니다."}
 
-We can make two slight variations to this basic version of the chart:
+이 기본 버전의 차트에 두 가지 약간의 변형을 줄 수 있습니다:
 
-* We have `r nrow(wind_turbines)` observations to plot which is a lot of individual grid squares. Instead, each square may represent some number of turbines, rather than just one.
+* 플롯할 관측치가 `r nrow(wind_turbines)`개 있는데, 이는 개별 그리드 사각형이 매우 많은 것입니다. 대신 각 사각형은 단 하나가 아니라 일정 수의 터빈을 나타낼 수 있습니다.
 
-* Instead of plotting squares, we could use icons. For example, we could plot an icon of a wind turbine. This variation of a waffle chart can be referred to as a *pictogram*. The icons can be colored based on the region in the `Province/Territory` column. Instead of using a traditional legend that takes up lots of space, we could use colored text within the subtitle as an alternative.
+* 사각형을 플롯하는 대신 아이콘을 사용할 수 있습니다. 예를 들어 풍력 터빈 아이콘을 플롯할 수 있습니다. 이러한 와플 차트의 변형을 *픽토그램(pictogram)*이라고 합니다. 아이콘은 `Province/Territory` 열의 지역에 따라 색상을 지정할 수 있습니다. 많은 공간을 차지하는 기존 범례를 사용하는 대신 부제목 내에 색상 텍스트를 대안으로 사용할 수 있습니다.
 
 \index{pictogram} 
 
-## Preparing a plot
+## 플롯 준비
 
-In order to make a draft of @fig-sketch-turbines using **`ggplot2`**, there are a few things we need to prepare:
+**`ggplot2`**를 사용하여 @fig-sketch-turbines 의 초안을 작성하려면 준비해야 할 몇 가지 사항이 있습니다:
 
-* The `Commissioning.date` column needs processed to deal with the multiyear labels, and grouped into 5-year categories.
-* We need to decide how many wind turbines each icon will represent.
-* Some of the categories in the `Province/Territory` column may need grouped together because they have very small numbers, and might have less than the number of turbines represented by each icon.
+* `Commissioning.date` 열은 다년 레이블을 처리하고 5년 범주로 그룹화하도록 처리해야 합니다.
+* 각 아이콘이 몇 개의 풍력 터빈을 나타낼지 결정해야 합니다.
+* `Province/Territory` 열의 일부 범주는 숫자가 매우 적고 각 아이콘이 나타내는 터빈 수보다 적을 수 있으므로 함께 그룹화해야 할 수도 있습니다.
 
-### Data wrangling
+### 데이터 랭글링
 
-Let's start by dealing with the `Commissioning.date` column. There are three types of values in here:
+`Commissioning.date` 열을 처리하는 것부터 시작하겠습니다. 여기에는 세 가지 유형의 값이 있습니다:
 
-* Single year e.g. `"2019"`:  this is the ideal scenario and we don't need to do anything.
-* Two years separated by a `/` e.g. `"2001/2003"`: there are several options for dealing with this. We could either take the first year, the last year, or (if they are non-consecutive years) a mid-point of the year range. Here, we'll take the last year since this means that all wind turbines with that `Commissioning.date` will definitely have been commissioned by that date.
-* Three years separated by a `"/"` e.g. `"2005/2006/2012"`: this is more again more complex, but we'll take the last year for the same reasons as above.
+* 단일 연도(예: `"2019"`): 이것은 이상적인 시나리오이며 아무것도 할 필요가 없습니다.
+* `/`로 구분된 두 연도(예: `"2001/2003"`): 이를 처리하는 몇 가지 옵션이 있습니다. 첫해, 마지막 해 또는 (연속되지 않은 연도인 경우) 연도 범위의 중간 지점을 취할 수 있습니다. 여기서는 마지막 해를 취할 것입니다. 이는 `Commissioning.date`가 있는 모든 풍력 터빈이 해당 날짜까지 확실히 시운전되었음을 의미하기 때문입니다.
+* `/`로 구분된 3년(예: `"2005/2006/2012"`): 이것은 더 복잡하지만 위와 같은 이유로 마지막 해를 취할 것입니다.
 
-Essentially, this means that:
+본질적으로 이것은 다음을 의미합니다:
 
-* If there is no `"/"` in the `Commissioning.date`, we do nothing.
-* If there is one or more `"/"` in the `Commissioning.date`, we extract whatever comes after the last one.
+* `Commissioning.date`에 `"/"`가 없으면 아무 것도 하지 않습니다.
+* `Commissioning.date`에 하나 이상의 `"/"`가 있으면 마지막 `"/"` 뒤에 오는 것을 추출합니다.
 
-Let's make a function that does exactly that, called `extract_after_last_slash()`. The input this function is a vector of character strings. We start by checking which elements of the input contain a `"/"` using `str_detect()` from the **`stringr`** package [@stringr]. We then use `str_match()` from **`stringr`** in combination with a regular expression to extract the element after the last `"/"`. If there is no `"/"`, the output will be `NA`. The `str_match()` function returns a matrix with the same number of rows as the length of the input, where the first column is the complete match i.e. the input. The second column contains the output we want so we use `[, 2]` to extract it. Finally, we use `if_else()` from **`dplyr`**, to if there was a `"/"` then use the output from `str_match()`, otherwise keep the original value. \index{stringr!str\_detect} \index{stringr!str\_match} \index{dplyr!if\_else} \index{extract\_after\_last\_slash}
+`extract_after_last_slash()`라는 함수를 만들어 봅시다. 이 함수의 입력은 문자열 벡터입니다. 먼저 **`stringr`** 패키지의 `str_detect()`를 사용하여 입력 요소에 `"/"`가 포함되어 있는지 확인합니다 [@stringr]. 그런 다음 정규 표현식과 함께 **`stringr`**의 `str_match()`를 사용하여 마지막 `"/"` 뒤의 요소를 추출합니다. `"/"`가 없으면 출력은 `NA`가 됩니다. `str_match()` 함수는 입력 길이와 동일한 행 수를 가진 행렬을 반환하며, 여기서 첫 번째 열은 전체 일치, 즉 입력입니다. 두 번째 열에는 원하는 출력이 포함되어 있으므로 `[, 2]`를 사용하여 추출합니다. 마지막으로 **`dplyr`**의 `if_else()`를 사용하여 `"/"`가 있으면 `str_match()`의 출력을 사용하고, 그렇지 않으면 원래 값을 유지합니다. \index{stringr!str\_detect} \index{stringr!str\_match} \index{dplyr!if\_else} \index{extract\_after_last\_slash}
 
 ```{r}
 #| label: turbines-extract
@@ -333,9 +333,9 @@ extract_after_last_slash <- function(texts) {
 
 ::: {#tip-turbines-ifelse .callout-tip}
 
-## Comparing `if_else()` and `ifelse()`
+## `if_else()`와 `ifelse()` 비교
 
-If you've used the `ifelse()` function in base R before, you might be wondering why there's a very similarly named function in **`dplyr`** and what's different about it. The main difference is that `if_else()` is a bit more strict about checking whether you're doing what you think you're doing. For example, let's say we have a vector `x` of length 4 and we want to replace the values in `x` that are equal to 0 with something else. If that replacement is of length 3, that doesn't really make sense. Which value in the vector of length 3 should it use? The `if_else()` function highlights this issue with an error, the `ifelse()` function quietly uses the value in the same position. 
+이전에 기본 R에서 `ifelse()` 함수를 사용해 본 적이 있다면 **`dplyr`**에 매우 비슷한 이름의 함수가 있는 이유와 차이점이 무엇인지 궁금할 것입니다. 주요 차이점은 `if_else()`가 당신이 생각하는 대로 수행하고 있는지 확인하는 데 더 엄격하다는 것입니다. 예를 들어 길이가 4인 벡터 `x`가 있고 0과 같은 `x`의 값을 다른 것으로 바꾸고 싶다고 가정해 봅시다. 해당 대체가 길이가 3인 경우 실제로 말이 되지 않습니다. 길이 3의 벡터에서 어떤 값을 사용해야 합니까? `if_else()` 함수는 오류로 이 문제를 강조하지만 `ifelse()` 함수는 조용히 같은 위치의 값을 사용합니다.
 
 ```{r}
 #| label: r-pkgs-ifelse
@@ -345,11 +345,11 @@ if_else(x == 0, c(4, 5, 3), x)
 ifelse(x == 0, c(4, 5, 3), x)
 ```
 
-The `if_else()` function from **`dplyr`** also preserves types. If you put a `Date` into `if_else()`, then a `Date` is what comes out. That's not always true with `ifelse()`. \index{base!ifelse} \index{dplyr!if\_else}
+**`dplyr`**의 `if_else()` 함수는 유형도 보존합니다. `Date`를 `if_else()`에 넣으면 `Date`가 나옵니다. `ifelse()`의 경우에는 항상 그런 것은 아닙니다. \index{base!ifelse} \index{dplyr!if\_else}
 
 :::
 
-Now, let's use our new `extract_after_last_slash()` function! Let's start by using `select()` to keep only the columns we actually need: `Province/Territory`, and `Commissioning.date`. We then create a new column called `Year` which is the output of applying the `extract_after_last_slash()` to the `Commissioning.date` column. Initially, this column is still a character string so we convert is to a number using `as.numeric()`: \index{dplyr!mutate} \index{dplyr!select} \index{base!as.numeric}
+이제 새로운 `extract_after_last_slash()` 함수를 사용해 봅시다! `select()`를 사용하여 실제로 필요한 열인 `Province/Territory` 및 `Commissioning.date`만 유지하는 것으로 시작합니다. 그런 다음 `Commissioning.date` 열에 `extract_after_last_slash()`를 적용한 결과인 `Year`라는 새 열을 만듭니다. 처음에 이 열은 여전히 문자열이므로 `as.numeric()`을 사용하여 숫자로 변환합니다: \index{dplyr!mutate} \index{dplyr!select} \index{base!as.numeric}
 
 ```{r}
 #| label: turbines-year-data
@@ -363,7 +363,7 @@ turbines_year <- wind_turbines |>
   )
 ```
 
-Now let's group the new `Year` column into categories. Our categories span 2000 to 2019, so we start by filtering out any rows that don't fit into this time frame using `filter()` from **`dplyr`**. We then use `case_when()` from **`dplyr`** to actually construct the categories. Here, we make use of the `seq()` function. The `seq(2000, 2004)` code creates a vector `2000 2001 2002 2003 2004`. If any the `Year` is equal to any of those values, then it goes into the `"2000 - 2004"` category. And so on. Although R will automatically sort the year categories in the correct order since, in this case, the alphabetical order happens to match the desired order. However, it's good practice to be explicit about what order the categories should have, so we can also set `Year_Group` to be a factor and specify the correct order. \index{dplyr!filter} \index{dplyr!mutate} \index{dplyr!case\_when} \index{base!factor} \index{base!seq}
+이제 새로운 `Year` 열을 범주로 그룹화해 봅시다. 범주는 2000년부터 2019년까지를 포괄하므로 **`dplyr`**의 `filter()`를 사용하여 이 기간에 맞지 않는 행을 필터링하는 것으로 시작합니다. 그런 다음 **`dplyr`**의 `case_when()`을 사용하여 실제로 범주를 구성합니다. 여기서는 `seq()` 함수를 사용합니다. `seq(2000, 2004)` 코드는 벡터 `2000 2001 2002 2003 2004`를 생성합니다. `Year`가 이러한 값 중 하나와 같으면 `"2000 - 2004"` 범주로 들어갑니다. 등등. R은 범주를 자동으로 정렬하지만, 이 경우 알파벳 순서가 원하는 순서와 일치하기 때문입니다. 그러나 범주의 순서를 명시적으로 지정하는 것이 좋은 관행이므로 `Year_Group`을 팩터(factor)로 설정하고 올바른 순서를 지정할 수도 있습니다. \index{dplyr!filter} \index{dplyr!mutate} \index{dplyr!case\_when} \index{base!factor} \index{base!seq}
 
 ```{r}
 #| label: turbines-data-wrangling-1
@@ -385,7 +385,7 @@ turbines_year_group <- turbines_year |>
   )
 ```
 
-Let's look at the `Province/Territory` categories. Using `count()` and `arrange()` from **`dplyr`**, shows us that there is a big imbalance between the categories: \index{dplyr!count} \index{dplyr!arrange}
+`Province/Territory` 범주를 살펴봅시다. **`dplyr`**의 `count()` 및 `arrange()`를 사용하면 범주 간에 큰 불균형이 있음을 알 수 있습니다: \index{dplyr!count} \index{dplyr!arrange}
 
 ```{r}
 #| label: turbines-data-counts
@@ -394,11 +394,11 @@ turbines_year_group |>
   arrange(-n)
 ```
 
-First, let's rename the `Province/Territory` column to `Region` - a shorter name that will make it a little bit easier to work with. As well as the issue posed by small numbers in categories, twelve categories is also a fairly large number to visualize. We might choose to group together the six smallest categories. The choice of six is fairly arbitrary - but we want a balance between lots of categories with small numbers and few categories with very high numbers. We use `mutate()` and `case_when()` again, to change the value in `Region` to `"other"` when the region is one of the six specified values. \index{dplyr!rename} \index{dplyr!mutate} \index{dplyr!case\_when}
+먼저 `Province/Territory` 열의 이름을 `Region`으로 바꿉니다. 짧은 이름이라 작업하기가 조금 더 쉽습니다. 범주의 수와 관련하여 제기된 문제 외에도 12개 범주는 시각화하기에 상당히 많은 수입니다. 가장 작은 6개 범주를 함께 그룹화하도록 선택할 수 있습니다. 6개 선택은 다소 임의적이지만 숫자가 적은 많은 범주와 숫자가 매우 많은 적은 범주 간의 균형을 원합니다. 다시 `mutate()` 및 `case_when()`을 사용하여 지역이 지정된 6개 값 중 하나인 경우 `Region`의 값을 `"other"`로 변경합니다. \index{dplyr!rename} \index{dplyr!mutate} \index{dplyr!case\_when}
 
-Then, we count up how many turbines were commissioned in each `Year_Group` and `Region` combination using `count()`. We also need to decide how many turbines each icon will represent. It will take a little bit of trial and error to decide on this value - depending on what resolution you want, and how big your final plot will be. Here, we used `20`. This means we divide the turbine count by `20` to obtain the number of icons required, rounding the values as we can only have whole icons. \index{dplyr!count}
+그런 다음 `count()`를 사용하여 각 `Year_Group` 및 `Region` 조합에서 얼마나 많은 터빈이 시운전되었는지 계산합니다. 또한 각 아이콘이 나타낼 터빈 수를 결정해야 합니다. 원하는 해상도와 최종 플롯의 크기에 따라 이 값을 결정하는 데 약간의 시행착오가 필요합니다. 여기서는 `20`을 사용했습니다. 즉, 터빈 수를 `20`으로 나누어 필요한 아이콘 수를 얻고, 전체 아이콘만 가질 수 있으므로 값을 반올림합니다. \index{dplyr!count}
 
-We filter out any rows where the rounded count is `0` since these won't be plotted. As an aside, it's important to think about these values before we simply throw them away. For example, a region which had 9 turbines in a particular time period won't show up on this plot - since `9/20` is less than 0.5 and so is rounded to `0`. This is an unfortunate limitation of this type of waffle plot variation. \index{dplyr!filter}
+반올림된 카운트가 `0`인 행은 플롯되지 않으므로 필터링합니다. 여담으로, 단순히 버리기 전에 이 값에 대해 생각하는 것이 중요합니다. 예를 들어 특정 기간에 9개의 터빈이 있는 지역은 이 플롯에 표시되지 않습니다. `9/20`은 0.5 미만이므로 `0`으로 반올림되기 때문입니다. 이것은 이러한 유형의 와플 차트 변형의 불행한 한계입니다. \index{dplyr!filter}
   
 ```{r}
 #| label: turbines-data-wrangling-2
@@ -422,9 +422,9 @@ turbines_region <- turbines_year_group |>
   filter(n != 0)
 ```
 
-The `Region` variable will be plotted alphabetically be default, but this is rarely the most useful ordering. Instead, let's order by magnitude - with the exception of putting the `"other"` category last. 
+`Region` 변수는 기본적으로 알파벳순으로 플롯되지만 이것이 가장 유용한 순서인 경우는 드뭅니다. 대신 크기별로 정렬해 봅시다. 단, `"other"` 범주는 마지막에 둡니다.
 
-We start by using the `summarise()` function to add up the number of turbines across the different time periods, getting a total per `Region`. We then `arrange()` them in a descending order (note the `-` in front of the `n`). We then `filter()` out the `"other"` category and stick it on the end after extracting the `Region` column using `pull()`. \index{dplyr!summarise} \index{dplyr!arrange} \index{dplyr!filter} \index{dplyr!pull} 
+먼저 `summarise()` 함수를 사용하여 다른 기간의 터빈 수를 합산하여 `Region`당 합계를 얻습니다. 그런 다음 내림차순으로 `arrange()`합니다 (`n` 앞의 `-`에 유의). 그런 다음 `filter()`를 사용하여 `"other"` 범주를 제외하고 `pull()`을 사용하여 `Region` 열을 추출한 후 끝에 붙입니다. \index{dplyr!summarise} \index{dplyr!arrange} \index{dplyr!filter} \index{dplyr!pull} 
 
 ```{r}
 #| label: turbines-fct-levels-1
@@ -435,7 +435,7 @@ region_levels <- c(turbines_region |>
   pull(Region), "other")
 ```
 
-Now, let's apply these new factor levels to the `Region` column using `mutate()`. Due to a *quirk* of the **`waffle`** package [@waffle] that we'll be using to make our plot (it plots data in the order it appears in the dataset, rather than according to the factor levels), we also sort the data using `arrange()` from **`dplyr`**. \index{dplyr!arrange} \index{dplyr!mutate} \index{base!factor}
+이제 `mutate()`를 사용하여 이러한 새 팩터 수준을 `Region` 열에 적용해 봅시다. 플롯을 만드는 데 사용할 **`waffle`** 패키지 [@waffle]의 *특이한 점*(팩터 수준에 따르지 않고 데이터 집합에 나타나는 순서대로 데이터를 플롯함)으로 인해 **`dplyr`**의 `arrange()`를 사용하여 데이터를 정렬합니다. \index{dplyr!arrange} \index{dplyr!mutate} \index{base!factor}
 
 ```{r}
 #| label: turbines-fct-levels-2
@@ -446,15 +446,15 @@ plot_data <- turbines_region |>
   arrange(Region)
 ```
 
-Our data is now ready for us to plot!
+이제 데이터를 플롯할 준비가 되었습니다!
 
-### Installing Font Awesome fonts
+### Font Awesome 글꼴 설치
 
-Before we jump into plotting, we need to do one more thing. In @fig-sketch-turbines, we decided we would use icons in the waffle chart instead of just colored grid squares. So we need to find a way of using icons in R. 
+플롯팅으로 넘어가기 전에 한 가지 더 해야 할 일이 있습니다. @fig-sketch-turbines 에서 우리는 단순히 색칠된 그리드 사각형 대신 와플 차트에 아이콘을 사용하기로 결정했습니다. 따라서 R에서 아이콘을 사용할 방법을 찾아야 합니다.
 
-In @sec-programming, we saw how to load fonts into R using the **`sysfonts`** and **`showtext`** packages. Luckily, we can use a similar process here to load in an icon font. [Font Awesome](https://fontawesome.com/) is a popular icon toolkit that provides scalable vector icons and social logos (more on this in @sec-cats) [@fontawesome]. You can download font files containing the freely available icons at {{< monolink "https://fontawesome.com/download" "fontawesome.com/download" >}}, selecting the **Free for Desktop** option. This will download a zip file containing several font files. For this chart, we only need one of those files `Font-Awesome-6-Free-Solid-900.otf`. Save this `.otf` file somewhere you can find it again - such as in a project folder called `fonts`. \index{Font Awesome} \index{fonts}
+@sec-programming 에서 **`sysfonts`** 및 **`showtext`** 패키지를 사용하여 글꼴을 R에 로드하는 방법을 보았습니다. 다행히도 여기서 유사한 프로세스를 사용하여 아이콘 글꼴을 로드할 수 있습니다. [Font Awesome](https://fontawesome.com/)은 확장 가능한 벡터 아이콘과 소셜 로고를 제공하는 인기 있는 아이콘 도구 키트입니다(자세한 내용은 @sec-cats 참조) [@fontawesome]. {{< monolink "https://fontawesome.com/download" "fontawesome.com/download" >}}에서 무료로 사용 가능한 아이콘이 포함된 글꼴 파일을 다운로드할 수 있으며 **Free for Desktop** 옵션을 선택하면 됩니다. 그러면 여러 글꼴 파일이 포함된 zip 파일이 다운로드됩니다. 이 차트의 경우 해당 파일 중 `Font-Awesome-6-Free-Solid-900.otf` 하나만 필요합니다. 이 `.otf` 파일을 `fonts`라는 프로젝트 폴더와 같이 다시 찾을 수 있는 곳에 저장합니다. \index{Font Awesome} \index{fonts}
 
-Then, we'll use `font_add()` from **`sysfonts`** [@sysfonts] to load the font into R. The `family` argument is what we want to refer to the font as in R. The `regular` argument is the file path to the `.otf` file. We then use `showtext_auto()` and `showtext_opts()` in exactly the same way as we did for @sec-programming, to use **`showtext`** to render the text.  \index{sysfonts!font\_add} \index{showtext!showtext\_auto} \index{showtext!showtext\_opts}
+그런 다음 **`sysfonts`** [@sysfonts]의 `font_add()`를 사용하여 글꼴을 R에 로드합니다. `family` 인수는 R에서 글꼴을 참조할 이름입니다. `regular` 인수는 `.otf` 파일의 파일 경로입니다. 그런 다음 @sec-programming 에서와 완전히 동일한 방식으로 `showtext_auto()` 및 `showtext_opts()`를 사용하여 **`showtext`**를 사용하여 텍스트를 렌더링합니다. \index{sysfonts!font\_add} \index{showtext!showtext\_auto} \index{showtext!showtext\_opts}
 
 ```{r}
 #| label: turbines-font-awesome
@@ -468,28 +468,28 @@ showtext_opts(dpi = 300)
 
 ::: {#tip-turbines-open .callout-tip}
 
-## Installing Font Awesome icons with **`waffle`**
+## **`waffle`**로 Font Awesome 아이콘 설치
 
-The **`waffle`** package comes bundled with Font Awesome 5, and you can use the `install_fa_fonts()` function to help you install the font, as an alternative to approach described here. Downloading and installing using the `font_add()` approach will give you access to a wider range of icons since it used the more recent **Font Awesome 6** fonts, and means you don't have to install the font system wide - you only need to load it into R. \index{waffle!install\_fa\_fonts}
+**`waffle`** 패키지에는 Font Awesome 5가 번들로 제공되며, 여기서 설명하는 방법 대신 `install_fa_fonts()` 함수를 사용하여 글꼴을 설치할 수 있습니다. `font_add()` 접근 방식을 사용하여 다운로드하고 설치하면 최신 **Font Awesome 6** 글꼴을 사용하므로 더 다양한 아이콘을 사용할 수 있으며 글꼴 시스템을 전체적으로 설치할 필요 없이 R에만 로드하면 됩니다. \index{waffle!install\_fa\_fonts}
 
 :::
 
-Now we're ready to plot!
+이제 플롯할 준비가 되었습니다!
 
-### The first plot with **`waffle`**
+### **`waffle`**을 사용한 첫 번째 플롯
 
-We're going to use the **`waffle`** package [@waffle] to create our plot. Though the package includes the `waffle()` function which allows you to create a waffle chart directly from a `data.frame`, it also include `geom` functions to allow you to build charts in the way you normally would with **`ggplot2`**. The `geom_waffle()` function can be used to build traditional waffle charts with grid squares, and the `geom_pictogram()` function is used for waffle charts with icons i.e. pictograms. We'll use `geom_pictogram()`. This means we start our plot as we normally do, by passing our data into `ggplot()`. \index{waffle!geom\_waffle} \index{waffle!geom\_pictogram} \index{ggplot2!ggplot}
+**`waffle`** 패키지 [@waffle]를 사용하여 플롯을 만들 것입니다. 패키지에는 `data.frame`에서 와플 차트를 직접 만들 수 있는 `waffle()` 함수가 포함되어 있지만, **`ggplot2`**로 일반적으로 하는 방식으로 차트를 만들 수 있는 `geom` 함수도 포함되어 있습니다. `geom_waffle()` 함수는 그리드 사각형이 있는 기존 와플 차트를 만드는 데 사용할 수 있으며 `geom_pictogram()` 함수는 아이콘이 있는 와플 차트(예: 픽토그램)에 사용됩니다. 우리는 `geom_pictogram()`을 사용할 것입니다. 즉, 평소처럼 데이터를 `ggplot()`에 전달하여 플롯을 시작합니다. \index{waffle!geom\_waffle} \index{waffle!geom\_pictogram} \index{ggplot2!ggplot}
 
-We then edit the aesthetic mapping in the `geom_pictogram()` function, where we specify the `label` and `color` - both mapped to the `Region` column. This might seem slightly unusual because we don't want the icon to vary with region. Instead, we want to use the same icon for all categories. However, `geom_pictogram()` expects `label` to vary by category, so we map it to region and we'll later use `scale_label_pictogram()` to make them all the same icon. The `values` argument is also a required aesthetic. We use the `n` column in the data to specify how many icons should be plotted for each category. The x and y coordinates are automatically calculated when we use the `geom_pictogram()` function so we don't need to map these out in the `aes()` function.  \index{ggplot2!aes} \index{waffle!geom\_pictogram}
+그런 다음 `geom_pictogram()` 함수에서 미적 매핑을 편집하여 `label`과 `color`를 지정합니다. 둘 다 `Region` 열에 매핑됩니다. 아이콘이 지역에 따라 다르지 않기를 원하기 때문에 약간 이상하게 보일 수 있습니다. 대신 모든 범주에 대해 동일한 아이콘을 사용하고 싶습니다. 그러나 `geom_pictogram()`은 `label`이 범주에 따라 다를 것으로 예상하므로 지역에 매핑하고 나중에 `scale_label_pictogram()`을 사용하여 모두 동일한 아이콘으로 만들 것입니다. `values` 인수도 필수 미적 요소입니다. 데이터의 `n` 열을 사용하여 각 범주에 대해 플롯할 아이콘 수를 지정합니다. x 및 y 좌표는 `geom_pictogram()` 함수를 사용할 때 자동으로 계산되므로 `aes()` 함수에서 매핑할 필요가 없습니다.  \index{ggplot2!aes} \index{waffle!geom\_pictogram}
 
-We also edit a few other parameters of the `geom_pictogram()` function. By default, pictograms are stacked horizontally as this is often easier to read (similar to horizontal bar charts). However, it's also very common to put date variables on the x-axis. Setting `flip = TRUE` will stack the pictogram categories upwards, and allow the date categories to go on the x-axis. Setting `n_rows = 10` means that each row of the pictogram will contain 10 icons (remember that we've flipped rows and columns here). We can edit the `size` of the icons in the same way we would edit the font size in `geom_text()`, for example. It might take a little bit of trial and error to find the right size to make sure icons are large enough to see, but don't overlap. We also need to state that the icons come from Font Awesome 6 by setting `family = "Font Awesome 6"` (the same name as the `family` argument used in `font_add()`). \index{waffle!geom\_pictogram}
+또한 `geom_pictogram()` 함수의 몇 가지 다른 매개변수도 편집합니다. 기본적으로 픽토그램은 수평으로 쌓입니다. 이는 종종 읽기 쉽기 때문입니다(수평 막대 차트와 유사). 그러나 날짜 변수를 x축에 두는 것도 매우 일반적입니다. `flip = TRUE`를 설정하면 픽토그램 범주가 위쪽으로 쌓이고 날짜 범주가 x축에 위치할 수 있습니다. `n_rows = 10`을 설정하면 픽토그램의 각 행에 10개의 아이콘이 포함됩니다(여기서 행과 열이 뒤집혔음을 기억하십시오). 예를 들어 `geom_text()`에서 글꼴 크기를 편집하는 것과 같은 방식으로 아이콘의 `size`를 편집할 수 있습니다. 아이콘이 겹치지 않고 볼 수 있을 만큼 충분히 큰지 확인하려면 약간의 시행착오가 필요할 수 있습니다. 또한 `family = "Font Awesome 6"`(`font_add()`에서 사용된 `family` 인수와 동일한 이름)을 설정하여 아이콘이 Font Awesome 6에서 왔음을 명시해야 합니다. \index{waffle!geom\_pictogram}
 
-Finally, we add `facet_wrap()` to create a pictogram for each date range, placing them in a single row, and moving the facet label to the bottom of the chart. \index{ggplot2!facet\_wrap}
+마지막으로 `facet_wrap()`을 추가하여 각 날짜 범위에 대한 픽토그램을 만들고 단일 행에 배치하고 패싯 레이블을 차트 하단으로 이동합니다. \index{ggplot2!facet\_wrap}
 
 ```{r}
 #| label: fig-turbines-base-plot
-#| fig-cap: "Pictogram showing the number of turbines per time period in each region, where the region name is showing instead of the icons."
-#| fig-alt: "Pictogram showing the number of turbines per time period in each region, where the region name is showing instead of the icons. Lots of the text is overlapping."
+#| fig-cap: "각 지역의 기간별 터빈 수를 보여주는 픽토그램으로, 아이콘 대신 지역 이름이 표시됩니다."
+#| fig-alt: "각 지역의 기간별 터빈 수를 보여주는 픽토그램으로, 아이콘 대신 지역 이름이 표시됩니다. 많은 텍스트가 겹쳐져 있습니다."
 #| message: false
 basic_plot <- ggplot(data = plot_data) +
   geom_pictogram(
@@ -512,20 +512,20 @@ basic_plot
 
 ::: {#tip-turbines-waffle-prop .callout-tip}
 
-## Proportional waffle charts
+## 비례 와플 차트
 
-By default, `geom_pictogram()` and `geom_waffle()` both assume that the column mapped to `values` should be plotted as counts. If you'd prefer to plot the values as percentages, set `make_proportional = TRUE`. 
+기본적으로 `geom_pictogram()` 및 `geom_waffle()`은 모두 `values`에 매핑된 열이 카운트로 플롯되어야 한다고 가정합니다. 값을 백분율로 플롯하려면 `make_proportional = TRUE`를 설정하십시오.
 
 :::
 
-What you might immediately notice about @fig-turbines-base-plot is that there are no icons. Instead, the plot has printed the `Region` names (even though we've set `family = "Font Awesome 6"`). This is because we haven't defined which icons we want to use. To find an appropriate icon and what it's called, we can browse the Font Awesome website at {{< monolink "https://fontawesome.com/search" "fontawesome.com/search" >}} and search for related icons. For example, we might search for a *wind turbine* icon. Though Font Awesome wind turbine icons do exist, they are unfortunately only available with the Pro version. There are other free icons that sort of fit this theme: `wind`, `bolt` (to represent energy), or `fan` to name a few. We'll use `fan` [@fontawesome]. \index{Font Awesome}
+@fig-turbines-base-plot 에서 즉시 알 수 있는 것은 아이콘이 없다는 것입니다. 대신 플롯에 `Region` 이름이 인쇄되었습니다(`family = "Font Awesome 6"`을 설정했음에도 불구하고). 이는 사용하려는 아이콘을 정의하지 않았기 때문입니다. 적절한 아이콘과 이름을 찾으려면 {{< monolink "https://fontawesome.com/search" "fontawesome.com/search" >}}에서 Font Awesome 웹사이트를 탐색하고 관련 아이콘을 검색할 수 있습니다. 예를 들어 *풍력 터빈* 아이콘을 검색할 수 있습니다. Font Awesome 풍력 터빈 아이콘이 있기는 하지만 불행히도 Pro 버전에서만 사용할 수 있습니다. 이 테마에 맞는 다른 무료 아이콘이 있습니다: `wind`, `bolt`(에너지를 나타내기 위해) 또는 `fan`. 우리는 `fan`을 사용할 것입니다 [@fontawesome]. \index{Font Awesome}
 
-We can add `scale_label_pictogram()` from **`waffle`** to our plot to specify the icons. We would normally pass in a vector of icon names to the `values` argument - one icon for each category. However, since we want to use the same icon for all categories, we can simply pass in a single name - taking advantage of the fact that R re-uses elements of vectors. We set `guide = "none"` to remove the legend for icons as they are all the same. Alternatively, you can later set `theme(legend.position = "none")` as we did in previous chapters to remove the legend. \index{waffle!scale\_label\_pictogram}
+**`waffle`**의 `scale_label_pictogram()`을 플롯에 추가하여 아이콘을 지정할 수 있습니다. 일반적으로 아이콘 이름 벡터를 `values` 인수에 전달합니다(각 범주에 대해 하나의 아이콘). 그러나 모든 범주에 대해 동일한 아이콘을 사용하려고 하므로 R이 벡터의 요소를 재사용한다는 사실을 이용하여 단일 이름을 전달할 수 있습니다. 아이콘이 모두 동일하므로 `guide = "none"`을 설정하여 아이콘 범례를 제거합니다. 또는 이전 장에서 범례를 제거하기 위해 했던 것처럼 나중에 `theme(legend.position = "none")`을 설정할 수 있습니다. \index{waffle!scale\_label\_pictogram}
 
 ```{r}
 #| label: fig-turbines-icons-plot
-#| fig-cap: "Pictogram showing the number of turbines per time period in each region, with fan icons indicating 20 turbines."
-#| fig-alt: "Pictogram showing the number of turbines per time period in each region, with fan icons indicating 20 turbines. Looks a little bit squashed."
+#| fig-cap: "각 지역의 기간별 터빈 수를 보여주는 픽토그램으로, 팬 아이콘은 20개의 터빈을 나타냅니다."
+#| fig-alt: "각 지역의 기간별 터빈 수를 보여주는 픽토그램으로, 팬 아이콘은 20개의 터빈을 나타냅니다. 약간 찌그러져 보입니다."
 icons_plot <- basic_plot +
   scale_label_pictogram(
     values = "fan",
@@ -534,15 +534,15 @@ icons_plot <- basic_plot +
 icons_plot
 ```
 
-You might also have noticed that the values on the y-axis are incorrect - there definitely more than 15 turbines in the 2010 - 2014 time frame! We'll deal with the axis in the next section.
+또한 y축의 값이 올바르지 않다는 것을 눈치챘을 것입니다. 2010 - 2014 기간에는 확실히 15개 이상의 터빈이 있습니다! 다음 섹션에서 축을 다룰 것입니다.
 
-## Advanced styling
+## 고급 스타일링
 
-Now we still need to edit the colors used in the plot, add a title and subtitle (including colored text to replace the legend), and edit the axis labels.
+이제 플롯에 사용된 색상을 편집하고 제목과 부제목(범례를 대체할 색상 텍스트 포함)을 추가하고 축 레이블을 편집해야 합니다.
 
-### Colors with **`rcartocolor`**
+### **`rcartocolor`**를 사용한 색상
 
-We start by defining variables for the background and text colors: \index{color}
+배경 및 텍스트 색상에 대한 변수를 정의하는 것으로 시작합니다: \index{color}
 
 ```{r}
 #| label: turbines-cols
@@ -550,14 +550,14 @@ bg_col <- "#FAFAFA"
 text_col <- "black"
 ```
 
-Let's also define a color palette that we'll use for the color of the icons. We're looking for 6 different colors - one for area. The **`rcartocolor`** [@rcartocolor] package provides access to the [CARTOColors](https://carto.com/carto-colors/) color palettes for maps designed by [CARTO](https://carto.com/) [@cartocolors]. Although these palettes were primarily designed for coloring maps, the color palettes are also very effective for other types of graphics. 
+또한 아이콘 색상에 사용할 색상 팔레트를 정의해 봅시다. 우리는 6가지 다른 색상을 찾고 있습니다 - 영역마다 하나씩. **`rcartocolor`** [@rcartocolor] 패키지는 [CARTO](https://carto.com/) [@cartocolors]가 디자인한 지도를 위한 [CARTOColors](https://carto.com/carto-colors/) 색상 팔레트에 대한 액세스를 제공합니다. 이 팔레트는 주로 지도를 색칠하기 위해 설계되었지만 색상 팔레트는 다른 유형의 그래픽에도 매우 효과적입니다.
 
-In the **`rcartocolor`** package, categorical palettes are referred to as *qualitative* palettes. We can see all available qualitative palettes with a sufficient number of colors using `display_carto_all()`: \index{rcartocolor!display\_carto\_all}
+**`rcartocolor`** 패키지에서 범주형 팔레트를 *질적(qualitative)* 팔레트라고 합니다. `display_carto_all()`을 사용하여 충분한 수의 색상이 있는 사용 가능한 모든 질적 팔레트를 볼 수 있습니다: \index{rcartocolor!display\_carto\_all}
 
 ```{r, echo=-1}
 #| label: fig-turbines-rcarto
-#| fig-cap: "All qualitative color palettes with at least 6 colors in the `rcartocolor` package."
-#| fig-alt: "All qualitative color palettes with at least 6 colors in the `rcartocolor` package."
+#| fig-cap: "`rcartocolor` 패키지에 있는 최소 6가지 색상의 모든 질적 색상 팔레트."
+#| fig-alt: "`rcartocolor` 패키지에 있는 최소 6가지 색상의 모든 질적 색상 팔레트."
 #| fig-asp: 0.8
 par(mar = c(2.1, 4.1, 1.1, 2.1))
 display_carto_all(
@@ -565,9 +565,9 @@ display_carto_all(
 )
 ```
 
-Although the **`rcartocolor`** package has the `scale_fill_carto_d()` function which we could use directly in our plots, we'll still save the color palette as a vector of hex codes to allow us to re-use the colors more easily. As you can see in @fig-turbines-rcarto, in the qualitative palettes in the **`rcartocolor`** package, the last color is often a gray color. That's a great choice for representing missing data, but when we want different colors for categories it doesn't work as well. The trick is to ask for one more color than we need, and then throw away the last element in the color palette. We have 6 categories in our plot, so we ask for 7 colors using the `carto_pal()` function and then extract only the first 6. We'll use the `"Vivid"` palette here. \index{rcartocolor!carto\_pal} \index{color}
+**`rcartocolor`** 패키지에는 플롯에 직접 사용할 수 있는 `scale_fill_carto_d()` 함수가 있지만, 색상을 더 쉽게 재사용할 수 있도록 색상 팔레트를 16진수 코드 벡터로 저장할 것입니다. @fig-turbines-rcarto 에서 볼 수 있듯이 **`rcartocolor`** 패키지의 질적 팔레트에서 마지막 색상은 종종 회색입니다. 누락된 데이터를 나타내는 데는 좋지만 범주별로 다른 색상을 원할 때는 잘 작동하지 않습니다. 요령은 필요한 것보다 한 가지 더 많은 색상을 요청한 다음 색상 팔레트의 마지막 요소를 버리는 것입니다. 플롯에 6개의 범주가 있으므로 `carto_pal()` 함수를 사용하여 7가지 색상을 요청한 다음 처음 6개만 추출합니다. 여기서는 `"Vivid"` 팔레트를 사용합니다. \index{rcartocolor!carto\_pal} \index{color}
 
-We also make the `col_palette` vector a named vector by using the `names()` function, and using `region_levels` as the names. Although this isn't necessary for adding the colors to the plot, it will make it easier to extract the colors and ensure each color is mapped to the correct category label.
+또한 `names()` 함수를 사용하고 `region_levels`를 이름으로 사용하여 `col_palette` 벡터를 명명된 벡터로 만듭니다. 색상을 플롯에 추가하는 데 꼭 필요한 것은 아니지만 색상을 추출하고 각 색상이 올바른 범주 레이블에 매핑되도록 하는 것이 더 쉬워집니다.
 
 ```{r}
 #| label: turbines-col-palette
@@ -578,7 +578,7 @@ col_palette <- carto_pal(
 names(col_palette) <- region_levels
 ```
 
-We can then pass this `col_palette` vector into `scale_color_manual()` to apply the colors to our plot. Since we'll be using colored text instead of a traditional legend, we set `guide = "none"` to remove the legend again. \index{ggplot2!scale\_color\_manual}
+그런 다음 이 `col_palette` 벡터를 `scale_color_manual()`에 전달하여 플롯에 색상을 적용할 수 있습니다. 기존 범례 대신 색상 텍스트를 사용할 것이므로 `guide = "none"`을 설정하여 범례를 다시 제거합니다. \index{ggplot2!scale\_color\_manual}
 
 ```{r}
 #| label: turbines-col-plot
@@ -589,11 +589,11 @@ col_plot <- icons_plot +
   )
 ```
 
-### Adding styled text with **`marquee`**
+### **`marquee`**로 스타일이 지정된 텍스트 추가
 
-We've already seen in @sec-programming and @sec-museums how to format the title or subtitle text to be bold using the `face = "bold"` argument inside `theme()` elements. But what if we want to make only *part* of the text bold? We can use the **`marquee`** package [@marquee] to add styling to text within in a string. The **`marquee`** package allows you to use Markdown syntax in text when you're making graphics in R, including in plots built with **`ggplot2`** or other graphics built with **`grid`**. \index{marquee}
+@sec-programming 및 @sec-museums 에서 `theme()` 요소 내부의 `face = "bold"` 인수를 사용하여 제목 또는 부제목 텍스트를 굵게 서식을 지정하는 방법을 이미 보았습니다. 하지만 텍스트의 *일부*만 굵게 만들고 싶다면 어떻게 해야 할까요? **`marquee`** 패키지 [@marquee]를 사용하여 문자열 내의 텍스트에 스타일을 추가할 수 있습니다. **`marquee`** 패키지를 사용하면 **`ggplot2`**로 만든 플롯이나 **`grid`**로 만든 기타 그래픽을 포함하여 R에서 그래픽을 만들 때 텍스트에 Markdown 구문을 사용할 수 있습니다. \index{marquee}
 
-In Markdown, to make text bold, you enclose it inside two pairs of asterisks e.g. `**bold text**`. For example, if we wanted to put the entire title in bold font, we could write the title inside `**`. In the caption, we might want to embolden the words `Data` and `Graphic` to highlight that there are two different fields of information:
+Markdown에서는 텍스트를 굵게 만들려면 두 쌍의 별표로 묶습니다(예: `**굵은 텍스트**`). 예를 들어 전체 제목을 굵은 글꼴로 표시하려면 제목을 `**` 안에 쓸 수 있습니다. 캡션에서는 `Data`와 `Graphic`이라는 단어를 굵게 표시하여 두 가지 다른 정보 필드가 있음을 강조할 수 있습니다:
 
 ```{r}
 #| label: turbines-text-1
@@ -601,13 +601,13 @@ title <- "**Ontario is the province with the most wind turbines**"
 cap <- "**Data**: Natural Resources Canada | **Graphic**: N. Rennie"
 ```
 
-This type of formatting for the plot caption is something that we might like to re-use across multiple plots. And when we want to re-use code, it's almost always useful to make it into a function. Let's define a function called `source_caption()` which has three arguments:
+플롯 캡션에 대한 이러한 유형의 서식은 여러 플롯에서 재사용하고 싶은 것일 수 있습니다. 그리고 코드를 재사용하고 싶을 때는 함수로 만드는 것이 거의 항상 유용합니다. 세 가지 인수가 있는 `source_caption()`이라는 함수를 정의해 보겠습니다:
 
-* `source`: a character string for the source of the data
-* `graphic`: a character string for the attribution of the visualization
-* `sep`: a character string for what should separate the two pieces of text, which has `" | "` as a default.
+* `source`: 데이터 소스에 대한 문자열
+* `graphic`: 시각화의 속성에 대한 문자열
+* `sep`: 두 개의 텍스트를 구분해야 하는 문자열로, 기본값은 `" | "`입니다.
 
-We then use `glue()` from **`glue`** to stick these three arguments together, and include the bold formatting using `**`. Here we use namespacing (prefixing the function name with the package name and `::`) to make it easier to re-use this function in later chapters.
+그런 다음 **`glue`**의 `glue()`를 사용하여 이 세 가지 인수를 결합하고 `**`를 사용하여 굵은 서식을 포함합니다. 여기서는 네임스페이싱(함수 이름 앞에 패키지 이름과 `::` 접두사 붙이기)을 사용하여 나중 장에서 이 함수를 더 쉽게 재사용할 수 있도록 합니다.
 
 ```{r}
 #| echo: true
@@ -615,7 +615,7 @@ We then use `glue()` from **`glue`** to stick these three arguments together, an
 #| file: R/source_caption.R
 ```
 
-We can construct the caption using our new `source_caption()` function:
+새로운 `source_caption()` 함수를 사용하여 캡션을 구성할 수 있습니다:
 
 ```{r}
 #| label: turbines-text-2
@@ -626,13 +626,13 @@ cap <- source_caption(
 cap
 ```
 
-You can see that it's identical to the one we manually created earlier. We'll also re-use the `source_caption()` function in later chapters.
+이전에 수동으로 만든 캡션과 동일하다는 것을 알 수 있습니다. 이후 장에서도 `source_caption()` 함수를 재사용할 것입니다.
 
-Let's move onto the subtitle. In this visualization, the subtitle will also be doubling as a legend as we'll use colored text to denote the different categories. In **`marquee`**, text can be colored by wrapping the text in curly brackets, where the first word is pre-fixed by a period and identifies the color of the text i.e. `{.color text to color}`. For example, `{.red This is red text.}`. 
+부제목으로 넘어가 보겠습니다. 이 시각화에서 부제목은 다른 범주를 나타내기 위해 색상 텍스트를 사용할 것이므로 범례 역할도 겸하게 됩니다. **`marquee`**에서 텍스트는 중괄호로 텍스트를 묶어 색상을 지정할 수 있습니다. 여기서 첫 번째 단어 앞에는 마침표가 붙고 텍스트의 색상을 식별합니다. 즉, `{.color text to color}`입니다. 예를 들어 `{.red This is red text.}`입니다.
 
-We want to add the colors and the text to be colored in a programmatic way. We'll use square brackets to subset the values and names stored in the `col_palette` vector. Here, `col_palette[[1]]` extracts the hex code for the color of the first category, and `names(col_palette)[[1]]` extracts the name of the first category.
+우리는 프로그래밍 방식으로 색상과 텍스트를 추가하고 싶습니다. 대괄호를 사용하여 `col_palette` 벡터에 저장된 값과 이름을 하위 집합화합니다. 여기서 `col_palette[[1]]`은 첫 번째 범주의 색상에 대한 16진수 코드를 추출하고 `names(col_palette)[[1]]`은 첫 번째 범주의 이름을 추출합니다.
 
-Normally, when we want to write character strings and insert variables into the string, we'd use `glue()` to combine them. However, the `{}` that we normally use for variables in `glue()` will get mixed up with the `{}` we'll use for text formatting with **`marquee`**. There are a couple of different ways we can get around this problem. One way is changing the delimiters used in `glue()`. For example, by setting `.open = "["` and `.close = "]"` inside the `glue()` function. Alternatively, we can use `marquee_glue()` from the **`marquee`** package - an equivalent version of `glue()` that was built to deal with this problem.
+일반적으로 문자열을 쓰고 문자열에 변수를 삽입하려면 `glue()`를 사용하여 결합합니다. 그러나 `glue()`에서 변수에 일반적으로 사용하는 `{}`가 **`marquee`**로 텍스트 서식을 지정하는 데 사용할 `{}`와 섞이게 됩니다. 이 문제를 해결할 수 있는 몇 가지 다른 방법이 있습니다. 한 가지 방법은 `glue()`에서 사용되는 구분 기호를 변경하는 것입니다. 예를 들어 `glue()` 함수 내에서 `.open = "["` 및 `.close = "]"`를 설정합니다. 또는 이 문제를 처리하기 위해 만들어진 `glue()`의 동등한 버전인 **`marquee`** 패키지의 `marquee_glue()`를 사용할 수 있습니다.
 
 ```{r}
 #| label: turbines-text-3
@@ -641,21 +641,21 @@ st <- marquee_glue(
 )
 ```
 
-Let's see what our subtitle looks like when the variables have been evaluated:
+변수가 평가되었을 때 부제목이 어떻게 보이는지 확인해 봅시다:
 
 ```{r}
 #| label: turbines-text-show
 st
 ```
 
-This is the reason that we wanted the `"other"` category to be in lower case and in last position when constructing `region_levels` - to make the sentence read better.
+이것이 바로 `region_levels`를 구성할 때 `"other"` 범주를 소문자로 하고 마지막 위치에 두고 싶었던 이유입니다. 그래야 문장이 더 잘 읽힙니다.
 
-We add these text elements to our plot in the normal way, by passing them into the `labs()` function: \index{ggplot2!labs}
+이 텍스트 요소들을 `labs()` 함수에 전달하여 평소와 같이 플롯에 추가합니다: \index{ggplot2!labs}
 
 ```{r}
 #| label: fig-turbines-text-plot
-#| fig-cap: "Pictogram showing the number of turbines per time period in each region, with title and caption text showing asterisks that indicate bold text."
-#| fig-alt: "Pictogram showing the number of turbines per time period in each region, with title and caption text showing asterisks that indicate bold text. Text isn't properly rendered, but showing as raw markdown."
+#| fig-cap: "각 지역의 기간별 터빈 수를 보여주는 픽토그램으로, 제목과 캡션 텍스트는 굵은 텍스트를 나타내는 별표를 보여줍니다."
+#| fig-alt: "각 지역의 기간별 터빈 수를 보여주는 픽토그램으로, 제목과 캡션 텍스트는 굵은 텍스트를 나타내는 별표를 보여줍니다. 텍스트가 제대로 렌더링되지 않고 raw markdown으로 표시됩니다."
 text_plot <- col_plot +
   labs(
     title = title,
@@ -665,16 +665,16 @@ text_plot <- col_plot +
 text_plot
 ```
 
-You'll notice that the formatting hasn't been applied, and that the `**` have been rendered literally. We'll deal with this when we edit the arguments in `theme()` - we haven't actually used **`marquee`** yet to format the title text!
+서식이 적용되지 않았고 `**`가 문자 그대로 렌더링된 것을 알 수 있습니다. `theme()`에서 인수를 편집할 때 이 문제를 다룰 것입니다. 아직 제목 텍스트 서식을 지정하기 위해 **`marquee`**를 사용하지 않았습니다!
 
-### Adjusting scales and themes
+### 스케일 및 테마 조정
 
-We can make a final few tweaks to our plot, to apply the formatting with **`marquee`** and make it look a little bit cleaner. Let's start by adjusting the scales. At the moment, the y-axis ranges from 0 to around 15. We know this isn't correct because we have over 6,500 observations in our data. There are two reasons why the scale of the y-axis is incorrect:
+**`marquee`**로 서식을 적용하고 조금 더 깔끔하게 보이도록 플롯에 마지막 몇 가지 조정을 할 수 있습니다. 스케일을 조정하는 것으로 시작하겠습니다. 현재 y축 범위는 0에서 약 15까지입니다. 데이터에 6,500개 이상의 관측치가 있으므로 이것이 올바르지 않다는 것을 알고 있습니다. y축의 스케일이 올바르지 않은 데에는 두 가지 이유가 있습니다:
 
-* Each icon represents 20 turbines, so the y-axis labels are currently showing as 20 times smaller than they should be.
-* Within each facet, we row contains 10 icons, so the y-axis labels are currently showing as another 10 times smaller than they should be. 
+* 각 아이콘은 20개의 터빈을 나타내므로 y축 레이블은 실제보다 20배 작게 표시됩니다.
+* 각 패싯 내에서 행에는 10개의 아이콘이 포함되므로 y축 레이블은 실제보다 또 다른 10배 작게 표시됩니다.
 
-Let's fix that by passing a function into the `labels` argument of `scale_y_continuous()`. The function takes the existing y-axis label, multiplies it by `10`, multiplies it by `20`, and formats it using a thousand separator comma. We set `expand = c(0, 0)` to remove the extra space at the top and bottom of the y-axis. Let's also choose slightly nicer break points for the y-axis - ranging from 0 to 4,000 with breaks every 1,000. Unfortunately, we need to specify the limits and the breaks on the original scale rather than on the label scale e.g. an break point of `15` is actually a break point of `15 * 20 * 10 = 3000`. Adding `coord_fixed()` helps to deal with the overlapping icons issue, by making each icon area square. \index{ggplot2!scale\_y\_continuous} \index{ggplot2!coord\_fixed}
+`scale_y_continuous()`의 `labels` 인수에 함수를 전달하여 이 문제를 해결해 봅시다. 이 함수는 기존 y축 레이블을 가져와 `10`을 곱하고 `20`을 곱하고 천 단위 구분 기호 쉼표를 사용하여 서식을 지정합니다. `expand = c(0, 0)`을 설정하여 y축 위아래의 여분의 공간을 제거합니다. 또한 0에서 4,000까지 1,000마다 중단점이 있는 약간 더 나은 y축 중단점을 선택해 봅시다. 불행히도 레이블 스케일이 아닌 원래 스케일에서 제한과 중단점을 지정해야 합니다. 예를 들어 `15`의 중단점은 실제로 `15 * 20 * 10 = 3000`의 중단점입니다. `coord_fixed()`를 추가하면 각 아이콘 영역을 정사각형으로 만들어 아이콘 겹침 문제를 처리하는 데 도움이 됩니다. \index{ggplot2!scale\_y\_continuous} \index{ggplot2!coord\_fixed}
 
 ```{r}
 #| label: turbines-scale-plot
@@ -693,27 +693,27 @@ scale_plot <- text_plot +
   coord_fixed()
 ```
 
-Let's make a few final edits to tidy up our plot by editing the theme. We'll use `theme_minimal()` as a base theme (making the font size a little bit smaller), and then make a few further edits using the `theme()` arguments. \index{ggplot2!theme\_minimal} \index{ggplot2!theme}
+테마를 편집하여 플롯을 정리하기 위해 마지막 몇 가지 편집을 해 봅시다. `theme_minimal()`을 기본 테마로 사용하고(글꼴 크기를 조금 작게 만듦) `theme()` 인수를 사용하여 몇 가지 추가 편집을 합니다. \index{ggplot2!theme\_minimal} \index{ggplot2!theme}
 
-Within `theme()`, we start by setting `plot.title.position` and `plot.caption.position` to `"plot"` to align the title, subtitle, and caption text with the edge of the whole plot, rather than the start of the first panel. Some additional spacing around the edge of the plot is added using `plot.margin` and the background color is edited by using the `fill` and `color` arguments in `element_rect()` for the `plot.background` argument. The gridlines are also made slightly thinner by adjusting `panel.grid.major`. \index{ggplot2!element\_rect} \index{ggplot2!element\_line} \index{ggplot2!margin}
+`theme()` 내에서 `plot.title.position` 및 `plot.caption.position`을 `"plot"`으로 설정하여 제목, 부제목 및 캡션 텍스트를 첫 번째 패널의 시작이 아닌 전체 플롯의 가장자리에 맞춥니다. `plot.margin`을 사용하여 플롯 가장자리 주위에 약간의 추가 간격을 추가하고 `plot.background` 인수에 대해 `element_rect()`의 `fill` 및 `color` 인수를 사용하여 배경색을 편집합니다. 그리드 선은 `panel.grid.major`를 조정하여 약간 더 얇게 만듭니다. \index{ggplot2!element\_rect} \index{ggplot2!element\_line} \index{ggplot2!margin}
 
-Finally, we edit the plot, subtitle, and caption elements and specify them all using `element_marquee()`. By using `element_marquee()`, the Markdown syntax we've applied, such as the bold and colored text, will be rendered correctly. You can adjust the `color`, `size`, `margin` and `hjust` of **`marquee`** text in the same way you would with `element_text()`. If you have some elements of the text rendered with `element_text()` and some rendered with `element_marquee()`, you may notice some differences in the text sizing and spacing. Try setting the size of individual elements with the `size` argument. \index{marquee!element\_marquee}
+마지막으로 플롯, 부제목 및 캡션 요소를 편집하고 `element_marquee()`를 사용하여 모두 지정합니다. `element_marquee()`를 사용하면 굵은 글씨 및 유색 텍스트와 같이 적용한 Markdown 구문이 올바르게 렌더링됩니다. `element_text()`와 같은 방식으로 **`marquee`** 텍스트의 `color`, `size`, `margin` 및 `hjust`를 조정할 수 있습니다. 텍스트의 일부 요소는 `element_text()`로 렌더링되고 일부는 `element_marquee()`로 렌더링된 경우 텍스트 크기와 간격에 약간의 차이가 있을 수 있습니다. `size` 인수를 사용하여 개별 요소의 크기를 설정해 보십시오. \index{marquee!element\_marquee}
 
-The `width` argument applies text wrapping, where `width = 1` means the text wraps to the full width of the plot. This is similar to the way that `element_textbox_simple()` from **`ggtext`** works. However, the `width` is not set by default, so if you want the text to wrap it's important to specify the width.
+`width` 인수는 텍스트 래핑을 적용하며, 여기서 `width = 1`은 텍스트가 플롯의 전체 너비로 래핑됨을 의미합니다. 이것은 **`ggtext`**의 `element_textbox_simple()`이 작동하는 방식과 유사합니다. 그러나 `width`는 기본적으로 설정되어 있지 않으므로 텍스트가 래핑되도록 하려면 너비를 지정하는 것이 중요합니다.
 
 
 ::: {#tip-turbines-marquee-req .callout-tip}
 
-## Requirements for using **`marquee`**
+## **`marquee`** 사용을 위한 요구 사항
 
-The **`marquee`** package relies on some of the more recent features in the R graphics engine. This means that you need at least version 4.3 of R for **`marquee`** text to render correctly. Not all graphics devices support these new features (especially in Windows) so you might need to adjust the graphics device that R uses. The devices made available through the **`ragg`** package [@ragg] are a good choice. \index{ragg}
+**`marquee`** 패키지는 R 그래픽 엔진의 최신 기능 중 일부에 의존합니다. 즉, **`marquee`** 텍스트가 올바르게 렌더링되려면 최소 버전 4.3의 R이 필요합니다. 모든 그래픽 장치가 이러한 새로운 기능을 지원하는 것은 아니므로(특히 Windows의 경우) R이 사용하는 그래픽 장치를 조정해야 할 수도 있습니다. **`ragg`** 패키지 [@ragg]를 통해 사용할 수 있는 장치가 좋은 선택입니다. \index{ragg}
 
 :::
 
 ```{r}
 #| label: fig-turbines-theme-plot
-#| fig-cap: "Pictogram showing the number of turbines per time period in each region, with colored text in the subtitle indicating which color maps to each region."
-#| fig-alt: "Pictogram showing the number of turbines per time period in each region, with colored text in the subtitle indicating which color maps to each region."
+#| fig-cap: "각 지역의 기간별 터빈 수를 보여주는 픽토그램으로, 부제목의 색상 텍스트는 각 지역에 매핑되는 색상을 나타냅니다."
+#| fig-alt: "각 지역의 기간별 터빈 수를 보여주는 픽토그램으로, 부제목의 색상 텍스트는 각 지역에 매핑되는 색상을 나타냅니다."
 scale_plot +
   theme_minimal(
     base_size = 7.5
@@ -753,7 +753,7 @@ scale_plot +
   )
 ```
 
-And we're done and ready to save a copy! \index{ggplot2!ggsave}
+이제 완료되었으며 사본을 저장할 준비가 되었습니다! \index{ggplot2!ggsave}
 
 ```{r}
 #| label: turbines-save
@@ -766,24 +766,25 @@ ggsave(
 )
 ```
 
-## Reflection
+## 성찰
 
-The colored subtitle as an alternative to a legend is effective because it uses much less space than a traditional legend - leaving more room for the data. However, there are some elements of the subtitle that could still be improved. We've discussed already the limitations of waffle plots and pictograms in terms of the lack of representation of categories with small numbers. This means that we had to group some regions together, and so regions with fewer turbines have less information included in the chart. Perhaps the subtitle could be updated to explain to users that each icon represents 20 turbines, and that this means regions with 10 or fewer turbines are not represented.
+기존 범례 대신 색상 부제목을 사용하는 것은 기존 범례보다 훨씬 적은 공간을 사용하여 데이터에 더 많은 공간을 남기므로 효과적입니다. 그러나 부제목에는 여전히 개선될 수 있는 몇 가지 요소가 있습니다. 우리는 이미 와플 차트와 픽토그램의 한계에 대해 숫자가 작은 범주에 대한 표현이 부족하다는 측면에서 논의했습니다. 즉, 일부 지역을 그룹화해야 했고, 따라서 터빈이 적은 지역은 차트에 포함된 정보가 적습니다. 아마도 부제목을 업데이트하여 사용자에게 각 아이콘이 20개의 터빈을 나타내며 이는 10개 이하의 터빈이 있는 지역은 표시되지 않는다는 것을 설명할 수 있습니다.
 
-There's also some uncertainty around the date used, which isn't really explained in the chart. When processing the `Commissioning.date` column, we used the most recent date but that isn't necessarily always the best choice. A limitation of the data is that we also only have commissioning date, not installation date or date of first operation. This means that perhaps there are some values in the data that suggest a turbine exists in one time period when it hasn't yet been built. 
+또한 사용된 날짜에 대한 약간의 불확실성이 있으며 차트에서 실제로 설명되지 않습니다. `Commissioning.date` 열을 처리할 때 가장 최근 날짜를 사용했지만 반드시 항상 최선의 선택은 아닙니다. 데이터의 한계는 설치 날짜나 첫 가동 날짜가 아니라 시운전 날짜만 있다는 것입니다. 이는 아마도 데이터의 일부 값이 아직 건설되지 않은 기간에 터빈이 존재한다고 제안할 수 있음을 의미합니다.
 
-Finally, we've used a `fan` icon because the Font Awesome wind turbine icon is only available in the Pro version. Using a wind turbine icon would be much clearer, and more consistent with the theme of the plot. We could look at using an alternative icon font, or we could perhaps use images instead. See @sec-ggbuild for a description of how we might replace the existing `fan` icons with a wind turbine icon from a different source.
+마지막으로 Font Awesome 풍력 터빈 아이콘은 Pro 버전에서만 사용할 수 있기 때문에 `fan` 아이콘을 사용했습니다. 풍력 터빈 아이콘을 사용하면 훨씬 더 명확하고 플롯의 주제와 더 일관성이 있을 것입니다. 대체 아이콘 글꼴 사용을 고려하거나 대신 이미지를 사용할 수 있습니다. 기존 `fan` 아이콘을 다른 소스의 풍력 터빈 아이콘으로 대체하는 방법에 대한 설명은 @sec-ggbuild 를 참조하십시오.
 
 ::: {.content-visible when-format="html"}
 
-Each plot created during the process of developing the original version of this visualization was captured using **`camcorder`**, and is shown in the gif below. If you'd like to learn more about how **`camcorder`** can be used in the data visualization process, see @sec-camcorder.
+이 시각화의 원본 버전을 개발하는 과정에서 생성된 각 플롯은 **`camcorder`**를 사용하여 캡처되었으며 아래 gif에 표시됩니다. **`camcorder`**를 데이터 시각화 프로세스에 사용하는 방법에 대해 자세히 알아보려면 @sec-camcorder 를 참조하십시오.
 
-![](images/turbines.gif){fig-align="center" fig-alt="Gif of the process of building the chart"}
+![](images/turbines.gif){fig-align="center" fig-alt="차트 작성 과정을 보여주는 Gif"}
 
 :::
 
-## Exercises
+## 연습 문제
 
-* Instead of using the icons to represent the number of turbines, recreate this visualization where the icons represent the total capacity (kW). Should you choose a different icon?
+* 아이콘을 사용하여 터빈 수를 나타내는 대신 아이콘이 총 용량(kW)을 나타내는 이 시각화를 다시 만드십시오. 다른 아이콘을 선택해야 합니까?
 
-* Can you arrange both versions (number and capacity) as a single visualization? Hint: you might want to use the **`patchwork`** package discussed in @sec-time-zones.
+* 두 버전(수 및 용량)을 단일 시각화로 배열할 수 있습니까? 힌트: @sec-time-zones 에서 설명한 **`patchwork`** 패키지를 사용하고 싶을 수 있습니다.
+```

@@ -7,18 +7,18 @@ fig-width: 5
 fig-asp: 0.75
 ---
 
-# Other tips and tricks {#sec-other}
+# 기타 팁과 요령 {#sec-other}
 
-There are many functions within **`ggplot2`**, and many more within the wider community of extension packages, that the chapters in this book can't cover. Some of those packages are used to add different geometries, a few are used behind the scenes to help streamline workflows, and a few are more generally useful R packages.
+이 책의 장들에서 다룰 수 없는 **`ggplot2`** 내의 수많은 함수와 확장 패키지 커뮤니티의 더 많은 패키지들이 있습니다. 그중 일부 패키지는 다양한 지오메트리를 추가하는 데 사용되고, 일부는 워크플로를 간소화하는 데 뒤에서 사용되며, 일부는 더 일반적으로 유용한 R 패키지입니다.
 
-By the end of this chapter, you'll be able to:
+이 장을 마치면 다음을 할 수 있습니다:
 
-* Preview images at the desired resolution, and record gifs showing the process of making a specific chart;
-* Extract and re-use data from existing **`ggplot2`** charts;
-* Format your code in a consistent way to make it easier to maintain and share; 
-* Create your template files and functions for pieces of code that you reuse often.
+* 원하는 해상도로 이미지를 미리 보고, 특정 차트를 만드는 과정을 보여주는 gif를 기록합니다;
+* 기존 **`ggplot2`** 차트에서 데이터를 추출하고 재사용합니다;
+* 코드를 일관된 방식으로 형식을 지정하여 유지 관리 및 공유를 더 쉽게 만듭니다;
+* 자주 재사용하는 코드 조각에 대한 템플릿 파일과 함수를 만듭니다.
 
-We begin by loading the packages required in this chapter.
+이 장에 필요한 패키지를 로드하는 것으로 시작합니다.
 
 ```{r}
 #| label: other-pkgs-req
@@ -28,18 +28,19 @@ library(camcorder)
 library(dplyr)
 library(ggpattern)
 library(ggplot2)
+library(waffle)
 ```
 
-This chapter introduces two new packages:
+이 장에서는 두 가지 새로운 패키지를 소개합니다:
 
-* **`camcorder`**: for automatically saving graphics, and creating gifs from the resulting images.
-* **`ggpattern`**: allows you to use patterns (alongside or instead of colors) for the `fill` elements of plots. It includes simple patterns like stripes or dots, as well as more complex ones like gradient and image fills.
+* **`camcorder`**: 그래픽을 자동으로 저장하고 결과 이미지로 gif를 생성합니다.
+* **`ggpattern`**: 플롯의 `fill` 요소에 색상 대신(또는 함께) 패턴을 사용할 수 있게 해줍니다. 줄무늬나 점과 같은 단순한 패턴뿐만 아니라 그라디언트 및 이미지 채우기와 같은 더 복잡한 패턴도 포함합니다.
 
 \index{camcorder} \index{ggpattern}
 
-## Recording gifs with **`camcorder`** {#sec-camcorder}
+## **`camcorder`**로 gif 기록하기 {#sec-camcorder}
 
-**`camcorder`** [@camcorder] is an R package to track and automatically save graphics generated with **`ggplot2`**. You can set up your R session to use **`camcorder`** by running `gg_record()`. If you're using RStudio, you'll notice that your plots now appear in the *Viewer* tab rather than the *Plots* tab. \index{camcorder} \index{camcorder!gg\_record}
+**`camcorder`** [@camcorder]는 **`ggplot2`**로 생성된 그래픽을 추적하고 자동으로 저장하는 R 패키지입니다. `gg_record()`를 실행하여 **`camcorder`**를 사용하도록 R 세션을 설정할 수 있습니다. RStudio를 사용하는 경우 이제 플롯이 *Plots* 탭 대신 *Viewer* 탭에 나타나는 것을 볼 수 있습니다. \index{camcorder} \index{camcorder!gg\_record}
 
 ```{r}
 #| label: other-record
@@ -50,13 +51,13 @@ gg_record(
 )
 ```
 
-If you're reading the online version of this book, you will have seen several examples of gifs showing the visualization development process at the end of chapters. The `gg_playback()` function combines the previously saved images and saves them to a gif. You can set different preferences using the arguments in `gg_playback()`. For example, you can define the length of each frame in the gif, make the first and last frames longer or shorter, or set the background color. \index{camcorder!gg\_playback}
+이 책의 온라인 버전을 읽고 있다면 장의 끝에서 시각화 개발 과정을 보여주는 gif의 몇 가지 예를 보았을 것입니다. `gg_playback()` 함수는 이전에 저장된 이미지를 결합하고 gif로 저장합니다. `gg_playback()`의 인수를 사용하여 다양한 기본 설정을 지정할 수 있습니다. 예를 들어 gif의 각 프레임 길이를 정의하거나 첫 번째와 마지막 프레임을 더 길거나 짧게 만들거나 배경색을 설정할 수 있습니다. \index{camcorder!gg\_playback}
 
 ::: {#tip-other-camcorder .callout-tip}
 
-## Transparent backgrounds in gifs
+## gif의 투명 배경
 
-Some of the built-in themes in **`ggplot2`** have a transparent background. If you've used these at some point during the development process, when you viewed them in RStudio the background likely appeared white. The default background color in `gg_playback()` is `"black"` - meaning that your gif might not quite look as you expect. Instead set the background color to something more sensible, for example your `bg_col` variable.
+**`ggplot2`**의 일부 내장 테마는 투명 배경을 가지고 있습니다. 개발 과정 중 어느 시점에 이것들을 사용했다면 RStudio에서 볼 때 배경이 흰색으로 보였을 가능성이 큽니다. `gg_playback()`의 기본 배경색은 `"black"`입니다. 즉, gif가 기대한 것과 다르게 보일 수 있습니다. 대신 `bg_col` 변수와 같이 더 합리적인 것으로 배경색을 설정하십시오.
 
 :::
 
@@ -72,41 +73,51 @@ gg_playback(
 )
 ```
 
-Note that there are a few plots (including those produced by **`geofacet`**) that don't work automatically with `gg_record()`. However, you can manually run `record_polaroid()` manually to capture the image with **`camcorder`** and view it at your desired resolution in the *Viewer* pane. \index{camcorder!record\_polaroid}
+**`geofacet`**으로 생성된 플롯을 포함하여 몇 가지 플롯은 `gg_record()`와 자동으로 작동하지 않습니다. 그러나 `record_polaroid()`를 수동으로 실행하여 **`camcorder`**로 이미지를 캡처하고 *Viewer* 창에서 원하는 해상도로 볼 수 있습니다. \index{camcorder!record\_polaroid}
 
-### Setting the size resolution of images
+### 이미지의 크기 해상도 설정
 
-Have you ever spent ages tinkering with a plot you’re previewing in RStudio, before using `ggsave()` to save a higher resolution image, only to end up with the text looking ridiculously larger (or smaller) than you thought? Or do you struggle to preview plots with your desired aspect ratio? One of the nice features of using **`camcorder`** is the ability to preview plots with the same height, width, and resolution that you want your final plot to be in. Simply set the `height`, `width`, and `dpi` (and optionally `units`) arguments in `gg_record()` to your desired values. Then what you see is what you save! The **`ggview`** [@ggview] package also provides similar functionality.
+RStudio에서 미리 보는 플롯을 수정하는 데 오랜 시간을 보낸 다음 `ggsave()`를 사용하여 고해상도 이미지를 저장하려고 했는데 텍스트가 생각보다 터무니없이 크거나(또는 작게) 보이는 경험을 한 적이 있습니까? 아니면 원하는 종횡비로 플롯을 미리 보는 데 어려움을 겪습니까? **`camcorder`**를 사용할 때의 좋은 기능 중 하나는 최종 플롯과 동일한 높이, 너비 및 해상도로 플롯을 미리 볼 수 있다는 것입니다. `gg_record()`의 `height`, `width` 및 `dpi`(선택적으로 `units`) 인수를 원하는 값으로 설정하기만 하면 됩니다. 그러면 보이는 대로 저장됩니다! **`ggview`** [@ggview] 패키지도 유사한 기능을 제공합니다.
 
 ::: {#tip-other-dpi .callout-tip}
 
-## Choosing a plot resolution
+## 플롯 해상도 선택
 
-The RStudio Plots tab shows images at 96dpi, but the default in `ggsave()` is 300dpi. This is what causes the mismatch between the sizes of text and other elements. The default dpi in `gg_record()` is also 300dpi so it integrates nicely with `ggsave()`. \index{ggplot2!ggsave}
+RStudio Plots 탭에는 이미지가 96dpi로 표시되지만 `ggsave()`의 기본값은 300dpi입니다. 이것이 텍스트와 다른 요소의 크기 불일치를 유발하는 원인입니다. `gg_record()`의 기본 dpi도 300dpi이므로 `ggsave()`와 잘 통합됩니다. \index{ggplot2!ggsave}
 
 :::
 
-## Extracting information from plots {#sec-ggbuild}
+## 플롯에서 정보 추출하기 {#sec-ggbuild}
 
 ```{r}
 #| label: other-base-plot
 #| echo: false
 #| warning: false
-basic_plot <- readRDS("data/base_plot.rds")
+# basic_plot <- readRDS("data/base_plot.rds")
+# Synthesize data to avoid version incompatibility with RDS
+dummy_data <- data.frame(
+  Region = factor(rep(c("A", "B"), 4)),
+  Year_Group = factor(rep(c("2000 - 2004", "2005 - 2009", "2010 - 2014", "2015 - 2019"), each = 2)),
+  n = c(10, 20, 30, 40, 50, 60, 70, 80)
+)
+basic_plot <- ggplot(dummy_data, aes(label = Region, values = n, color = Region)) +
+  geom_pictogram(n_rows = 10, flip = TRUE, size = 2.5,  family = "sans") +
+  facet_wrap(~Year_Group, nrow = 1, strip.position = "bottom") +
+  scale_label_pictogram(values = "circle", guide = "none")
 ```
 
-In @sec-turbines, we reflected that it would be better to use a wind turbine icons instead of the fan icon - since the data is about wind turbines! An alternative to the Font Awesome icons we used in @sec-turbines are icons from [Flaticon](https://www.flaticon.com/). You can download Flaticon icons as PNG images for free, as long as you provide attribution. More specifically, you can download a **Wind Power** icon from {{< monolink "https://www.flaticon.com/free-icon/wind-power_5670189" "www.flaticon.com/free-icon/wind-power_5670189" >}} [@flaticon]. Let's save it in an `images/` project directory. 
+@sec-turbines 에서 우리는 팬 아이콘 대신 풍력 터빈 아이콘을 사용하는 것이 더 낫다고 생각했습니다. 데이터가 풍력 터빈에 관한 것이기 때문입니다! @sec-turbines 에서 사용한 Font Awesome 아이콘의 대안은 [Flaticon](https://www.flaticon.com/)의 아이콘입니다. 속성을 제공하는 한 Flaticon 아이콘을 PNG 이미지로 무료로 다운로드할 수 있습니다. 구체적으로 {{< monolink "https://www.flaticon.com/free-icon/wind-power_5670189" "www.flaticon.com/free-icon/wind-power_5670189" >}} [@flaticon]에서 **Wind Power** 아이콘을 다운로드할 수 있습니다. `images/` 프로젝트 디렉토리에 저장해 봅시다.
 
-Now instead of plotting icons as fonts, we want to plot icons as images. The problem is that:
+이제 글꼴로 아이콘을 플롯하는 대신 이미지로 아이콘을 플롯하려고 합니다. 문제는 다음과 같습니다:
 
-* we want to use the x- and y- coordinates for the icons provided by `geom_pictogram()`
-* we want to use an image instead of a font icon
+* 우리는 `geom_pictogram()`에서 제공하는 아이콘의 x 및 y 좌표를 사용하고 싶습니다
+* 우리는 글꼴 아이콘 대신 이미지를 사용하고 싶습니다
 
-These two things aren't currently compatible.
+이 두 가지는 현재 호환되지 않습니다.
 
-### Extracting co-ordinates
+### 좌표 추출
 
-We've already built the plot with `geom_pictogram()` from **`waffle`** so the x- and y- coordinates have already been calculated. Luckily, we can use the `ggplot_build()` function to extract from the `basic_plot` we created in @sec-turbines. \index{waffle!geom\_pictogram} \index{ggplot2!ggplot\_build}
+우리는 이미 **`waffle`**의 `geom_pictogram()`으로 플롯을 만들었으므로 x 및 y 좌표가 이미 계산되었습니다. 다행스럽게도 `ggplot_build()` 함수를 사용하여 @sec-turbines 에서 만든 `basic_plot`에서 추출할 수 있습니다. \index{waffle!geom\_pictogram} \index{ggplot2!ggplot\_build}
 
 ```{r}
 #| label: other-build-gg-1
@@ -114,9 +125,9 @@ We've already built the plot with `geom_pictogram()` from **`waffle`** so the x-
 basic_built <- ggplot_build(basic_plot)
 ```
 
-You can save an `ggplot` plot as a variable, and then pass it into `ggplot_build()` to access the data associated with the plot (including data that was calculated by `geom` functions). The data is stored in the `basic_built$data[[1]]` element. The `x`, `y`, and `colour` variables are all stored in their respective columns. The variable used to define the facets, `Year_Group`, is stored in the `PANEL` column and is given by numbers rather than the original category names. 
+`ggplot` 플롯을 변수로 저장한 다음 `ggplot_build()`에 전달하여 플롯과 관련된 데이터( `geom` 함수에 의해 계산된 데이터 포함)에 액세스할 수 있습니다. 데이터는 `basic_built$data[[1]]` 요소에 저장됩니다. `x`, `y` 및 `colour` 변수는 모두 해당 열에 저장됩니다. 패면을 정의하는 데 사용되는 변수인 `Year_Group`은 `PANEL` 열에 저장되며 원래 범주 이름이 아닌 숫자로 제공됩니다.
 
-Unfortunately, `PANEL` is a forbidden column name for a faceting variable, so we need to start by renaming this column. We also convert this renamed column into a factor, and pass in the `Year_Group` categories from @sec-turbines as labels. \index{dplyr!rename} \index{dplyr!mutate} \index{base!factor}
+불행히도 `PANEL`은 패면 변수의 금지된 열 이름이므로 이 열의 이름 바꾸기부터 시작해야 합니다. 또한 이 이름이 변경된 열을 팩터로 변환하고 @sec-turbines 의 `Year_Group` 범주를 레이블로 전달합니다. \index{dplyr!rename} \index{dplyr!mutate} \index{base!factor}
 
 ```{r}
 #| label: other-build-gg-2
@@ -133,12 +144,12 @@ new_data <- basic_built$data[[1]] |>
   )
 ```
 
-Let's use `geom_point()` as a quick sense check that the x- and y- coordinates are the values that we're expecting, faceting by our `Year_Group` column. You can see the similarity with @fig-turbines-base-plot.
+`geom_point()`를 사용하여 x 및 y 좌표가 우리가 기대하는 값인지 빠르게 확인하고 `Year_Group` 열로 패면을 만들어 봅시다. @fig-turbines-base-plot 과의 유사성을 볼 수 있습니다.
 
 ```{r}
 #| label: fig-other-rebuild
-#| fig-cap: "Waffle plot of the number of wind turbines commissioned in different time periods."
-#| fig-alt: 'Plot a faceted scatterplot with dots arranged in a grid. Each facet corresponds to a different time period (e.g., "2000 - 2004", "2005 - 2009", etc.), as indicated in the header above each panel. The x-axis is labeled "x," and the y-axis is labeled "y."'
+#| fig-cap: "서로 다른 기간에 시운전된 풍력 터빈 수의 와플 차트."
+#| fig-alt: '그리드에 점이 배열된 패면 산점도를 플롯합니다. 각 패면은 각 패널 위의 헤더에 표시된 대로 서로 다른 기간(예: "2000 - 2004", "2005 - 2009" 등)에 해당합니다. x축은 "x"로, y축은 "y"로 표시됩니다.'
 ggplot(
   data = new_data,
   mapping = aes(
@@ -149,14 +160,14 @@ ggplot(
   facet_wrap(~Year_Group, nrow = 1)
 ```
 
-### Plotting with **`ggpattern`**
+### **`ggpattern`**으로 플로팅
 
-Now instead of using `geom_point()` we want to plot images. We could use **`ggimage`** [@ggimage], or alternatively **`ggpattern`** [@ggpattern]. The **`ggpattern`** package provides more **`ggplot2`** `geom` functions which support filled areas with geometric or image patterns. We can use the `geom_tile_pattern()` function, and specify that we want to use an `"image"` pattern and supply the file name of the Flaticon image to `pattern_filename`. Setting `fill = "white"` gives a white background to the icons. We can also set `theme_void()` to remove all of the distracting background elements.
+이제 `geom_point()`를 사용하는 대신 이미지를 플롯하려고 합니다. **`ggimage`** [@ggimage] 또는 **`ggpattern`** [@ggpattern]을 사용할 수 있습니다. **`ggpattern`** 패키지는 기하학적 또는 이미지 패턴으로 채워진 영역을 지원하는 더 많은 **`ggplot2`** `geom` 함수를 제공합니다. `geom_tile_pattern()` 함수를 사용할 수 있으며 `"image"` 패턴을 사용하고 싶다고 지정하고 Flaticon 이미지의 파일 이름을 `pattern_filename`에 제공할 수 있습니다. `fill = "white"`를 설정하면 아이콘에 흰색 배경이 제공됩니다. 또한 `theme_void()`를 설정하여 방해가 되는 모든 배경 요소를 제거할 수 있습니다.
 
 ```{r}
 #| label: fig-other-flaticon
-#| fig-cap: "Pictogram of the number of wind turbines commissioned in different time periods, using the Flaticon.com wind power icon."
-#| fig-alt: "The image is a bar graph with wind turbine icons representing quantities over time. From 2000–2004, the number is very low. It increases in 2005–2009, peaks in 2010–2014, and slightly declines in 2015–2019 while remaining relatively high."
+#| fig-cap: "Flaticon.com 풍력 발전 아이콘을 사용하여 서로 다른 기간에 시운전된 풍력 터빈 수를 나타내는 픽토그램."
+#| fig-alt: "이미지는 시간 경과에 따른 수량을 나타내는 풍력 터빈 아이콘이 있는 막대 그래프입니다. 2000-2004년에는 그 수가 매우 낮습니다. 2005-2009년에 증가하고 2010-2014년에 정점을 찍으며 2015-2019년에는 약간 감소하지만 상대적으로 높은 상태를 유지합니다."
 ggplot(
   data = new_data,
   mapping = aes(
@@ -172,39 +183,39 @@ ggplot(
   theme_void()
 ```
 
-If we wanted to color the icons based on the `Region` variable, we would need to have multiple copies of the image in different colors. We could combine the information in @sec-lemurs about manipulating and re-coloring images, along with the information in @sec-r-pkgs about defining image paths based on data values to do this programmatically.
+`Region` 변수를 기반으로 아이콘의 색상을 지정하려면 다른 색상의 이미지 사본이 여러 개 필요합니다. @sec-lemurs 의 이미지 조작 및 다시 색칠하기에 대한 정보와 @sec-r-pkgs 의 데이터 값을 기반으로 이미지 경로를 정의하는 정보를 결합하여 프로그래밍 방식으로 이를 수행할 수 있습니다.
 
 ::: {#tip-other-patterns .callout-tip}
 
-## Pattern fills in R
+## R의 패턴 채우기
 
-The **`ggpattern`** package is not the only way to add pattern fills to charts in R. Since version 4.1.0 of R, patterns and gradients have been available through the **`grid`** package in base R, and version 3.5.0 of **`ggplot2`** built upon that functionality to make some pattern fills available as part of the core **`ggplot2`** package.
+**`ggpattern`** 패키지는 R의 차트에 패턴 채우기를 추가하는 유일한 방법은 아닙니다. R 버전 4.1.0부터 기본 R의 **`grid`** 패키지를 통해 패턴과 그라디언트를 사용할 수 있게 되었으며, **`ggplot2`**의 버전 3.5.0은 해당 기능을 기반으로 일부 패턴 채우기를 핵심 **`ggplot2`** 패키지의 일부로 사용할 수 있게 했습니다.
 
 :::
 
-One of the benefits of using **`ggplot2`** is that they are stored as lists, and all of the information about that plot is stored with it - even information you didn't pass in! This allows you to use `ggplot_build()` to take a layout created by one **`ggplot2`** extension package and use it in an entirely different extension - meaning you can create custom plots by mixing and matching features of different extensions.
+**`ggplot2`**를 사용할 때의 장점 중 하나는 플롯이 목록으로 저장되고 해당 플롯에 대한 모든 정보가 함께 저장된다는 것입니다. 심지어 전달하지 않은 정보까지도요! 이를 통해 `ggplot_build()`를 사용하여 하나의 **`ggplot2`** 확장 패키지로 생성된 레이아웃을 가져와서 완전히 다른 확장에서 사용할 수 있습니다. 즉, 다른 확장의 기능을 혼합하고 일치시켜 사용자 정의 플롯을 만들 수 있습니다.
 
-## Code formatting with **`lintr`** and **`styler`** {#sec-code-style}
+## **`lintr`** 및 **`styler`**를 사용한 코드 형식 지정 {#sec-code-style}
 
-Writing code that follows a consistent style can make it easier for other people to read, makes collaboration simpler, and can help pick up errors in your code more quickly. In R, the **`lintr`** package [@lintr] checks for adherence to a specified coding style and identifies possible syntax errors, then reports them so you can take action. \index{lintr}
+일관된 스타일을 따르는 코드를 작성하면 다른 사람이 읽기 쉽고 협업이 간단해지며 코드의 오류를 더 빨리 발견하는 데 도움이 될 수 있습니다. R에서 **`lintr`** 패키지 [@lintr]는 지정된 코딩 스타일 준수 여부를 확인하고 가능한 구문 오류를 식별한 다음 조치를 취할 수 있도록 보고합니다. \index{lintr}
 
-The **`styler`** package [@styler] goes one step further in terms of code styling, and actually styles your code for you. Although you may be a little bit skeptical of packages that overwrite scripts you’ve written, it makes it quick and easy to style code. Creating a keyboard shortcut for the `style_active_file()` function means you can apply code styling easily, without having to call a function manually or click a specific button [@streamline]. \index{styler!style\_active\_file}
+**`styler`** 패키지 [@styler]는 코드 스타일링 측면에서 한 단계 더 나아가 실제로 코드를 스타일링합니다. 작성한 스크립트를 덮어쓰는 패키지에 대해 조금 회의적일 수 있지만 코드를 빠르고 쉽게 스타일링할 수 있습니다. `style_active_file()` 함수에 대한 키보드 단축키를 만들면 함수를 수동으로 호출하거나 특정 버튼을 클릭할 필요 없이 코드 스타일링을 쉽게 적용할 수 있습니다 [@streamline]. \index{styler!style\_active\_file}
 
 ::: {#tip-other-air .callout-tip}
 
-## A new formatter for R
+## R을 위한 새로운 포맷터
 
-As an alternative to the **`styler`** R package, you may wish to explore [Air](https://posit-dev.github.io/air/), an R formatter released in early 2025. Air doesn't require R itself to run, and is much faster than **`styler`**. However, it's less easy to customize the styling implemented.
+**`styler`** R 패키지의 대안으로 2025년 초에 출시된 R 포맷터인 [Air](https://posit-dev.github.io/air/)를 탐색해 볼 수 있습니다. Air는 실행하는 데 R 자체가 필요하지 않으며 **`styler`**보다 훨씬 빠릅니다. 그러나 구현된 스타일링을 사용자 정의하기는 덜 쉽습니다.
 
 :::
 
-## Template files for TidyTuesday {#sec-template-files}
+## TidyTuesday용 템플릿 파일 {#sec-template-files}
 
-You may notice that each chapter of this book has followed a similar structure: load packages, read in some data, perform some exploratory analysis, load fonts and colors as variables, write relevant text, create a simple plot, add styling with **`ggtext`**, and save a PNG file. This means that for each plot, there's a lot of overlap in the structure of the .R files and the code they contain. 
+이 책의 각 장이 유사한 구조를 따랐다는 것을 눈치챘을 것입니다: 패키지 로드, 일부 데이터 읽기, 탐색적 분석 수행, 변수로 글꼴 및 색상 로드, 관련 텍스트 작성, 간단한 플롯 생성, **`ggtext`**로 스타일 추가 및 PNG 파일 저장. 즉, 각 플롯마다 .R 파일의 구조와 포함된 코드에 많은 중복이 있습니다.
 
-If you visualize data using R on a regular basis, you'll likely find yourself repeating similar steps. You might even find yourself copying and pasting code from a previous file to your new file. Like many things in the world of programming, if you find yourself copying and pasting the same thing several times, there is almost certainly a better way of doing it. And in this case there is - template files! \index{templates}
+R을 사용하여 정기적으로 데이터를 시각화하는 경우 유사한 단계를 반복하는 자신을 발견할 수 있습니다. 이전 파일의 코드를 새 파일로 복사하여 붙여넣는 자신을 발견할 수도 있습니다. 프로그래밍 세계의 많은 것들과 마찬가지로 동일한 작업을 여러 번 복사하여 붙여넣는 경우 거의 확실히 더 좋은 방법이 있습니다. 그리고 이 경우에는 템플릿 파일이 있습니다! \index{templates}
 
-For each TidyTuesday visualization, an .R script with the following file can be created [@template_files]:
+각 TidyTuesday 시각화에 대해 다음 파일이 있는 .R 스크립트를 만들 수 있습니다 [@template_files]:
 
 ```{r}
 #| label: template-files
@@ -330,32 +341,32 @@ gg_playback(
 )
 ```
 
-There are several components of this script that make it useful: 
+이 스크립트를 유용하게 만드는 몇 가지 구성 요소가 있습니다:
 
-* It's separated into different sections which can help to break down the process of creating a visualization into smaller, more manageable chunks. In RStudio, the Ctrl+Shift+R keyboard shortcut can be used to add a new section.
+* 시각화 생성 과정을 더 작고 관리하기 쉬운 청크로 나누는 데 도움이 되는 여러 섹션으로 분리되어 있습니다. RStudio에서는 Ctrl+Shift+R 키보드 단축키를 사용하여 새 섹션을 추가할 수 있습니다.
 
-* It defines variables and code snippets that are used repeatedly in different visualizations. For example, defining variables for the colors and fonts, or using the theme elements from **`ggtext`** to style the title and subtitle text.
+* 다양한 시각화에서 반복적으로 사용되는 변수와 코드 조각을 정의합니다. 예를 들어 색상과 글꼴에 대한 변수를 정의하거나 **`ggtext`**의 테마 요소를 사용하여 제목 및 부제목 텍스트의 스타일을 지정합니다.
 
-* There are also some elements of the script that are similar for each plot, but not exactly the same. For example, reading in the data using the **`tidytuesdayR`** package or saving the gif created by **`gcamcorder`**. Here, the code is changing based on the date associated with the TidyTuesday data. Instead of manually editing the date in the script in each location, a `date_str` variable is defined at the top of the script - meaning you only need to set the date once. 
+* 각 플롯마다 비슷하지만 정확히 동일하지는 않은 스크립트 요소도 있습니다. 예를 들어 **`tidytuesdayR`** 패키지를 사용하여 데이터를 읽거나 **`gcamcorder`**가 생성한 gif를 저장하는 경우입니다. 여기서 코드는 TidyTuesday 데이터와 관련된 날짜에 따라 변경됩니다. 각 위치의 스크립트에서 날짜를 수동으로 편집하는 대신 스크립트 상단에 `date_str` 변수가 정의되어 있으므로 날짜를 한 번만 설정하면 됩니다.
 
-You can also create template files for other aspects of your data visualization workflow. For example, creating a `README.md` file for each visualization.
+데이터 시각화 워크플로의 다른 측면에 대한 템플릿 파일을 만들 수도 있습니다. 예를 들어 각 시각화에 대한 `README.md` 파일을 만듭니다.
 
-## Writing your own helper functions
+## 나만의 도우미 함수 작성하기
 
-As you've already seen in @sec-turbines and @sec-cats, creating functions for code you reuse frequently can save time and space. We created the `source_caption()` and `social_caption()` functions for adding a caption with data source attribution, and to write plot caption that contained Font Awesome icons. These functions have then been used in almost every subsequent chapter (and therefore also the template file described in the previous section). What other helper functions might be useful? \index{source\_caption} \index{social\_caption} 
+@sec-turbines 및 @sec-cats 에서 이미 보았듯이 자주 재사용하는 코드에 대한 함수를 만들면 시간과 공간을 절약할 수 있습니다. 데이터 소스 속성이 있는 캡션을 추가하고 Font Awesome 아이콘이 포함된 플롯 캡션을 작성하기 위해 `source_caption()` 및 `social_caption()` 함수를 만들었습니다. 이러한 함수는 거의 모든 후속 장(따라서 이전 섹션에서 설명한 템플릿 파일)에서 사용되었습니다. 어떤 다른 도우미 함수가 유용할 수 있을까요? \index{source\_caption} \index{social\_caption}
 
-* To use the Font Awesome icons, you need to load the Font Awesome font files. We did this using `sysfonts::font_add()` and specifying a path to the font file. You might also want to load other fonts that aren't normally available on your system or through Google Fonts. You could write a function that loads (multiple) font files that you use often. You could go one step further and place the fonts and your font loading function into an R package. 
+* Font Awesome 아이콘을 사용하려면 Font Awesome 글꼴 파일을 로드해야 합니다. 우리는 `sysfonts::font_add()`를 사용하고 글꼴 파일 경로를 지정하여 이 작업을 수행했습니다. 시스템이나 Google Fonts를 통해 일반적으로 사용할 수 없는 다른 글꼴을 로드하고 싶을 수도 있습니다. 자주 사용하는 (여러) 글꼴 파일을 로드하는 함수를 작성할 수 있습니다. 한 단계 더 나아가 글꼴과 글꼴 로딩 함수를 R 패키지에 넣을 수도 있습니다.
 
-* For the template file discussed in the previous section, the date was defined as a variable at the top of the script. Instead, you could create a function that takes the date as an argument. The function could then create your .R script, insert the date where it needs to go, and save the file to the desired location. 
+* 이전 섹션에서 설명한 템플릿 파일의 경우 날짜가 스크립트 상단에 변수로 정의되었습니다. 대신 날짜를 인수로 취하는 함수를 만들 수 있습니다. 그러면 함수가 .R 스크립트를 만들고 날짜를 필요한 위치에 삽입하고 파일을 원하는 위치에 저장할 수 있습니다.
 
-* If you're creating plots for corporate reports, creating your own **`ggplot2`** theme and color palette functions can save time implementing the same styling and colors for every visualization. It can also make it easier for other people you work with to use the same styling.
+* 기업 보고서용 플롯을 만드는 경우 나만의 **`ggplot2`** 테마 및 색상 팔레트 함수를 만들면 모든 시각화에 동일한 스타일과 색상을 구현하는 시간을 절약할 수 있습니다. 또한 함께 일하는 다른 사람들이 동일한 스타일을 더 쉽게 사용할 수 있습니다.
 
-\index{sysfonts!font\_add} 
+\index{sysfonts!font\_add}
 
-You can create helper functions for anything that you do often. If you don't use Font Awesome icons in your captions, you don't need to create the `social_caption()` function. But if, for example, you always save your images in a specific size with a specific background color, create a function that does that. You'll be amazed at how much time you can save. \index{social\_caption} 
+자주 하는 모든 작업에 대한 도우미 함수를 만들 수 있습니다. 캡션에 Font Awesome 아이콘을 사용하지 않는 경우 `social_caption()` 함수를 만들 필요가 없습니다. 그러나 예를 들어 항상 특정 배경색과 특정 크기로 이미지를 저장하는 경우 이를 수행하는 함수를 만드십시오. 얼마나 많은 시간을 절약할 수 있는지 놀랄 것입니다. \index{social\_caption}
 
-## Exercises
+## 연습 문제
 
-* Browse through the available TidyTuesday datasets at {{< monolink "https://github.com/rfordatascience/tidytuesday" "github.com/rfordatascience/tidytuesday" >}}, and choose one you find interesting.
+* {{< monolink "https://github.com/rfordatascience/tidytuesday" "github.com/rfordatascience/tidytuesday" >}}에서 사용 가능한 TidyTuesday 데이터세트를 찾아보고 흥미로운 것을 선택하십시오.
 
-* Use the skills and techniques you've learned in this book to create your own visualization that tells a story about the data.
+* 이 책에서 배운 기술과 기법을 사용하여 데이터에 대한 이야기를 전하는 자신만의 시각화를 만드십시오.

@@ -32,17 +32,17 @@ library(sysfonts)
 #| file: R/social_caption.R
 ```
 
-# Time zones: spatial data and mapping with **`sf`** {#sec-time-zones}
+# 시간대: **`sf`**를 사용한 공간 데이터 및 매핑 {#sec-time-zones}
 
-In this chapter we'll learn how to obtain map data using **`rnaturalearth`**, manipulate spatial data using **`sf`** and plot it with **`ggplot2`**, and add a custom bar chart legend to a map of the world. \index{sf} \index{ggplot2} \index{rnaturalearth}
+이 장에서는 **`rnaturalearth`**를 사용하여 지도 데이터를 얻고, **`sf`**를 사용하여 공간 데이터를 조작하고 **`ggplot2`**로 플롯하며, 세계 지도에 사용자 정의 막대 차트 범례를 추가하는 방법을 배웁니다. \index{sf} \index{ggplot2} \index{rnaturalearth}
 
-By the end of this chapter, you'll be able to:
+이 장을 마치면 다음을 할 수 있습니다:
 
-* Manipulate spatial data and change the coordinate reference system used;
-* Join data together from different sources and fix mismatches in the way country names are spelled; and
-* Combine multiple plots by overlaying one on top of the other.
+* 공간 데이터를 조작하고 사용된 좌표 참조 시스템을 변경합니다;
+* 다른 소스의 데이터를 결합하고 국가 이름 철자가 일치하지 않는 문제를 해결합니다; 그리고
+* 하나를 다른 하나 위에 겹쳐서 여러 플롯을 결합합니다.
 
-We begin by loading the packages required in this chapter.
+이 장에 필요한 패키지를 로드하는 것으로 시작합니다.
 
 ```{r}
 #| label: time-zones-pkgs-req
@@ -61,19 +61,19 @@ library(tidyr)
 library(tidytuesdayR)
 ```
 
-Several new packages are used in this chapter:
+이 장에서는 몇 가지 새로운 패키지가 사용됩니다:
 
-* **`patchwork`**: for arranging and combining multiple plots (and tables) together, either in a grid layout or as inset elements.
-* **`rnaturalearth`**: allows you to download geographic data for different countries and regions, at a variety of resolutions and in different formats.
-* **`sf`**: provides a standardized way of representing spatial data, and has functions for manipulating it. It integrates easily with other **`tidyverse`** packages, including **`ggplot2`**.
+* **`patchwork`**: 여러 플롯(및 테이블)을 그리드 레이아웃이나 삽입 요소로 정렬하고 결합합니다.
+* **`rnaturalearth`**: 다양한 해상도와 형식으로 다양한 국가 및 지역에 대한 지리적 데이터를 다운로드할 수 있습니다.
+* **`sf`**: 공간 데이터를 표현하는 표준화된 방법을 제공하고 이를 조작하는 함수를 가지고 있습니다. **`ggplot2`**를 포함한 다른 **`tidyverse`** 패키지와 쉽게 통합됩니다.
 
 \index{sf} \index{rnaturalearth} \index{patchwork}
 
-## Data
+## 데이터
 
-The [IANA (Internet Assigned Numbers Authority) tz database](https://data.iana.org/time-zones/tz-link.html) contains data on the history of local time for different locations around the world [@zones_data]. The website states that *"each main entry in the database represents a timezone for a set of civil-time clocks that have all agreed since 1970."* Many websites use the data in the IANA tz database to operate.
+[IANA(Internet Assigned Numbers Authority) tz 데이터베이스](https://data.iana.org/time-zones/tz-link.html)에는 전 세계 여러 지역의 현지 시간 역사에 대한 데이터가 포함되어 있습니다 [@zones_data]. 웹사이트에는 *"데이터베이스의 각 기본 항목은 1970년 이후 모두 합의된 일련의 시민용 시간 시계에 대한 시간대를 나타냅니다."*라고 명시되어 있습니다. 많은 웹사이트가 IANA tz 데이터베이스의 데이터를 사용하여 운영됩니다.
 
-The time zones data was used as a [TidyTuesday dataset in March 2023](https://github.com/rfordatascience/tidytuesday/blob/master/data/2023/2023-03-28/readme.md), where the data wrangling code was adapted from code by [Davis Vaughan](https://gist.github.com/DavisVaughan). There are actually four data sets included but we'll focus on the `timezones` data for now. We can load the data into R using the `tt_load()` function from the **`tidytuesdayR`** package [@tidytuesdayR]: \index{tidytuesdayR!tt\_load} \index{TidyTuesday}
+시간대 데이터는 [2023년 3월 TidyTuesday 데이터 세트](https://github.com/rfordatascience/tidytuesday/blob/master/data/2023/2023-03-28/readme.md)로 사용되었으며, 여기서 데이터 랭글링 코드는 [Davis Vaughan](https://gist.github.com/DavisVaughan)의 코드에서 수정되었습니다. 실제로는 4개의 데이터 세트가 포함되어 있지만 지금은 `timezones` 데이터에 초점을 맞출 것입니다. **`tidytuesdayR`** 패키지 [@tidytuesdayR]의 `tt_load()` 함수를 사용하여 데이터를 R로 로드할 수 있습니다: \index{tidytuesdayR!tt\_load} \index{TidyTuesday}
 
 ```{r}
 #| label: load-timezones-data-show
@@ -91,35 +91,35 @@ timezones <- tuesdata$timezones
 timezones <- readr::read_csv("data/timezones.csv")
 ```
 
-The data contains information for `r ncol(timezones)` different variables on `r nrow(timezones)` time zones. The `zone` column contains the time zone name; the `latitude` and `longitude` columns contain coordinates for the time zones *principal location* e.g. biggest city; and the `comments` column contains comments from the original time zone definition file.
+데이터에는 `r nrow(timezones)`개의 시간대에 대한 `r ncol(timezones)`개의 다른 변수에 대한 정보가 포함되어 있습니다. `zone` 열에는 시간대 이름이 포함되어 있습니다. `latitude` 및 `longitude` 열에는 시간대의 *주요 위치*(예: 가장 큰 도시)에 대한 좌표가 포함되어 있습니다. `comments` 열에는 원래 시간대 정의 파일의 주석이 포함되어 있습니다.
 
-## Exploratory work
+## 탐색 작업
 
-Let's start by looking at what the `timezones` data looks like!
+`timezones` 데이터가 어떻게 생겼는지 살펴보는 것으로 시작하겠습니다!
 
-### Data exploration
+### 데이터 탐색
 
-Let's inspect the first few rows of the data using `head()`: \index{utils!head}
+`head()`를 사용하여 데이터의 처음 몇 행을 검사해 봅시다: \index{utils!head}
 
 ```{r}
 #| label: timezones-head
 head(timezones)
 ```
 
-The first thing that jumps out is the `comments` column which appears to have a lot of missing data. Let's plot it to confirm, making use of the `is.na()` function to plot only the counts of missing and non-missing data: \index{graphics!barplot} \index{base!table}  \index{base!is.na} 
+가장 먼저 눈에 띄는 것은 누락된 데이터가 많은 것으로 보이는 `comments` 열입니다. `is.na()` 함수를 사용하여 누락된 데이터와 누락되지 않은 데이터의 수만 플롯하여 확인해 봅시다: \index{graphics!barplot} \index{base!table}  \index{base!is.na} 
 
 ```{r, echo=-1}
 #| label: fig-timezones-barplot-na
-#| fig-cap: "A bar chart of the number of missing values in the `comments` column, where `TRUE` represents missing."
-#| fig-alt: "A bar chart of the number of missing values in the `comments` column, where `TRUE` represents missing."
+#| fig-cap: "`comments` 열의 결측값 수에 대한 막대 차트(`TRUE`는 결측을 나타냄)."
+#| fig-alt: "`comments` 열의 결측값 수에 대한 막대 차트(`TRUE`는 결측을 나타냄)."
 #| fig-asp: 0.7
 par(mar = c(3.1, 4.1, 1.1, 2.1), cex.axis = 0.5, cex.names = 0.5)
 barplot(table(is.na(timezones$comments)))
 ```
 
-Almost 40% of the time zones have no comments associated with them. Inspecting the data further tells us that these comments typically offer clarification or an alternative for the timezone name. Although we could explore how the presence of these comments varies across the globe, we'll use `select()` from **`dplyr`** to drop the `comments` column for now since it's not the most interesting thing to plot in the data.
+시간대의 거의 40%에는 관련된 주석이 없습니다. 데이터를 더 자세히 조사하면 이러한 주석이 일반적으로 시간대 이름에 대한 설명이나 대안을 제공한다는 것을 알 수 있습니다. 이러한 주석의 존재 여부가 전 세계적으로 어떻게 달라지는지 탐구할 수도 있지만, 데이터에서 플롯하기에 가장 흥미로운 것은 아니므로 **`dplyr`**의 `select()`를 사용하여 당분간 `comments` 열을 삭제하겠습니다.
 
-The first column, `zone`, contains information on the timezone name - it's typically in the form of `"Continent/City"`. To explore the spread of time zones across continents, we need to split this variable into two (or extract just the continent name from the timezone name). We can use `separate_wider_delim()` from **`tidyr`** to create two new columns from the `zone` column, splitting on the `/` character. Some of the timezone names have two `/` in their name e.g. `"America/North_Dakota/New_Salem"` meaning there are *too many* pieces for two columns. We can tell `separate_wider_delim()` to merge the last pieces since it still uniquely specifies the location. \index{dplyr!select} \index{tidyr!separate\_wider\_delim}
+첫 번째 열인 `zone`에는 시간대 이름에 대한 정보가 포함되어 있으며 일반적으로 `"대륙/도시"` 형식입니다. 대륙별 시간대 분포를 탐색하려면 이 변수를 두 개로 분할해야 합니다(또는 시간대 이름에서 대륙 이름만 추출). **`tidyr`**의 `separate_wider_delim()`을 사용하여 `/` 문자로 분항하여 `zone` 열에서 두 개의 새 열을 만들 수 있습니다. 일부 시간대 이름에는 이름에 두 개의 `/`가 있습니다(예: `"America/North_Dakota/New_Salem"`). 즉, 두 열에 대해 *너무 많은* 조각이 있습니다. 위치를 고유하게 지정하므로 `separate_wider_delim()`에 마지막 조각을 병합하도록 지시할 수 있습니다. \index{dplyr!select} \index{tidyr!separate\_wider\_delim}
 
 ```{r}
 #| label: timezones-tidy
@@ -133,40 +133,40 @@ timezones_data <- timezones |>
   )
 ```
 
-Now, we can explore how many time zones there are per continent, again using the `barplot()` function. In @fig-timezones-barplot-loc, we can see that the first part of the time zone names don't quite map to continents since there are nine values - but they do map onto large geographic regions. \index{graphics!barplot} \index{base!table} 
+이제 `barplot()` 함수를 다시 사용하여 대륙당 시간대가 얼마나 많은지 탐색할 수 있습니다. @fig-timezones-barplot-loc 에서 시간대 이름의 첫 부분이 대륙과 정확히 일치하지 않는데 9개의 값이 있기 때문입니다. 하지만 넓은 지리적 지역으로 매핑됩니다. \index{graphics!barplot} \index{base!table} 
 
 ```{r, echo=-1}
 #| label: fig-timezones-barplot-loc
-#| fig-cap: "A bar chart of the number of defined time zones in each of nine geographic regions."
-#| fig-alt: "A bar chart of the number of defined time zones in each of nine geographic regions."
+#| fig-cap: "9개 지리적 지역 각각에 정의된 시간대 수에 대한 막대 차트."
+#| fig-alt: "9개 지리적 지역 각각에 정의된 시간대 수에 대한 막대 차트."
 #| fig-asp: 0.7
 par(mar = c(3.1, 2.1, 1.1, 2.1), cex.axis = 0.5, cex.names = 0.5)
 barplot(table(timezones_data$continent))
 ```
 
-Of course, when we have coordinate data, the most obvious thing to do is plot those coordinates on a map!
+물론 좌표 데이터가 있을 때 할 수 있는 가장 분명한 일은 지도에 좌표를 그리는 것입니다!
 
-### Exploratory sketches
+### 탐색적 스케치
 
-Given that we have a latitude and longitude data for the principal locations (usually largest cities) within each time zone, the first map idea that springs to mind is a world map with the time zone locations plotted as points:
+각 시간대 내의 주요 위치(보통 가장 큰 도시)에 대한 위도 및 경도 데이터가 있다는 점을 감안할 때 가장 먼저 떠오르는 지도 아이디어는 시간대 위치가 점으로 표시된 세계 지도입니다.
 
-![Initial sketch of time zone locations as points on a world map.](images/sketch-time-zones.png){#fig-time-zones-sketch fig-align="center" fig-alt="Initial sketch of time zone locations as points on a world map."}
+![세계 지도에 점으로 표시된 시간대 위치의 초기 스케치.](images/sketch-time-zones.png){#fig-time-zones-sketch fig-align="center" fig-alt="세계 지도에 점으로 표시된 시간대 위치의 초기 스케치."}
 
-We could color the points based on the geographic region (continent) they belong to. As we've already seen, if we do this in **`ggplot2`**, coloring based on a variable automatically adds a legend to the chart. Instead of the traditional legend using colored squares next to the category label, we could add our own custom legend - using a bar chart. The bars will show the number of time zones per region, and be colored in the same way as the points on the map. This bar chart legend below the map doesn't take up any more space than a traditional legend, but it does add information (or at least makes the existing information quicker and easier to process).
+점이 속한 지리적 지역(대륙)에 따라 점의 색상을 지정할 수 있습니다. 이미 보았듯이 **`ggplot2`**에서 변수를 기반으로 색상을 지정하면 차트에 범례가 자동으로 추가됩니다. 범주 레이블 옆에 색상 사각형을 사용하는 기존 범례 대신 막대 차트를 사용하여 사용자 정의 범례를 추가할 수 있습니다. 막대는 지역별 시간대 수를 표시하고 지도의 점과 동일한 방식으로 색상이 지정됩니다. 지도 아래에 있는 이 막대 차트 범례는 기존 범례보다 더 많은 공간을 차지하지 않지만 정보를 추가합니다(또는 최소한 기존 정보를 더 빠르고 쉽게 처리할 수 있도록 합니다).
 
-![Initial sketch of points on a world map with text in the lower left corner, and a bar chart as a legend in the bottom right.](images/sketch-time-zones-2.png){#fig-time-zones-sketch fig-align="center" fig-alt="Initial sketch of points on a world map with text in the lower left corner, and a bar chart as a legend in the bottom right."}
+![왼쪽 하단 모서리에 텍스트가 있고 오른쪽 하단에 범례로 막대 차트가 있는 세계 지도의 점에 대한 초기 스케치.](images/sketch-time-zones-2.png){#fig-time-zones-sketch fig-align="center" fig-alt="왼쪽 하단 모서리에 텍스트가 있고 오른쪽 하단에 범례로 막대 차트가 있는 세계 지도의 점에 대한 초기 스케치."}
 
-A title and subtitle can be added below the map, next to the bar chart. Positioning the text in a more square layout (rather than a long string of text across the top of the chart) makes it easier to read, and helps to prevent the visualization from becoming very wide and short.
+지도 아래, 막대 차트 옆에 제목과 부제목을 추가할 수 있습니다. 텍스트를 (차트 상단에 긴 텍스트 문자열이 아닌) 더 정사각형 레이아웃으로 배치하면 읽기 쉽고 시각화가 매우 넓고 짧아지는 것을 방지할 수 있습니다.
 
-## Preparing a plot
+## 플롯 준비하기
 
-To make our plot, we need to get some background map data and understand how to work with multiple spatial data files at once.
+플롯을 만들려면 배경 지도 데이터를 얻고 한 번에 여러 공간 데이터 파일을 사용하는 방법을 이해해야 합니다.
 
-### Maps with **`rnaturalearth`**
+### **`rnaturalearth`**로 만든 지도
 
-Before we start plotting points on a map, we need a map of the world that we can use as a background to show the underlying countries. In @sec-doctors, we used `map_data` from **`ggplot2`**. Here, let's look at an alternative using the **`rnaturalearth`** package [@rnaturalearth]. 
+지도에 점을 그리기 시작하기 전에 기본 국가를 표시하는 배경으로 사용할 수 있는 세계 지도가 필요합니다. @sec-doctors 에서는 **`ggplot2`**의 `map_data`를 사용했습니다. 여기서는 **`rnaturalearth`** 패키지 [@rnaturalearth]를 사용하는 대안을 살펴보겠습니다. 
 
-The **`rnaturalearth`** package allows you to interact with [Natural Earth](https://www.naturalearthdata.com/) map data. You can download polygons for different geographic regions using the `ne_countries()` function. The default is to download data for all countries: \index{rnaturalearth!ne\_countries}
+**`rnaturalearth`** 패키지를 사용하면 [Natural Earth](https://www.naturalearthdata.com/) 지도 데이터와 상호 작용할 수 있습니다. `ne_countries()` 함수를 사용하여 다양한 지리적 지역에 대한 다각형을 다운로드할 수 있습니다. 기본값은 모든 국가에 대한 데이터를 다운로드하는 것입니다. \index{rnaturalearth!ne\_countries}
 
 ```{r}
 #| label: timezones-map-data
@@ -175,9 +175,9 @@ world <- ne_countries()
 
 ::: {#tip-timezones-rnatearth .callout-tip}
 
-## Polygons for a specific country with **`rnaturalearth`**
+## **`rnaturalearth`**로 특정 국가의 다각형 가져오기
 
-If you wanted only the polygon(s) for a specific country or region, you can specify the `country` argument:
+특정 국가나 지역에 대한 다각형만 원하는 경우 `country` 인수를 지정할 수 있습니다.
 
 ```{r}
 #| label: timezones-ne-country
@@ -187,40 +187,40 @@ uk <- ne_countries(
 )
 ```
 
-For specified countries, the `ne_states()` function provides administrative level 1 polygons e.g. major within-country regions such as states.
+지정된 국가의 경우 `ne_states()` 함수는 행정 레벨 1 다각형(예: 주(state)와 같은 주요 국가 내 지역)을 제공합니다.
 
 :::
 
-The default output from the `ne_countries()` function is an `sf` object - where `sf` stands for *Simple Features*. Simple Features is a standardized model for representing geometric objects such as points, lines, and polygons in spatial databases and geographic information systems (GIS). The **`sf`** package [@sf] implements simple features in R, allowing simple features to be represented as a `data.frame` (or `tibble`). \index{sf} 
+`ne_countries()` 함수의 기본 출력은 `sf` 객체입니다. 여기서 `sf`는 *Simple Features*를 나타냅니다. Simple Features는 공간 데이터베이스 및 지리 정보 시스템(GIS)에서 점, 선 및 다각형과 같은 기하학적 객체를 표현하기 위한 표준화된 모델입니다. **`sf`** 패키지 [@sf]는 R에서 simple features를 구현하여 `data.frame`(또는 `tibble`)으로 표현할 수 있도록 합니다. \index{sf} 
 
-Since `sf` objects in R can be thought of as fancy data.frames, this means they can be plotted using **`ggplot2`**. In fact, **`ggplot2`** has built-in capabilities for plotting `sf` objects - through the `geom_sf()` function. That means that we can build maps from `sf` objects, in the same we we build other types of charts: by starting with the `ggplot()` function, and then layering on the `geom_sf()` geometry. \index{ggplot2!ggplot} \index{ggplot2!geom\_sf}
+R의 `sf` 객체는 화려한 data.frame으로 생각할 수 있으므로 **`ggplot2`**를 사용하여 플롯할 수 있습니다. 사실 **`ggplot2`**에는 `geom_sf()` 함수를 통해 `sf` 객체를 플로팅하는 기능이 내장되어 있습니다. 즉, 다른 유형의 차트를 만드는 것과 같은 방식으로 `sf` 객체에서 지도를 만들 수 있습니다. `ggplot()` 함수로 시작한 다음 `geom_sf()` 지오메트리를 레이어링합니다. \index{ggplot2!ggplot} \index{ggplot2!geom\_sf}
 
 ```{r}
 #| label: fig-timezones-bg-map
-#| fig-cap: "Map of the world showing country outlines, with the default gray background."
-#| fig-alt: "Map of the world showing country outlines, with the default gray background."
+#| fig-cap: "기본 회색 배경으로 국가 윤곽선을 보여주는 세계 지도."
+#| fig-alt: "기본 회색 배경으로 국가 윤곽선을 보여주는 세계 지도."
 #| fig-asp: 0.6
 bg_map <- ggplot() +
   geom_sf(data = world)
 bg_map
 ```
 
-You'll notice that there's one key difference - there's no aesthetic mapping using the `aes()` function. Since the spatial coordinates are embedded within the `sf` object, there's no need to explicitly map the `x` and `y` variables. The `geom_sf()` function can directly extract and use the embedded coordinates for plotting.
+한 가지 주요 차이점이 있음을 알 수 있습니다. `aes()` 함수를 사용하는 미적 매핑이 없습니다. 공간 좌표는 `sf` 객체 내에 포함되어 있으므로 `x` 및 `y` 변수를 명시적으로 매핑할 필요가 없습니다. `geom_sf()` 함수는 플로팅을 위해 포함된 좌표를 직접 추출하고 사용할 수 있습니다.
 
-### Spatial objects with **`sf`**
+### **`sf`**를 사용한 공간 객체
 
-Though you can combine `geom_sf()` with other functions and non-`sf` data, such as `geom_point()`, it's often easier to convert the other data to `sf` objects first. The main reason for this is to ensure the *coordinate reference system (CRS)* is the same for both geometries. Coordinate reference systems define how the Earth's three-dimensional surface is represented, either in a three-dimensional coordinate system (e.g. latitude and longitude) or as a two-dimensional projected map. There are many different coordinate reference systems, each commonly used for different areas of the world. If you're combining multiple spatial objects, they may have different coordinate reference systems. For example, using the British National Grid (BNG) CRS, London has the following coordinates: `X = 492983` and `Y = 188837`. Under the World Geodetic System 1984 (WGS84) CRS, London has the following coordinates: `Longitude (X) = 1.200235W` and `Latitude (Y) = 53.870659N`. You can imagine how these two coordinates cannot be plotted on the same map without transforming them first. 
+`geom_sf()`를 `geom_point()`와 같은 다른 함수 및 비 `sf` 데이터와 결합할 수 있지만, 먼저 다른 데이터를 `sf` 객체로 변환하는 것이 더 쉬운 경우가 많습니다. 주된 이유는 *좌표 참조 시스템(CRS)*이 두 지오메트리에 대해 동일하도록 하기 위해서입니다. 좌표 참조 시스템은 지구의 3차원 표면이 3차원 좌표계(예: 위도 및 경도) 또는 2차원 투영 지도로 표현되는 방식을 정의합니다. 전 세계의 다양한 지역에 일반적으로 사용되는 다양한 좌표 참조 시스템이 있습니다. 여러 공간 객체를 결합하는 경우 서로 다른 좌표 참조 시스템을 가질 수 있습니다. 예를 들어, 영국 국립 그리드(BNG) CRS를 사용하면 런던의 좌표는 `X = 492983` 및 `Y = 188837`입니다. 세계 측지 시스템 1984(WGS84) CRS에서 런던의 좌표는 `경도 (X) = 1.200235W` 및 `위도 (Y) = 53.870659N`입니다. 이 두 좌표를 먼저 변환하지 않고는 같은 지도에 그릴 수 없다는 것을 상상할 수 있을 것입니다. 
 
-In R, you can use the **`sf`** package to set or transform between different coordinate reference systems. The easiest way is by using EPSG codes - numerical identifiers assigned to specific coordinate reference systems. The WGS84 uses EPSG code `4326`. This is the coordinate reference system used in the `world` data that we're using for the background map. You can check using the `st_crs()` function from **`sf`** which retrieves the CRS from an object: \index{sf!st\_crs}
+R에서는 **`sf`** 패키지를 사용하여 서로 다른 좌표 참조 시스템 간에 설정하거나 변환할 수 있습니다. 가장 쉬운 방법은 특정 좌표 참조 시스템에 할당된 숫자 식별자인 EPSG 코드를 사용하는 것입니다. WGS84는 EPSG 코드 `4326`을 사용합니다. 이것은 배경 지도에 사용하고 있는 `world` 데이터에 사용된 좌표 참조 시스템입니다. 객체에서 CRS를 검색하는 **`sf`**의 `st_crs()` 함수를 사용하여 확인할 수 있습니다: \index{sf!st\_crs}
 
 ```{r}
 #| label: crs-sf
 st_crs(world)
 ```
 
-To make sure the CRS of the `timezones` data matches the CRS of the `world` data, we can set the CRS of the `timezones` data as `4326`. At the moment, the `timezones` data is not a spatial object - it's just a simple `data.frame` that contains two columns with latitude and longitude information. First, we need to convert it into an `sf` object using the `st_as_sf()` function from **`sf`**, also specifying the column names that relate to the coordinates data. \index{sf!st\_as\_sf} 
+`timezones` 데이터의 CRS가 `world` 데이터의 CRS와 일치하는지 확인하기 위해 `timezones` 데이터의 CRS를 `4326`으로 설정할 수 있습니다. 현재 `timezones` 데이터는 공간 객체가 아닙니다. 위도 및 경도 정보가 포함된 두 개의 열이 있는 단순한 `data.frame`일 뿐입니다. 먼저 좌표 데이터와 관련된 열 이름도 지정하여 **`sf`**의 `st_as_sf()` 함수를 사용하여 `sf` 객체로 변환해야 합니다. \index{sf!st\_as\_sf} 
 
-The latitude and longitude coordinates given in the `timezones` data are in the `EPSG:4326` CRS, so we don't need to convert the CRS - just set it. We know it's in `EPSG:4326` because this information is given to us with the data, and we can set it using the `crs` argument of `st_as_sf()`. \index{sf!st\_as\_sf} 
+`timezones` 데이터에 제공된 위도 및 경도 좌표는 `EPSG:4326` CRS에 있으므로 CRS를 변환할 필요가 없고 설정하기만 하면 됩니다. 데이터와 함께 이 정보가 제공되었으므로 `EPSG:4326`에 있다는 것을 알고 있으며 `st_as_sf()`의 `crs` 인수를 사용하여 설정할 수 있습니다. \index{sf!st\_as\_sf} 
 
 ```{r}
 #| label: timezones-sf
@@ -233,22 +233,22 @@ timezones_sf <- timezones_data |>
 
 ::: {#tip-timezones-crs .callout-tip}
 
-## Dealing with an unknown CRS
+## 알 수 없는 CRS 처리
 
-If you don't know which CRS your coordinates are in, the best thing to do is go back to the source of the data to see if you can find that information. Otherwise, you may wish to try the `guess_crs()` function from **`crsuggest`** [@crsuggest] which will *guess* potential coordinate reference systems for data that are lacking a defined CRS. \index{crsuggest!guess\_crs}
+좌표가 어떤 CRS에 있는지 모르는 경우 가장 좋은 방법은 데이터 소스로 돌아가서 해당 정보를 찾을 수 있는지 확인하는 것입니다. 그렇지 않으면 CRS가 정의되지 않은 시스템에 대한 잠재적 좌표 참조 시스템을 *추측*하는 **`crsuggest`** [@crsuggest]의 `guess_crs()` 함수를 사용해 볼 수 있습니다. \index{crsuggest!guess\_crs}
 
-You can then use the `st_set_crs()` function to set the coordinate reference system. \index{sf!st\_set\_crs}.
+그런 다음 `st_set_crs()` 함수를 사용하여 좌표 참조 시스템을 설정할 수 있습니다. \index{sf!st\_set\_crs}.
 
 :::
 
-### The first plot
+### 첫 번째 플롯
 
-Since the time zones coordinates are now stored as an `sf` object, we can plot it in the same way as the `world` data. We pass in the `timezones_sf` object to the `data` argument, and specify that we want to color the points based on the `continent` column by passing this into the `color` argument inside the `aes()` function: \index{ggplot2!aes} \index{ggplot2!geom\_sf}
+시간대 좌표가 이제 `sf` 객체로 저장되었으므로 `world` 데이터와 같은 방식으로 플롯할 수 있습니다. `timezones_sf` 객체를 `data` 인수에 전달하고 `aes()` 함수 내부의 `color` 인수에 전달하여 `continent` 열을 기반으로 점의 색상을 지정하도록 지정합니다: \index{ggplot2!aes} \index{ggplot2!geom\_sf}
 
 ```{r}
 #| label: fig-timezones-basic-map
-#| fig-cap: "Points representing different time zone locations on a world map, with points colored by continent and a legend indicating color mapping on the right of the map."
-#| fig-alt: "Points representing different time zone locations on a world map, with points colored by continent and a legend indicating color mapping on the right of the map."
+#| fig-cap: "세계 지도에 다른 시간대 위치를 나타내는 점으로, 점은 대륙별로 색상이 지정되어 있고 지도 오른쪽에 색상 매핑을 나타내는 범례가 있습니다."
+#| fig-alt: "세계 지도에 다른 시간대 위치를 나타내는 점으로, 점은 대륙별로 색상이 지정되어 있고 지도 오른쪽에 색상 매핑을 나타내는 범례가 있습니다."
 #| fig-asp: 0.6
 basic_map <- bg_map +
   geom_sf(
@@ -258,13 +258,13 @@ basic_map <- bg_map +
 basic_map
 ```
 
-We now have a basic map with points colored by region, and the default legend added on the right hand side. Let's get started on a better, custom legend.
+이제 지역별로 색상이 지정된 점이 있는 기본 지도와 오른쪽에 추가된 기본 범례가 있습니다. 더 나은 사용자 정의 범례를 만들어 봅시다.
 
-Before we create a new legend for the map, we need to define which colors will be used in the legend (and the rest of the plot).
+지도의 새로운 범례를 만들기 전에 범례(및 플롯의 나머지 부분)에서 사용할 색상을 정의해야 합니다.
 
-### Colors
+### 색상
 
-As we've done in previous chapters, we start by defining a text color, highlight color, and background color as variables. \index{color}
+이전 장에서 했던 것처럼 텍스트 색상, 강조 색상 및 배경색을 변수로 정의하는 것으로 시작합니다. \index{color}
 
 ```{r}
 #| label: timezones-colors
@@ -273,7 +273,7 @@ highlight_col <- "#508080"
 bg_col <- "#F0F5F5"
 ```
 
-Then we define a named vector of colors, mapping the names of the regions to different hex codes. It can be difficult to find a qualitative color palette with enough colors (one for each of the nine regions) that remains colorblind safe. Paul Tol discusses several options for qualitative palettes in his [*Colour schemes and templates* blog post](https://personal.sron.nl/~pault/) [@Tol2021]. Here, we use the *muted qualitative color scheme* palette [@Tol2021] which has 10 colors (including a pale gray for missing data) and is colorblind safe: \index{accessibility}
+그런 다음 지역 이름을 다른 16진수 코드로 매핑하여 명명된 색상 벡터를 정의합니다. 각 9개 지역에 대해 하나씩 충분한 색상이 있으면서도 색맹에 안전한 정성적 색상 팔레트를 찾기는 어려울 수 있습니다. Paul Tol은 그의 [*Colour schemes and templates* 블로그 게시물](https://personal.sron.nl/~pault/) [@Tol2021]에서 정성적 팔레트에 대한 몇 가지 옵션을 논의합니다. 여기서는 10가지 색상(누락된 데이터에 대한 옅은 회색 포함)이 있고 색맹에 안전한 *음소거된 정성적 색상 구성표(muted qualitative color scheme)* 팔레트 [@Tol2021]를 사용합니다: \index{accessibility}
 
 ```{r}
 #| label: timezones-col-palette
@@ -285,9 +285,9 @@ col_palette <- c(
 names(col_palette) <- unique(timezones_sf$continent)
 ```
 
-### Fonts
+### 글꼴
 
-Similarly, we also load any typefaces we want to use. Again, for this visualization we're using Google Fonts, so we can make use of the `font_add_google()` function in **`sysfonts`**. \index{sysfonts!font\_add\_google} For the title, we'll use *Fraunces*, an old style serif typeface inspired by those used in the 20th century. For the body text, we'll use *Commissioner*, a sans serif typeface. As we've done in previous chapters, we use `showtext_auto()` to use **`showtext`** automatically for plotting fonts, and set the desired resolution using `showtext_opts()` to set the dpi. \index{showtext!showtext\_auto} \index{showtext!showtext\_opts}
+마찬가지로 사용하려는 서체도 로드합니다. 다시 말하지만, 이 시각화를 위해 Google Fonts를 사용하므로 **`sysfonts`**의 `font_add_google()` 함수를 사용할 수 있습니다. \index{sysfonts!font\_add\_google} 제목에는 20세기 서체에서 영감을 받은 구식 세리프 서체인 *Fraunces*를 사용합니다. 본문 텍스트에는 산세리프 서체인 *Commissioner*를 사용합니다. 이전 장에서 했던 것처럼 `showtext_auto()`를 사용하여 플로팅 글꼴에 **`showtext`**를 자동으로 사용하고 `showtext_opts()`를 사용하여 dpi를 설정하여 원하는 해상도를 설정합니다. \index{showtext!showtext\_auto} \index{showtext!showtext\_opts}
 
 ```{r}
 #| label: timezones-fonts
@@ -299,11 +299,11 @@ body_font <- "Commissioner"
 title_font <- "Fraunces"
 ```
 
-### Creating a custom bar chart legend
+### 사용자 정의 막대 차트 범례 만들기
 
-There are many ways to make a bar chart in **`ggplot2`** - the two most often used are `geom_bar()` and `geom_col()`. What's the difference? Well, `geom_bar()` is essentially a special version of `geom_col()` that counts up how many observations are in each category for you. For this visualization, we're going to use the category counts for other purposes besides just defining the height of the bars so we'll do the counting ourselves and use `geom_col()` instead. \index{ggplot2!geom\_col} \index{ggplot2!geom\_bar}
+**`ggplot2`**에서 막대 차트를 만드는 방법은 여러 가지가 있습니다. 가장 자주 사용되는 두 가지는 `geom_bar()`와 `geom_col()`입니다. 차이점은 무엇일까요? `geom_bar()`는 기본적으로 각 범주의 관측치 수를 계산해 주는 `geom_col()`의 특수 버전입니다. 이 시각화에서는 막대의 높이를 정의하는 것 외에 다른 목적으로 범주 수를 사용할 것이므로 직접 계산하고 대신 `geom_col()`을 사용합니다. \index{ggplot2!geom\_col} \index{ggplot2!geom\_bar}
 
-We'll use the `count()` function from **`dplyr`** to count how many observations of each geographical region are present in the `continent` column. We could use either the `timezones_sf` data or the `timezones_data` here as the input data. If you try both, you'll notice that, as we expect, the count column (`n`) is the same in both cases, but that the two outputs are not identical! When you run `count(timezones_data, continent)`, you get a 2 column `data.frame`. When you run `count(timezones_sf, continent)` you get an 3 column `data.frame` that remains an `sf` object. This is because the `geometry` column in `sf` can be described as *sticky* - you often (though not always) want the `sf` class to be preserved after any operations. You can remove it using the `st_drop_geometry()` function from **`sf`**: \index{sf!st\_drop\_geometry} \index{dplyr!count}
+**`dplyr`**의 `count()` 함수를 사용하여 `continent` 열에 각 지리적 지역의 관측치가 얼마나 있는지 계산합니다. 여기서 `timezones_sf` 데이터 또는 `timezones_data`를 입력 데이터로 사용할 수 있습니다. 두 가지를 모두 시도하면 예상대로 개수 열(`n`)은 두 경우 모두 동일하지만 두 출력이 동일하지 않다는 것을 알 수 있습니다! `count(timezones_data, continent)`를 실행하면 2열 `data.frame`을 얻습니다. `count(timezones_sf, continent)`를 실행하면 `sf` 객체로 유지되는 3열 `data.frame`을 얻습니다. 이는 `sf`의 `geometry` 열이 *끈적한(sticky)* 것으로 설명될 수 있기 때문입니다. 종종(항상 그런 것은 아니지만) 작업 후에도 `sf` 클래스가 보존되기를 원합니다. **`sf`**의 `st_drop_geometry()` 함수를 사용하여 제거할 수 있습니다: \index{sf!st\_drop\_geometry} \index{dplyr!count}
 
 ```{r}
 #| label: timezones-bar-data
@@ -312,12 +312,12 @@ bar_data <- timezones_sf |>
   st_drop_geometry()
 ```
 
-Let's plot a basic bar chart, by starting (as we always do) with passing our new `bar_data` object into the `ggplot()` function. We also add the aesthetic mapping via the `aes()` function and place the `continent` on the x-axis and the count (`n`) on the y-axis. We then draw the columns of the bar chart using `geom_col()`: \index{ggplot2!ggplot} \index{ggplot2!aes} \index{ggplot2!geom\_col}
+새 `bar_data` 객체를 `ggplot()` 함수에 전달하여(항상 그렇듯이) 기본 막대 차트를 플롯해 봅시다. 또한 `aes()` 함수를 통해 미적 매핑을 추가하고 x축에 `continent`를, y축에 개수(`n`)를 배치합니다. 그런 다음 `geom_col()`을 사용하여 막대 차트의 열을 그립니다: \index{ggplot2!ggplot} \index{ggplot2!aes} \index{ggplot2!geom\_col}
 
 ```{r}
 #| label: fig-timezones-bar-plot-0
-#| fig-cap: "Bar chart showing the number of time zone locations in each continent."
-#| fig-alt: "Bar chart showing the number of time zone locations in each continent."
+#| fig-cap: "각 대륙의 시간대 위치 수를 보여주는 막대 차트."
+#| fig-alt: "각 대륙의 시간대 위치 수를 보여주는 막대 차트."
 #| fig-asp: 0.7
 ggplot(
   data = bar_data,
@@ -326,25 +326,25 @@ ggplot(
   geom_col()
 ```
 
-To make it work effectively as a legend, we need to do two things:
+전설(범례)로 효과적으로 작동하게 하려면 두 가지 작업을 수행해야 합니다:
 
-* Color the bars based on the `continent` column.
-* Add labels directly to the bars instead, and remove the x-axis labels and legend.
+* `continent` 열을 기준으로 막대 색상을 지정합니다.
+* 대신 막대에 직접 레이블을 추가하고 x축 레이블과 범례를 제거합니다.
 
 ::: {#tip-timezones-bar-colors .callout-tip}
 
-## Adding color to bar charts
+## 막대 차트에 색상 추가
 
-If you were just creating a normal bar chart (not to be used as a legend) then adding colors to the bars might make your plot look brighter but it doesn't add any additional information. The categories can already be distinguished by the labels on the x-axis.
+일반 막대 차트(범례로 사용되지 않음)를 만드는 경우 막대에 색상을 추가하면 플롯이 더 밝게 보일 수 있지만 추가 정보는 추가되지 않습니다. 범주는 x축의 레이블로 이미 구별할 수 있습니다.
 
 :::
 
-Let's remake our bar chart, this time also mapping `fill` and `label` to the `continent` column in the aesthetic mapping. Adding `label` to the aesthetic mapping in `ggplot()` won't affect our bar chart in any way since we aren't (yet) adding `geom_text()` but there's no harm in adding it as a global aesthetic mapping here anyway. We'll also use `scale_fill_manual()` to set the colors used to those defined in the `col_palette` vector we created earlier. \index{ggplot2!scale\_fill\_manual} \index{ggplot2!ggplot} \index{ggplot2!aes} \index{ggplot2!geom\_col}
+이번에는 미적 매핑에서 `fill`과 `label`을 `continent` 열에 매핑하여 막대 차트를 다시 만들어 봅시다. `ggplot()`의 미적 매핑에 `label`을 추가해도 `geom_text()`를 (아직) 추가하지 않기 때문에 막대 차트에는 아무런 영향을 미치지 않지만 어쨌든 전역 미적 매핑으로 추가해도 해가 되지는 않습니다. 또한 `scale_fill_manual()`을 사용하여 이전에 만든 `col_palette` 벡터에 정의된 색상으로 설정합니다. \index{ggplot2!scale\_fill\_manual} \index{ggplot2!ggplot} \index{ggplot2!aes} \index{ggplot2!geom\_col}
 
 ```{r}
 #| label: fig-timezones-bar-plot-1
-#| fig-cap: "Bar chart showing the number of time zone locations in each geographical region, with different colors for each region."
-#| fig-alt: "Bar chart showing the number of time zone locations in each geographical region, with different colors for each region."
+#| fig-cap: "각 지리적 지역의 시간대 위치 수를 보여주는 막대 차트로, 각 지역마다 다른 색상이 사용됩니다."
+#| fig-alt: "각 지리적 지역의 시간대 위치 수를 보여주는 막대 차트로, 각 지역마다 다른 색상이 사용됩니다."
 #| fig-asp: 0.7
 bar_plot <-
   ggplot(
@@ -361,44 +361,44 @@ bar_plot <-
 bar_plot
 ```
 
-Now we can add the text labels directly to the bars. But where should they go? It's quite common to add category labels in line with the end of the bar but that might not work well here. If we add labels within the bars, for regions with few time zones where the bars are short, the text will be very squashed. If we add labels outside the bars, for regions with many time zones where the bars are long, the text will run off the graph or extend the height of the visualization. Neither is ideal. But maybe we could have the best of both worlds. We want to add labels under the following conditions:
+이제 막대에 텍스트 레이블을 직접 추가할 수 있습니다. 하지만 어디에 넣어야 할까요? 막대 끝에 맞춰 범주 레이블을 추가하는 것이 꽤 일반적이지만 여기서는 잘 작동하지 않을 수 있습니다. 막대 안에 레이블을 추가하면 막대가 짧은 시간대가 적은 지역의 경우 텍스트가 매우 찌그러집니다. 막대 바깥에 레이블을 추가하면 막대가 긴 시간대가 많은 지역의 경우 텍스트가 그래프 밖으로 나가거나 시각화의 높이가 늘어납니다. 어느 것도 이상적이지 않습니다. 하지만 두 가지 장점을 모두 누릴 수도 있습니다. 다음 조건에서 레이블을 추가하려고 합니다:
 
-When the bars are long, text should:
+막대가 길 때 텍스트는:
 
-* appear inside the bar and be right-aligned;
-* be light in color to contrast the dark bar backgrounds;
+* 막대 안에 나타나고 오른쪽 정렬되어야 합니다;
+* 어두운 막대 배경과 대조되도록 밝은 색상이어야 합니다;
 
-And conversely, when the bars are short, text should:
+반대로 막대가 짧을 때 텍스트는:
 
-* appear outside the bar and be left-aligned;
-* be dark in color to contrast the light plot background;
+* 막대 바깥에 나타나고 왼쪽 정렬되어야 합니다;
+* 밝은 플롯 배경과 대조되도록 어두운 색상이어야 합니다;
 
-It might take a little bit of trial and error to find the value that defines a bar as being *short* or *tall*. Here, we'll use `45`. If a region has more than `45` time zones, it's classed as a *tall* bar. Otherwise, it's *short*. 
+막대를 *짧거나* *긴* 것으로 정의하는 값을 찾는 데 약간의 시행착오가 필요할 수 있습니다. 여기서는 `45`를 사용합니다. 지역에 `45`개 이상의 시간대가 있으면 *긴* 막대로 분류됩니다. 그렇지 않으면 *짧습니다*. 
 
-We want to map the alignment and color of the text to a (transformation of) the `n` column in the data set. This sounds like something that should go into an aesthetic mapping in the `aes()` function. We already know the `color` argument can be used to map the text color. The `hjust` and `vjust` arguments are used for horizontal and vertical positioning of text. Unfortunately, within the `geom_text()` function, neither `hjust` nor `vjust` can be used inside the `aes()` function. \index{ggplot2!geom\_text} 
+텍스트의 정렬과 색상을 데이터 세트의 `n` 열(의 변환)에 매핑하려고 합니다. 이것은 `aes()` 함수의 미적 매핑에 들어가야 할 것 같습니다. 우리는 이미 `color` 인수를 사용하여 텍스트 색상을 매핑할 수 있다는 것을 알고 있습니다. `hjust` 및 `vjust` 인수는 텍스트의 수평 및 수직 위치 지정에 사용됩니다. 불행히도 `geom_text()` 함수 내에서는 `hjust`나 `vjust` 모두 `aes()` 함수 내에서 사용할 수 없습니다. \index{ggplot2!geom\_text} 
 
-Luckily, the **`ggtext`** package once again comes to the rescue! We can use the `geom_textbox()` function from **`ggtext`** instead of `geom_text()`. It works very similarly to `geom_text()` but it allows us to map variables to `hjust` and `vjust`. \index{ggtext!geom\_textbox}
+다행히 **`ggtext`** 패키지가 다시 구조해 줍니다! `geom_text()` 대신 **`ggtext`**의 `geom_textbox()` 함수를 사용할 수 있습니다. `geom_text()`와 매우 유사하게 작동하지만 변수를 `hjust` 및 `vjust`에 매핑할 수 있습니다. \index{ggtext!geom\_textbox}
 
-We'll use `case_when()` from **`dplyr`** to specify the settings for the `hjust` argument, depending on the value of `n`. When `n` is greater than `45`, `hjust` should be `1` to use right alignment, otherwise it should be `0` to use left alignment. If you wanted to, you could create a new column in the data instead of using `case_when()` directly inside the `aes()` function. \index{dplyr!case\_when} 
+**`dplyr`**의 `case_when()`을 사용하여 `n` 값에 따라 `hjust` 인수에 대한 설정을 지정합니다. `n`이 `45`보다 크면 `hjust`는 오른쪽 정렬을 사용하려면 `1`이어야 하고 그렇지 않으면 왼쪽 정렬을 사용하려면 `0`이어야 합니다. 원하는 경우 `aes()` 함수 내에서 직접 `case_when()`을 사용하는 대신 데이터에 새 열을 만들 수 있습니다. \index{dplyr!case\_when} 
 
-Since `geom_textbox()` the draws a box, we need to control both (i) the alignment of the box relative to the coordinates using `hjust`, and (ii) the alignment of the text within the box using `halign`. Within `geom_textbox()` we also use `orientation = "left-rotated"` to rotate the text anti-clockwise by 90 degrees (similar to using `angle = 90` in `geom_text()`). We can remove the background fill color and box outline by setting both `fill = NA` and `box.color = NA`, and set the size and font family options using the `size` and `family` arguments (where we pass in our `body_font` variable we defined earlier).
+`geom_textbox()`는 상자를 그리기 때문에 `hjust`를 사용하여 좌표에 대한 상자 정렬과 `halign`을 사용하여 상자 내 텍스트 정렬을 모두 제어해야 합니다. `geom_textbox()` 내에서도 `orientation = "left-rotated"`를 사용하여 텍스트를 시계 반대 방향으로 90도 회전합니다(`geom_text()`에서 `angle = 90`을 사용하는 것과 유사). `fill = NA` 및 `box.color = NA`로 설정하여 배경 채우기 색상과 상자 윤곽선을 제거하고 `size` 및 `family` 인수를 사용하여 크기 및 글꼴 모음 옵션을 설정할 수 있습니다(여기서는 이전에 정의한 `body_font` 변수를 전달).
 
 ::: {#tip-timezones-text-align .callout-tip}
 
-## Alignment of text
+## 텍스트 정렬
 
-In **`ggplot2`**, `hjust` (and `halign`) controls horizontal alignment and `vjust` (and `valign`) controls vertical alignment. When text is rotated, the non-rotated alignment arguments should be used. For example, although we're moving the text up and down, we still use `hjust` to align the text.
+**`ggplot2`**에서 `hjust`(및 `halign`)는 수평 정렬을 제어하고 `vjust`(및 `valign`)는 수직 정렬을 제어합니다. 텍스트가 회전되면 회전되지 않은 정렬 인수를 사용해야 합니다. 예를 들어 텍스트를 위아래로 이동하더라도 `hjust`를 사용하여 텍스트를 정렬합니다.
 
 :::
 
-We use a similar process for setting the color of the text - using `case_when()` to specify if the text should use the `bg_col` or `text_col` color based on whether or not it is greater than 45. Note that we wrap the `bg_col` and `text_col` variables inside the `I()` function to use these variables *as is* rather than treating them as a variable to map to. \index{base!I} 
+텍스트 색상을 설정하는 데에도 비슷한 프로세스를 사용합니다. `case_when()`을 사용하여 45보다 큰지 여부에 따라 텍스트가 `bg_col` 또는 `text_col` 색상을 사용해야 하는지 지정합니다. 매핑할 변수로 처리하는 대신 이러한 변수를 *있는 그대로* 사용하기 위해 `I()` 함수 내에 `bg_col` 및 `text_col` 변수를 래핑합니다. \index{base!I} 
 
-Finally, we can also use `theme_void()` to remove all existing theme elements, and `theme(legend.position = "none")` to remove the legend. \index{ggplot2!theme} \index{ggplot2!theme\_void}
+마지막으로 `theme_void()`를 사용하여 모든 기존 테마 요소를 제거하고 `theme(legend.position = "none")`를 사용하여 범례를 제거할 수 있습니다. \index{ggplot2!theme} \index{ggplot2!theme\_void}
 
 ```{r}
 #| label: fig-timezones-bar-plot-2
-#| fig-cap: "A minimalist bar chart showing the number of time zone locations in each continent, with labels on each bar naming the continent."
-#| fig-alt: "A minimalist bar chart showing the number of time zone locations in each continent, with labels on each bar naming the continent."
+#| fig-cap: "각 대륙의 시간대 위치 수를 보여주는 최소한의 막대 차트로, 각 막대에 대륙 이름을 지정하는 레이블이 있습니다."
+#| fig-alt: "각 대륙의 시간대 위치 수를 보여주는 최소한의 막대 차트로, 각 막대에 대륙 이름을 지정하는 레이블이 있습니다."
 #| fig-asp: 0.7
 legend_plot <- bar_plot +
   geom_textbox(
@@ -429,29 +429,29 @@ legend_plot <- bar_plot +
 legend_plot
 ```
 
-Now we have a much nicer looking custom legend. We can apply some nicer styling to our main map before we join the two together!
+이제 훨씬 더 멋진 사용자 정의 범례가 생겼습니다. 두 가지를 결합하기 전에 기본 지도에 더 멋진 스타일을 적용할 수 있습니다!
 
-## Advanced styling
+## 고급 스타일링
 
-We have multiple elements of our plots that we need to improve:
+개선해야 할 플롯의 여러 요소가 있습니다:
 
-* the background map should use our defined colors rather than the defaults;
-* the points should also use our defined colors;
-* a title and subtitle should be added using our defined typefaces;
+* 배경 지도는 기본값 대신 정의된 색상을 사용해야 합니다;
+* 점도 정의된 색상을 사용해야 합니다;
+* 정의된 서체를 사용하여 제목과 부제목을 추가해야 합니다;
 
-### Applying colors
+### 색상 적용
 
-Let's start by re-drawing the background map but using our `text_col` for the border color and a semi-transparent version of our `highlight_col` for the fill color. We can use the `alpha()` function from **`ggplot2`** to set the transparency to 30% (0.3). \index{ggplot2!alpha}
+테두리 색상으로 `text_col`을 사용하고 채우기 색상으로 `highlight_col`의 반투명 버전을 사용하여 배경 지도를 다시 그리는 것부터 시작하겠습니다. **`ggplot2`**의 `alpha()` 함수를 사용하여 투명도를 30%(0.3)로 설정할 수 있습니다. \index{ggplot2!alpha}
 
-We'll also re-draw the points again with a small adjustment -  let's change the shape that's used for the points. You can set the shape using the `pch` (or `shape`) argument. There are 25 different options available for `pch`, which can be specified using the numbers 1 to 25. The shape we'll use here is a circle with a dot in the middle. Unfortunately, this isn't one of the 25 available options so we'll have to make it ourselves. We can draw the dot in the middle using the default shape but making it a little smaller. We can add the circle by choosing `pch = 21` (which allows you to control both the `fill` and `color` of the shape) and making it a little bit bigger with a transparent fill. \index{ggplot2!ggplot} \index{ggplot2!geom\_sf} \index{ggplot2!aes}
+약간의 조정을 통해 점도 다시 그립니다. 점에 사용되는 모양을 변경해 보겠습니다. `pch`(또는 `shape`) 인수를 사용하여 모양을 설정할 수 있습니다. `pch`에 사용할 수 있는 25가지 옵션이 있으며 숫자 1에서 25를 사용하여 지정할 수 있습니다. 여기서 사용할 모양은 가운데에 점이 있는 원입니다. 불행히도 25가지 옵션 중 하나가 아니므로 직접 만들어야 합니다. 기본 모양을 사용하되 조금 더 작게 만들어 가운데에 점을 그릴 수 있습니다. `pch = 21`(모양의 `fill`과 `color`를 모두 제어할 수 있음)을 선택하고 투명한 채우기로 조금 더 크게 만들어 원을 추가할 수 있습니다. \index{ggplot2!ggplot} \index{ggplot2!geom\_sf} \index{ggplot2!aes}
 
 ```{r}
 #| label: fig-timezones-basic-map-2
-#| fig-cap: "Points representing different time zone locations on a world map, with points colored by geographical region. The default legend is shown on the right hand side."
-#| fig-alt: "Points representing different time zone locations on a world map, with points colored by geographical region. The default legend is shown on the right hand side."
+#| fig-cap: "세계 지도에 다른 시간대 위치를 나타내는 점으로, 점은 지리적 지역별로 색상이 지정되어 있습니다. 기본 범례는 오른쪽에 표시됩니다."
+#| fig-alt: "세계 지도에 다른 시간대 위치를 나타내는 점으로, 점은 지리적 지역별로 색상이 지정되어 있습니다. 기본 범례는 오른쪽에 표시됩니다."
 #| fig-asp: 0.6
 basic_map <- ggplot() +
-  # Apply colors to background map
+  # 배경 지도에 색상 적용
   geom_sf(
     data = world,
     color = text_col,
@@ -474,7 +474,7 @@ basic_map <- ggplot() +
 basic_map
 ```
 
-We also apply the same colors for (both of) the points as we did for the bar chart (remembering to use `scale_color_manual()` rather than `scale_fill_manual()` for points). \index{ggplot2!scale\_color\_manual}
+막대 차트에했던 것과 동일한 색상을 (두) 점 모두에 적용합니다 (`scale_fill_manual()` 대신 점의 경우 `scale_color_manual()`을 사용해야 함). \index{ggplot2!scale\_color\_manual}
 
 ```{r}
 #| label: timezones-style-map-1
@@ -482,16 +482,16 @@ col_map <- basic_map +
   scale_color_manual(values = col_palette)
 ```
 
-### Editing the axes
+### 축 편집
 
-Before we add the title and subtitle text, we need to make some space for it (and the legend that we'll add later). Let's set the limits of the x- and y- axes using `scale_x_continuous()` and `scale_y_continuous()`. We extend the lower limit of the y-axis beyond the range of the data, leaving blank space at the bottom where we can overlay the text. We also adjust the `breaks` in the x-axis scale to make the grid lines closer together. The choice of grid lines every `15` x values might seem like an odd choice, but every fifteen degrees difference in longitude (x-axis) is approximately one hour of time difference (since Earth rotates 360 degrees in 24 hours, or 15 degrees per hour)! \index{ggplot2!scale\_x\_continuous} \index{ggplot2!scale\_y\_continuous}
+제목과 부제목 텍스트를 추가하기 전에 공간(및 나중에 추가할 범례)을 만들어야 합니다. `scale_x_continuous()` 및 `scale_y_continuous()`를 사용하여 x축과 y축의 제한을 설정해 봅시다. y축의 하한을 데이터 범위를 넘어 확장하여 텍스트를 겹쳐 놓을 수 있는 아래쪽 빈 공간을 남겨 둡니다. 또한 x축 스케일의 `breaks`를 조정하여 그리드 선을 더 가깝게 만듭니다. `15` x 값마다 그리드 선을 선택한 것이 이상해 보일 수 있지만 경도(x축)의 15도 차이는 약 1시간의 시차입니다(지구는 24시간 동안 360도, 즉 시간당 15도 회전하기 때문입니다)! \index{ggplot2!scale\_x\_continuous} \index{ggplot2!scale\_y\_continuous}
 
-It will take some (probably a lot of) trial and error to figure out exactly how much you need to extend the y-axis by. Here, we want the height of the blank space to be about half the height of the map area. Using `st_bbox(world)` to return the bounding box of the `world` map data, you'll see that the y-axis of the world map ranges between -90 to +83.6. This means extending the y-axis by around 80 or 90 is a good starting point. We also remove the extra padding around the sides by setting `expand = FALSE` inside `coord_sf()`. \index{sf!st\_bbox} \index{ggplot2!coord\_sf}
+y축을 얼마나 확장해야 하는지 정확히 알아내려면 약간의(아마도 많은) 시행착오가 필요할 것입니다. 여기서는 빈 공간의 높이가 지도 영역 높이의 약 절반 정도가 되기를 원합니다. `st_bbox(world)`를 사용하여 `world` 지도 데이터의 경계 상자를 반환하면 세계 지도의 y축 범위가 -90에서 +83.6 사이임을 알 수 있습니다. 즉, y축을 약 80 또는 90 정도 확장하는 것이 좋은 시작점입니다. 또한 `coord_sf()` 내부에서 `expand = FALSE`를 설정하여 측면 주변의 여분의 패딩을 제거합니다. \index{sf!st\_bbox} \index{ggplot2!coord\_sf}
 
 ```{r}
 #| label: fig-timezones-style-map-2
-#| fig-cap: "Points representing different time zone locations on a world map, with points colored by geographical region. The default legend is shown on the right hand side, with a large blank space below the world map."
-#| fig-alt: "Points representing different time zone locations on a world map, with points colored by geographical region. The default legend is shown on the right hand side, with a large blank space below the world map."
+#| fig-cap: "세계 지도에 다른 시간대 위치를 나타내는 점으로, 점은 지리적 지역별로 색상이 지정되어 있습니다. 기본 범례는 오른쪽에 표시되며 세계 지도 아래에 큰 빈 공간이 있습니다."
+#| fig-alt: "세계 지도에 다른 시간대 위치를 나타내는 점으로, 점은 지리적 지역별로 색상이 지정되어 있습니다. 기본 범례는 오른쪽에 표시되며 세계 지도 아래에 큰 빈 공간이 있습니다."
 #| fig-asp: 0.8
 axes_map <- col_map +
   scale_x_continuous(
@@ -505,9 +505,9 @@ axes_map <- col_map +
 axes_map
 ```
 
-### Adding text 
+### 텍스트 추가
 
-We can create our custom Font Awesome icon caption, as described in @sec-cats, which we'll later add to the top of the visualization: \index{social\_caption}
+@sec-cats 에서 설명한 대로 사용자 정의 Font Awesome 아이콘 캡션을 만들어 나중에 시각화 상단에 추가할 수 있습니다: \index{social\_caption}
  
 ```{r}
 #| label: timezones-text-social
@@ -518,7 +518,7 @@ social <- social_caption(
 )
 ```
 
-As we did in @sec-turbines and @sec-cats, we can also add colored text within the subtitle to denote the categories. This might be unnecessary for this visualization since we have our custom bar chart legend, but reinforcing the color mapping won't hurt. Here, we'll use **`ggtext`** as we did in @sec-cats (although you can also use **`marquee`** as we did in @sec-turbines if you prefer). This means we'll be writing HTML `<span></span>` tags and using `glue()` to pass in the colors from `col_palette` vector. Here, we'll take a slightly different approach of calling the variables - using each vector element name instead of the index. This approach is a little more manual, but can be useful if you want the written text to be slightly different to the category name. The code is also often a little bit clearer to read! Rather than using our `source_caption()` function as we've done in previous chapters, we'll add information about the source directly in the subtitle text. \index{glue!glue} \index{ggtext}
+@sec-turbines 및 @sec-cats 에서 했던 것처럼 범주를 나타내기 위해 부제목 내에 색상이 있는 텍스트를 추가할 수도 있습니다. 사용자 정의 막대 차트 범례가 있으므로 이 시각화에는 불필요할 수 있지만 색상 매핑을 강화하는 것은 나쁘지 않습니다. 여기서는 @sec-cats 에서 했던 것처럼 **`ggtext`**를 사용합니다(원하는 경우 @sec-turbines 에서 했던 것처럼 **`marquee`**를 사용할 수도 있음). 즉, HTML `<span></span>` 태그를 작성하고 `glue()`를 사용하여 `col_palette` 벡터의 색상을 전달합니다. 여기서는 인덱스 대신 각 벡터 요소 이름을 사용하여 변수를 호출하는 약간 다른 접근 방식을 취합니다. 이 접근 방식은 조금 더 수동적이지만 작성된 텍스트가 범주 이름과 약간 다르게 하려는 경우 유용할 수 있습니다. 코드도 종종 읽기가 조금 더 명확합니다! 이전 장에서 했던 것처럼 `source_caption()` 함수를 사용하는 대신 소스에 대한 정보를 부제목 텍스트에 직접 추가합니다. \index{glue!glue} \index{ggtext}
  
 ```{r}
 #| label: timezones-text-1
@@ -534,7 +534,7 @@ subtitle <- glue("Time zones tend to follow the boundaries between countries and
 <span style='color:{col_palette[\"Pacific\"]};'>Pacific </span> zones.<br>**Data**: IANA tz database<br>")
 ```
 
-We also specify some text for the visualization title. We're going to join together the title and subtitle and plot them as one text object, so we also use HTML `<span></span>` tags to set the font size, family, and color of the title. 
+시각화 제목에 대한 텍스트도 지정합니다. 제목과 부제목을 결합하여 하나의 텍스트 객체로 플롯할 것이므로 HTML `<span></span>` 태그를 사용하여 제목의 글꼴 크기, 패밀리 및 색상을 설정합니다.
 
 ```{r}
 #| label: timezones-text-2
@@ -542,9 +542,9 @@ title <- glue("<span style='font-size:12pt; font-family:{title_font}; color:{tex
 title_text <- glue("{title}{subtitle}")
 ```
 
-We add the `social` caption to the map using the `tag` option in the `labs()` function - just as we did in @sec-doctors. When we edit the `theme` elements in the final step, we'll specify a position for the tag. \index{ggplot2!labs}
+@sec-doctors 에서 했던 것처럼 `labs()` 함수의 `tag` 옵션을 사용하여 지도에 `social` 캡션을 추가합니다. 마지막 단계에서 `theme` 요소를 편집할 때 태그의 위치를 지정합니다. \index{ggplot2!labs}
 
-Unfortunately, we can't have two `tag`s and since we also want a non-standard position for the title/subtitle text object, we'll use `geom_textbox()` to add it instead. We specify the x- and y- coordinates of where we want the textbox to go (again, lots of trial and error!) and pass the `social` object in for the label. We also use the other arguments in `geom_textbox()` to set the font `size` and `family` as well as specify the alignment of the text and box (just as we did earlier when making the bar chart). The box fill and outline colors are removed by setting their arguments to `NA`. \index{ggtext!geom\_textbox} \index{ggplot2!aes} 
+불행히도 두 개의 `tag`를 가질 수 없으며 제목/부제목 텍스트 객체에 대해서도 비표준 위치를 원하므로 대신 `geom_textbox()`를 사용하여 추가합니다. 텍스트 상자가 갈 위치의 x 및 y 좌표를 지정하고(다시 말하지만 많은 시행착오가 필요함!) 레이블에 `social` 객체를 전달합니다. 또한 `geom_textbox()`의 다른 인수를 사용하여 글꼴 `size` 및 `family`를 설정하고 텍스트 및 상자의 정렬을 지정합니다(앞서 막대 차트를 만들 때 했던 것과 마찬가지로). 상자 채우기 및 윤곽선 색상은 인수를 `NA`로 설정하여 제거합니다. \index{ggtext!geom\_textbox} \index{ggplot2!aes} 
 
 ```{r}
 #| label: timezones-style-map-3
@@ -565,16 +565,16 @@ text_map <- axes_map +
   labs(tag = title_text)
 ```
 
-### Adjusting themes
+### 테마 조정
 
-The final step is making a few small changes to the **`ggplot2`** theme. We start by removing all theme elements using `theme_void()` and setting the `base_family` and `base_size` for the text. Although we don't have many text elements in our visualization controlled by the `theme()` functions, this will still affect the `tag` text. \index{ggplot2!theme\_void}
+마지막 단계는 **`ggplot2`** 테마를 몇 가지 작게 변경하는 것입니다. `theme_void()`를 사용하여 모든 테마 요소를 제거하고 텍스트에 대해 `base_family` 및 `base_size`를 설정하는 것으로 시작합니다. `theme()` 함수로 제어되는 시각화에 텍스트 요소가 많지는 않지만 `tag` 텍스트에는 여전히 영향을 미칩니다. \index{ggplot2!theme\_void}
 
-Using the `theme()` function, we make some further edit to remove the default legend, change the background color to out `bg_col` variable, and add the grid lines back in with an almost transparent `text_col` color. The position of the `tag` text can be set using the `plot.tag.position` argument to place it in the bottom left of the plot. We also use `element_textbox_simple()` from **`ggtext`** to format the text in the `tag` since it includes the HTML `<span></span>` tags. Within `element_textbox_simple()`, the `maxwidth` argument is used to set the width of the textbox, ensuring the only takes up the left hand side of the blank space at the bottom. The bar chart legend will go on the other side. \index{ggplot2!theme} \index{ggtext!element\_textbox\_simple} \index{ggplot2!element\_rect} \index{ggplot2!element\_line} \index{ggplot2!alpha}
+`theme()` 함수를 사용하여 기본 범례를 제거하고, 배경색을 `bg_col` 변수로 변경하고, 거의 투명한 `text_col` 색상으로 그리드 선을 다시 추가하기 위해 몇 가지 추가 편집을 수행합니다. `tag` 텍스트의 위치는 `plot.tag.position` 인수를 사용하여 플롯의 왼쪽 하단에 배치하도록 설정할 수 있습니다. 또한 `tag`에 HTML `<span></span>` 태그가 포함되어 있으므로 **`ggtext`**의 `element_textbox_simple()`을 사용하여 텍스트 서식을 지정합니다. `element_textbox_simple()` 내에서 `maxwidth` 인수는 텍스트 상자의 너비를 설정하는 데 사용되어 하단 빈 공간의 왼쪽만 차지하도록 합니다. 막대 차트 범례는 반대쪽에 들어갑니다. \index{ggplot2!theme} \index{ggtext!element\_textbox\_simple} \index{ggplot2!element\_rect} \index{ggplot2!element\_line} \index{ggplot2!alpha}
 
 ```{r}
 #| label: fig-timezones-style-map-4
-#| fig-cap: "Points representing different time zone locations on a world map, with points colored by geographical region. Title and subtitle are shown in the bottom left."
-#| fig-alt: "Points representing different time zone locations on a world map, with points colored by geographical region. Title and subtitle are shown in the bottom left."
+#| fig-cap: "세계 지도에 다른 시간대 위치를 나타내는 점으로, 점은 지리적 지역별로 색상이 지정되어 있습니다. 제목과 부제목은 왼쪽 하단에 표시됩니다."
+#| fig-alt: "세계 지도에 다른 시간대 위치를 나타내는 점으로, 점은 지리적 지역별로 색상이 지정되어 있습니다. 제목과 부제목은 왼쪽 하단에 표시됩니다."
 styled_map <- text_map +
   theme_void(base_size = 6, base_family = body_font) +
   theme(
@@ -600,31 +600,31 @@ styled_map <- text_map +
 styled_map
 ```
 
-### Joining plots with **`patchwork`**
+### **`patchwork`**로 플롯 결합하기
 
-Finally, we need to join the legend bar chart to our main plot. For this, we'll use **`patchwork`** [@patchwork]. The **`patchwork`** package allows you to combine multiple visualizations (including **`ggplot2`** graphics, base R plots, or **`gt`** tables) into a single layout. It's very flexible, and you can add arrange plots easily into simple rows or columns, or create very complex layouts with many nested plots. The **`patchwork`** package also allows you to add inset plots i.e. a smaller plot placed within a larger plot to provide additional detail.
+마지막으로 범례 막대 차트를 메인 플롯에 결합해야 합니다. 이를 위해 **`patchwork`** [@patchwork]를 사용합니다. **`patchwork`** 패키지를 사용하면 여러 시각화(**`ggplot2`** 그래픽, 기본 R 플롯 또는 **`gt`** 테이블 포함)를 단일 레이아웃으로 결합할 수 있습니다. 매우 유연하며 플롯을 간단한 행이나 열로 쉽게 정렬하거나 중첩된 플롯이 많은 매우 복잡한 레이아웃을 만들 수 있습니다. **`patchwork`** 패키지를 사용하면 삽입 플롯(inset plot), 즉 더 큰 플롯 내에 배치된 더 작은 플롯을 추가하여 추가 세부 정보를 제공할 수도 있습니다.
 
 ::: {#tip-timezones-patchwork .callout-tip}
 
-## Arranging plots with **`patchwork`**
+## **`patchwork`**로 플롯 정렬하기
 
-Although this book doesn't contain examples of arranging multiple plots side-by-side, **`patchwork`** makes it very easy to do so. If you have two plots `g1` and `g2`, then you can arrange them side-by-side by simply running `g1 + g2`. More complex layouts can be achieved by specifying a grid of which plots should be placed where. The **`patchwork`** package also contains additional functions for adding multiplot annotations or titles, consistent themes across all subplots, and defining plot alignment across multiple pages. Read the package documentation at {{< monolink "https://patchwork.data-imaginist.com/index.html" "patchwork.data-imaginist.com" >}} for examples.
+이 책에는 여러 플롯을 나란히 배열하는 예제는 포함되어 있지 않지만 **`patchwork`**를 사용하면 매우 쉽게 할 수 있습니다. 두 개의 플롯 `g1`과 `g2`가 있는 경우 `g1 + g2`를 실행하기만 하면 나란히 배열할 수 있습니다. 어떤 플롯을 어디에 배치할지 그리드를 지정하여 더 복잡한 레이아웃을 얻을 수 있습니다. **`patchwork`** 패키지에는 멀티플롯 주석 또는 제목 추가, 모든 서브플롯에 걸친 일관된 테마, 여러 페이지에 걸친 플롯 정렬 정의를 위한 추가 함수도 포함되어 있습니다. 예제는 패키지 문서 {{< monolink "https://patchwork.data-imaginist.com/index.html" "patchwork.data-imaginist.com" >}}를 참조하십시오.
 
 :::
 
-In this visualization, rather than the more traditional approach of arranging plots side by side, we instead want to position one plot (bar chart) on top of another (main map). We start with our `styled_map` and add the `legend_plot` on top using the `inset_element()` function. The four positions given in the `inset_element()` function are the left, bottom, right, and top outer bounds of the inset plot. The default unit is `npc` (normalized parent coordinates). In this setting the bottom left is `(0, 0)` and the top right is `(1, 1)`. This means specifying the `left` outer bound as 0.55 tells **`patchwork`** to start at the left hand side of the inset plot 55% of the way in from the left of the main plot. \index{patchwork!inset\_element}
+이 시각화에서는 플롯을 나란히 배열하는 전통적인 접근 방식보다는 한 플롯(막대 차트)을 다른 플롯(메인 지도) 위에 배치하려고 합니다. `styled_map`으로 시작하여 `inset_element()` 함수를 사용하여 `legend_plot`을 위에 추가합니다. `inset_element()` 함수에 제공된 4개의 위치는 삽입 플롯의 왼쪽, 아래쪽, 오른쪽 및 위쪽 외부 경계입니다. 기본 단위는 `npc`(정규화된 부모 좌표)입니다. 이 설정에서 왼쪽 하단은 `(0, 0)`이고 오른쪽 상단은 `(1, 1)`입니다. 즉, `left` 외부 경계를 0.55로 지정하면 **`patchwork`**가 메인 플롯의 왼쪽에서 55% 들어간 지점에서 삽입 플롯의 왼쪽을 시작하도록 지시합니다. \index{patchwork!inset\_element}
 
-We also remove the added margin from around the edge of the plot using the `theme()` function and setting all of the margins to zero. Remember that when combining a `theme()` with a `patchwork` object, it's added using the `&` operator rather than `+`. \index{ggplot2!theme}
+또한 `theme()` 함수를 사용하고 모든 여백을 0으로 설정하여 플롯 가장자리 주변의 추가 여백을 제거합니다. `theme()`을 `patchwork` 객체와 결합할 때는 `+` 대신 `&` 연산자를 사용하여 추가된다는 점을 기억하십시오. \index{ggplot2!theme}
 
 ```{r}
 #| label: fig-timezones-final-plot
-#| fig-cap: "Points representing different time zone locations on a world map, with points colored by geographical region. Title and subtitle are shown in the bottom left, with an inset bar chart shown on the bottom right being used as a legend."
-#| fig-alt: "Points representing different time zone locations on a world map, with points colored by geographical region. Title and subtitle are shown in the bottom left, with an inset bar chart shown on the bottom right being used as a legend."
+#| fig-cap: "세계 지도에 다른 시간대 위치를 나타내는 점으로, 점은 지리적 지역별로 색상이 지정되어 있습니다. 제목과 부제목은 왼쪽 하단에 표시되며, 범례로 사용되는 삽입 막대 차트는 오른쪽 하단에 표시됩니다."
+#| fig-alt: "세계 지도에 다른 시간대 위치를 나타내는 점으로, 점은 지리적 지역별로 색상이 지정되어 있습니다. 제목과 부제목은 왼쪽 하단에 표시되며, 범례로 사용되는 삽입 막대 차트는 오른쪽 하단에 표시됩니다."
 styled_map + inset_element(legend_plot, 0.55, 0, 1, 0.3) &
   theme(plot.margin = margin(0, 0, 0, 0))
 ```
 
-Now our map is finished and we can save it with `ggsave()`! \index{ggplot2!ggsave}
+이제 지도가 완성되었으므로 `ggsave()`로 저장할 수 있습니다! \index{ggplot2!ggsave}
 
 ```{r}
 #| label: timezones-save
@@ -637,26 +637,26 @@ ggsave(
 )
 ```
 
-## Reflection
+## 회고
 
-What could still be improved about this plot?
+이 플롯에서 무엇을 더 개선할 수 있을까요?
 
-Although the bar chart legend is an improvement on a boring, traditional legend, it could do with some further improvement. For example, it's not immediately clear what the bar chart shows. With a little bit of time, readers probably put together the number of dots with the height of the bars but it could be more obvious. Adding numbers to the bar chart would also improve readability. Perhaps this could be with a traditional y-axis, or perhaps as more informative labels. For example,  instead of a label that reads `"Africa"`, it could read `"Africa (18 time zones)"`.
+막대 차트 범례는 지루하고 전통적인 범례보다는 개선되었지만 추가적인 개선이 필요할 수 있습니다. 예를 들어 막대 차트가 무엇을 보여주는지 바로 명확하지 않습니다. 시간이 조금 걸리면 독자들은 아마도 점의 수와 막대의 높이를 연결하겠지만 더 명확할 수 있습니다. 막대 차트에 숫자를 추가하면 가독성도 향상됩니다. 이것은 전통적인 y축을 사용하거나 더 유익한 레이블을 사용할 수 있습니다. 예를 들어 `"Africa"`라고 읽는 레이블 대신 `"Africa (18 time zones)"`라고 읽을 수 있습니다.
 
-If we're talking about improving readability of bar charts, an easy action is to make the bars (and therefore text) horizontal - it's much easier to read text that's the right way up!
+막대 차트의 가독성을 향상시키는 것에 대해 이야기한다면 쉬운 조치는 막대(및 텍스트)를 수평으로 만드는 것입니다. 올바른 방향으로 된 텍스트를 읽는 것이 훨씬 쉽습니다!
 
 ::: {.content-visible when-format="html"}
 
-Each plot created during the process of developing the original version of this visualization was captured using **`camcorder`**, and is shown in the gif below. If you'd like to learn more about how **`camcorder`** can be used in the data visualization process, see @sec-camcorder.
+이 시각화의 원본 버전을 개발하는 과정에서 생성된 각 플롯은 **`camcorder`**를 사용하여 캡처되었으며 아래 gif에 표시됩니다. 데이터 시각화 프로세스에서 **`camcorder`**를 사용하는 방법에 대해 자세히 알아보려면 @sec-camcorder 를 참조하십시오.
 
-![](images/time-zones.gif){fig-align="center" fig-alt="Gif of the process of building the chart"}
+![](images/time-zones.gif){fig-align="center" fig-alt="차트 작성 과정의 Gif"}
 
 :::
 
-## Exercises
+## 연습 문제
 
-* Edit the bar chart legend to include information about the number of time zones in each geographic region.
+* 각 지리적 지역의 시간대 수에 대한 정보를 포함하도록 막대 차트 범례를 편집하십시오.
 
-* Edit the bar chart to have horizontal bars instead of vertical ones.
+* 수직 막대 대신 수평 막대를 갖도록 막대 차트를 편집하십시오.
 
-* Consider where the updated bar chart legend is positioned. Is the lower right corner still a good location if the bars are horizontal? Try moving it somewhere else.
+* 업데이트된 막대 차트 범례가 어디에 위치할지 고려하십시오. 막대가 수평인 경우 오른쪽 하단 모서리가 여전히 좋은 위치입니까? 다른 곳으로 옮겨 보십시오.

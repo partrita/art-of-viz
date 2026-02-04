@@ -219,7 +219,7 @@ ggplot() +
   annotate(
     "text",
     x = 1.25, y = 2.2,
-    label = "The Art of Data\nVisualization\nwith ggplot2",
+    label = "ggplot2를 활용한\n데이터 시각화의\n기술",
     family = body_font,
     color = "white",
     hjust = 0,

@@ -2,34 +2,34 @@
 image: "images/preview.png"
 ---
 
-# Preface {.unnumbered}
+# 서문 {.unnumbered}
 
 ::: {.content-visible when-format="html"}
 
 ::: {.callout-note icon=false appearance="simple"}
 
-Welcome to the online version of *The Art of Data Visualization with `ggplot2`* also known as *The TidyTuesday Cookbook* by [Nicola Rennie](https://nrennie.rbind.io/).
+[Nicola Rennie](https://nrennie.rbind.io/)의 *ggplot2를 활용한 데이터 시각화의 기술*(일명 *TidyTuesday 요리책*) 온라인 버전에 오신 것을 환영합니다.
 
-This book will be published by [CRC Press](https://www.routledge.com/corporate/about-us/crc-press). 
-
-:::
+이 책은 [CRC Press](https://www.routledge.com/corporate/about-us/crc-press)에서 출판될 예정입니다. 
 
 :::
 
-Welcome to *The Art of Data Visualization with `ggplot2`* (also known as *The TidyTuesday Cookbook*). TidyTuesday is a weekly social data project which aims to make learning to work with data easier, by providing real-world datasets. Participants are encouraged to explore the data shared via [GitHub](https://github.com/rfordatascience/tidytuesday) each week, create an output such as a data visualization, and share their output alongside their code, with the community. 
+:::
 
-After three years of weekly contributions, I've worked with around 150 datasets and created over 150 data visualizations. Each chapter of this book will cover a different data visualization, showing: the data exploration process; the choice of data visualization type; the initial design ideas with hand-drawn sketches; the first build of a plot; and the iterative process of styling plots. For each plot, full R code is provided and explained for each step of the creative process. None of the visualizations you'll see were created specifically for this book - each one is an original data visualization created using real TidyTuesday datasets over a series of years. Think of each chapter as a case study starting with a new data set you've never seen before, and working through a process to get to an insightful, artistic visualization. This book is all about that process. Sometimes the data is messy. Sometimes the code is *hacky*. Sometimes, upon reflection, the data could be visualized better. 
+*ggplot2를 활용한 데이터 시각화의 기술*(일명 *TidyTuesday 요리책*)에 오신 것을 환영합니다. TidyTuesday는 실제 데이터세트를 제공하여 데이터를 다루는 법을 더 쉽게 배울 수 있도록 돕는 매주 진행되는 소셜 데이터 프로젝트입니다. 참가자들은 매주 [GitHub](https://github.com/rfordatascience/tidytuesday)를 통해 공유되는 데이터를 탐색하고, 데이터 시각화와 같은 결과물을 만들어, 코드와 함께 커뮤니티에 공유하도록 장려됩니다. 
 
-Data visualization can be a very effective and efficient means of communicating information. Visualizing your data typically serves one of two purposes: (i) as part of exploratory analysis to help uncover discrepancies in data and identify interesting relationships to measure; or (ii) to communicate key insights and messages to a broader audience. The case-study nature of this book means that we'll talk about both of these aspects, though we'll focus mostly on the second. Choosing an appropriate type of visualization and making careful choices about design can clarify the message you are trying to convey to a reader. That does not necessarily mean that every chart must follow a set of *rules* and stick to a rigid format. Instead, data visualization is a blend of science and creativity - many of the key *landmark* data visualizations held up as excellent examples don't fit into the standard categories of bar charts, scatter plots, or line graphs. 
+3년 동안 매주 기여하면서 저는 약 150개의 데이터세트를 다루었고 150개 이상의 데이터 시각화 작품을 만들었습니다. 이 책의 각 장에서는 서로 다른 데이터 시각화 사례를 다루며, 데이터 탐색 과정, 데이터 시각화 유형 선택, 손으로 그린 스케치를 통한 초기 디자인 구상, 차트의 첫 번째 구현, 그리고 플롯 스타일을 다듬는 반복적인 과정을 보여줍니다. 각 플롯에 대해 창작 과정의 단계별로 전체 R 코드를 제공하고 설명합니다. 여러분이 보게 될 시각화 중 어느 것도 이 책을 위해 특별히 만들어진 것은 없습니다. 각각은 수년에 걸쳐 실제 TidyTuesday 데이터세트를 사용하여 만든 독창적인 데이터 시각화입니다. 각 장을 이전에 본 적 없는 새로운 데이터세트로 시작하여 통찰력 있고 예술적인 시각화에 도달하는 과정을 다루는 사례 연구라고 생각하세요. 이 책은 바로 그 과정에 관한 것입니다. 때로는 데이터가 엉망이고, 때로는 코드가 *조잡(hacky)* 할 수도 있습니다. 때로는 뒤돌아보면 데이터를 더 잘 시각화할 수 있었을지도 모릅니다.
 
-That being said, the visualizations in this book are not necessarily always the most effective choice of visualization for the data and relationship shown. Rather, this book aims to show you examples of the end-to-end process of creating data visualizations, with a focus on the technical details of building them in R. You'll see some non-standard solutions and unusual ideas that you can use to transform your data visualizations.
+데이터 시각화는 정보를 전달하는 매우 효과적이고 효율적인 수단이 될 수 있습니다. 데이터 시각화는 일반적으로 두 가지 목적 중 하나를 수행합니다. (i) 데이터의 불일치를 발견하고 측정할 흥미로운 관계를 식별하기 위한 탐색적 분석의 일부로서, 또는 (ii) 더 넓은 청중에게 주요 통찰력과 메시지를 전달하기 위해서입니다. 이 책의 사례 연구 특성상 우리는 이 두 가지 측면을 모두 다루겠지만, 주로 두 번째에 초점을 맞출 것입니다. 적절한 유형의 시각화를 선택하고 디자인에 대해 신중한 선택을 하면 독자에게 전달하려는 메시지를 명확하게 할 수 있습니다. 그렇다고 모든 차트가 일련의 *규칙*을 따르고 엄격한 형식을 고수해야 한다는 의미는 아닙니다. 대신 데이터 시각화는 과학과 창의성의 조화입니다. 훌륭한 예시로 꼽히는 주요 *랜드마크* 데이터 시각화 중 다수는 막대형 차트, 산점도 또는 선형 그래프와 같은 표준 범주에 맞지 않습니다.
 
-# Acknowledgements {.unnumbered}
+그렇긴 하지만, 이 책의 시각화가 반드시 해당 데이터와 관계를 보여주는 가장 효과적인 시각화 선택은 아닐 수 있습니다. 오히려 이 책은 R에서 시각화를 구축하는 기술적인 세부 사항에 초점을 맞춰 데이터 시각화를 만드는 전체 과정을 예시로 보여주는 것을 목표로 합니다. 데이터 시각화를 변형하는 데 사용할 수 있는 몇 가지 비표준 솔루션과 독특한 아이디어를 보게 될 것입니다.
 
-This book would never have been possible if I hadn't stumbled upon TidyTuesday several years ago, and so I'm exceptionally grateful for the team behind it. In particular, Jon Harmon who has spent much of his own free time building a wonderful community of data science folks, and maintaining the TidyTuesday datasets alongside other open source projects. Special thanks also to Tom Mock, Tracy Teal, Lydia Gibson, and Tan Ho for their work in supporting TidyTuesday and the wider Data Science Learning Community. Many thanks to those who have curated and submitted datasets for TidyTuesday over the years.
+# 감사의 말 {.unnumbered}
 
-More broadly, the R and Data Visualization communities have been a source of inspiration, support, and odds bits of knowledge both before and during the writing of this book. I'm sure they will continue to be afterwards.
+수년 전 TidyTuesday를 우연히 발견하지 못했다면 이 책은 결코 세상에 나올 수 없었을 것입니다. 그래서 TidyTuesday를 만든 팀에게 매우 감사합니다. 특히 데이터 과학 커뮤니티를 구축하고 다른 오픈 소스 프로젝트와 함께 TidyTuesday 데이터세트를 유지 관리하는 데 자신의 여가 시간을 많이 할애해 준 Jon Harmon에게 특별히 감사합니다. 또한 TidyTuesday와 더 넓은 데이터 과학 학습 커뮤니티를 지원해 준 Tom Mock, Tracy Teal, Lydia Gibson, Tan Ho에게도 특별한 감사를 전합니다. 수년 동안 TidyTuesday를 위해 데이터세트를 큐레이팅하고 제출해 준 분들에게도 많은 감사를 드립니다.
 
-Thanks also to Emanuele Giorgi and Claudio Fronterrè for their help in reviewing early drafts, and for their encouragement throughout the process of writing this book. Thank you to CRC Press for agreeing to publish this book, the reviewers who provided invaluable feedback, and special thanks to Lara Spieker for her guidance and support.
+더 넓게는 R 및 데이터 시각화 커뮤니티가 이 책을 쓰기 전과 쓰는 동안 영감과 지지, 그리고 지식의 원천이 되어 주었습니다. 그들은 앞으로도 계속 그럴 것이라고 확신합니다.
 
-Basically, in short, I'm very grateful for the big, nerdy data community around me. 
+또한 초기 초안을 검토하는 데 도움을 주고 이 책을 쓰는 과정 내내 격려해 준 Emanuele Giorgi와 Claudio Fronterrè에게 감사드립니다. 이 책의 출판에 동의해 준 CRC Press, 귀중한 피드백을 제공해 준 리뷰어들, 그리고 지도와 지원을 아끼지 않은 Lara Spieker에게 특별한 감사를 전합니다.
+
+간단히 말해서, 제 주변의 거대하고 괴짜 같은(nerdy) 데이터 커뮤니티에 매우 감사합니다.

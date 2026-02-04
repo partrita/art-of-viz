@@ -3,37 +3,38 @@ execute:
   freeze: false
 ---
 
-# Appendix {.unnumbered .appendix}
+# 부록 {.unnumbered .appendix}
 
-## Frequently asked questions (FAQs)
+## 자주 묻는 질문 (FAQs)
 
-* When I run the code in the examples, I get an error message or a different result. How do I fix it?
-  * Make sure you haveve run all of the code in the chapter in order, including loading all packages.
-  * Check to see if you're using a different version of R, or a specific package by looking at the software requirements in the appendix.
+* 예제 코드를 실행할 때 오류 메시지가 나타나거나 다른 결과가 나옵니다. 어떻게 해결합니까?
+  * 모든 패키지 로드를 포함하여 챕터의 모든 코드를 순서대로 실행했는지 확인하십시오.
+  * 부록의 소프트웨어 요구 사항을 참조하여 다른 버전의 R 또는 특정 패키지를 사용하고 있는지 확인하십시오.
   
-* How do I stop my plots looking squashed, stretched, or just different when I view them using RStudio vs saving them?
-  * Take a look at @sec-camcorder for a solution to this problem!
+* RStudio를 사용하여 볼 때와 저장할 때 플롯이 찌그러지거나 늘어나거나 다르게 보이는 것을 어떻게 막을 수 있습니까?
+  * @sec-camcorder 에서 이 문제에 대한 해결책을 살펴보세요!
   
-* I've completed the exercises at the end of each chapter. Can I check my answers?
-  * The exercises are purposefully left open-ended, rather than prescriptive questions with defined answers. Since there's often no single right answer in data visualization, solutions are not provided. You're encouraged to think about how *you* would design and implement different solutions, and you're encouraged to get feedback from others as a way of checking your answers instead.
+* 각 챕터 끝에 있는 연습 문제를 완료했습니다. 정답을 확인할 수 있나요?
+  * 연습 문제는 정해진 답이 있는 규범적인 질문이 아니라 의도적으로 개방형으로 남겨 두었습니다. 데이터 시각화에는 정답이 하나만 있는 경우가 거의 없으므로 솔루션이 제공되지 않습니다. 여러분이 *어떻게* 다른 솔루션을 설계하고 구현할 것인지 생각하고, 대신 정답을 확인하는 방법으로 다른 사람들의 피드백을 받는 것이 좋습니다.
 
-## Software requirements {.unnumbered}
+## 소프트웨어 요구 사항 {.unnumbered}
 
 ```{r}
 #| label: r-version
 #| echo: false
-renv <- jsonlite::read_json("renv.lock")
+r_ver <- getRversion()
 ```
 
-This book was built using R version `r renv[[1]]$Version`. This book is built with [Quarto](https://quarto.org/), using version number `r quarto::quarto_version()`. All R packages required to build this book can be found in the following table. Note that this table contains all packages required to create the book, not just those required for the examples.
+이 책은 R 버전 `r r_ver`을 사용하여 빌드되었습니다. 이 책은 버전 번호 `r system("quarto --version", intern = TRUE)`을 사용하는 [Quarto](https://quarto.org/)로 빌드되었습니다. 프로젝트 환경은 [pixi](https://pixi.sh/)를 사용하여 관리됩니다. 이 책을 빌드하는 데 필요한 모든 R 패키지는 다음 표에서 찾을 수 있습니다. 이 표에는 예제에 필요한 패키지뿐만 아니라 책을 만드는 데 필요한 모든 패키지가 포함되어 있습니다.
 
 ```{r}
 #| label: tbl-package-versions
-#| tbl-cap: "R packages and version numbers"
+#| tbl-cap: "R 패키지 및 버전 번호"
 #| echo: false
 options(knitr.kable.NA = "")
-pkgs <- unlist(lapply(renv[[2]], function(x) x[["Package"]]))
-pkg_vs <- unlist(lapply(renv[[2]], function(x) x[["Version"]]))
+ip <- installed.packages()
+pkgs <- ip[, "Package"]
+pkg_vs <- ip[, "Version"]
 nr <- ceiling(length(pkgs) / 3)
 pkg_df <- tibble::tibble(
   Package = pkgs,
@@ -51,11 +52,11 @@ kableExtra::kbl(
   kableExtra::kable_styling(font_size = 7.5)
 ```
 
-A copy of the source code can be found at {{< monolink "https://github.com/nrennie/art-of-viz" "github.com/nrennie/art-of-viz" >}}.
+소스 코드의 사본은 {{< monolink "https://github.com/nrennie/art-of-viz" "github.com/nrennie/art-of-viz" >}}에서 찾을 수 있습니다.
 
-## Data {.unnumbered}
+## 데이터 {.unnumbered}
 
-All data sets used in this book, and links to the relevant licenses:
+이 책에서 사용된 모든 데이터 세트 및 관련 라이선스에 대한 링크:
 
 ```{r}
 #| label: data-sources
@@ -82,9 +83,9 @@ for (i in seq_len(nrow(data_data))) {
 }
 ```
 
-## Images {.unnumbered}
+## 이미지 {.unnumbered}
 
-All images used in this book (which were not created by the author) and links to the relevant licenses:
+이 책에서 사용된 모든 이미지(저자가 만들지 않은 것) 및 관련 라이선스에 대한 링크:
 
 ```{r}
 #| label: img-sources
@@ -114,61 +115,61 @@ for (i in seq_len(nrow(img_data))) {
 
 ::: {.content-visible when-format="html"}
 
-## Visualization gallery {.unnumbered}
+## 시각화 갤러리 {.unnumbered}
 
-Chapter @sec-programming:
+@sec-programming 장:
 
-![](images/final/programming-languages.png){fig-align="center" fig-alt="A faceted dumbbell chart showing time between language appearance and last activity, for the top 10 languages that use each of #, //, and ; as a comment symbol, with labels added to denote the langauge and rank."}
+![](images/final/programming-languages.png){fig-align="center" fig-alt="각각 #, //, ;를 주석 기호로 사용하는 상위 10개 언어에 대해 언어 출현과 마지막 활동 사이의 시간을 보여주는 패면 덤벨 차트로, 언어와 순위를 나타내는 레이블이 추가되었습니다."}
 
-Chapter @sec-museums:
+@sec-museums 장:
 
-![](images/final/museums.png){fig-align="center" fig-alt="A styled version of a small multiple line chart, with each of 10 categories highlighted. Chart has a custom font, colored background, and nice spacing."}
-
-
-Chapter @sec-bees:
-
-![](images/final/bee-colonies.png){fig-align="center" fig-alt="A 6x6 grid with each grid square denoting a year between 2015-2020, and one of California, North Dakota, Florida, Texas, Idaho, or South Dakota. Within each square, the density of points represents the number of bee colonies. The design is much more minimal, with the black background of the grid squares allowing the yellow points to be more easily seen due to the higher contrast."}
+![](images/final/museums.png){fig-align="center" fig-alt="10개 범주가 각각 강조 표시된 작은 다중 선형 차트의 스타일 버전입니다. 차트에는 사용자 정의 글꼴, 컬러 배경 및 멋진 간격이 있습니다."}
 
 
-Chapter @sec-longbeach:
+@sec-bees 장:
 
-![](images/final/animal-intakes.png){fig-align="center" fig-alt="Final styling of gauge chart which shows number of animal surrenders in 2017 and 2023 for different animal types."}
-
-
-Chapter @sec-turbines:
-
-![](images/final/wind-turbines.png){fig-align="center" fig-alt="Pictogram showing the number of turbines per time period in each region, with colored text in the subtitle indicating which color maps to each region."}
+![](images/final/bee-colonies.png){fig-align="center" fig-alt="각 그리드 사각형이 2015-2020년 사이의 연도를 나타내고 캘리포니아, 노스다코타, 플로리다, 텍사스, 아이다호 또는 사우스다코타 중 하나를 나타내는 6x6 그리드. 각 사각형 내에서 점의 밀도는 벌 집단 수를 나타냅니다. 디자인은 훨씬 더 미니멀하며 그리드 사각형의 검은색 배경으로 인해 대비가 높아 노란색 점이 더 쉽게 보입니다."}
 
 
-Chapter @sec-cats:
+@sec-longbeach 장:
 
-![](images/final/cats.png){fig-align="center" fig-alt="Bubble plot of the relationship between the age of pet cats and the average amount of time they spend indoors. The text is correctly formatted, and the legend appears inset with a clear border between it and the plot."}
+![](images/final/animal-intakes.png){fig-align="center" fig-alt="다양한 동물 유형에 대해 2017년과 2023년의 동물 포기 수를 보여주는 게이지 차트의 최종 스타일링."}
 
-Chapter @sec-nobel:
 
-![](images/final/nobel-laureates.png){fig-align="center" fig-alt="The names of Nobel Prize in Physics awardees arranged in an anti-clockwise direction, with female awardees highlighted in a darker color."}
+@sec-turbines 장:
 
-Chapter @sec-lemurs:
+![](images/final/wind-turbines.png){fig-align="center" fig-alt="각 지역의 기간별 터빈 수를 보여주는 픽토그램으로, 부제목의 색상 텍스트는 각 색상이 매핑되는 지역을 나타냅니다."}
 
-![](images/final/lemurs.png){fig-align="center" fig-alt="Scatter plot of how the weights of red ruffed lemurs change with age, with an image of a red ruffed lemur overlaid in the bottom right corner."}
 
-Chapter @sec-r-pkgs:
+@sec-cats 장:
 
-![](images/final/r-packages.png){fig-align="center" fig-alt="Faceted area charts showing package use over time for each of the 8 core tidyverse packages. Hex stickers have replaced the text labels on the facets."}
-Chapter @sec-doctors:
+![](images/final/cats.png){fig-align="center" fig-alt="반려묘의 나이와 실내에서 보내는 평균 시간 사이의 관계에 대한 버블 플롯. 텍스트 서식이 올바르게 지정되었으며 범례가 플롯과 범례 사이에 명확한 경계가 있는 인셋으로 나타납니다."}
 
-![](images/final/doctors.png){fig-align="center" fig-alt="Final styled plot showing a map of the world, with title inside a blue banner and a horizontal colorbar legend at the bottom right of the page."}
+@sec-nobel 장:
 
-Chapter @sec-time-zones:
+![](images/final/nobel-laureates.png){fig-align="center" fig-alt="시계 반대 방향으로 배열된 노벨 물리학상 수상자의 이름으로, 여성 수상자는 더 어두운 색상으로 강조 표시됩니다."}
 
-![](images/final/time-zones.png){fig-align="center" fig-alt="Points representing different time zone locations on a world map, with points colored by geographical region. Title and subtitle are shown in the bottom left, with an inset bar chart shown on the bottom right being used as a legend."}
-Chapter @sec-house:
+@sec-lemurs 장:
 
-![](images/final/us-elections.png){fig-align="center" fig-alt="Faceted area chart arranged in a grid shaped like the United States, showing percentage of votes per party over time. An enlarged version of the area chart for California is used as a legend on the left hand side."}
+![](images/final/lemurs.png){fig-align="center" fig-alt="붉은 목도리 여우원숭이의 체중이 나이에 따라 어떻게 변하는지 보여주는 산점도로, 오른쪽 하단 모서리에 붉은 목도리 여우원숭이의 이미지가 오버레이되어 있습니다."}
 
-## Book cover {.unnumbered}
+@sec-r-pkgs 장:
 
-The (work-in-progress) cover of this book was also created with **`ggplot2`**. The code can be viewed below.
+![](images/final/r-packages.png){fig-align="center" fig-alt="8개의 핵심 tidyverse 패키지 각각에 대한 시간 경과에 따른 패키지 사용량을 보여주는 패면 영역 차트. 육각형 스티커가 패면의 텍스트 레이블을 대체했습니다."}
+@sec-doctors 장:
+
+![](images/final/doctors.png){fig-align="center" fig-alt="파란색 배너 안에 제목이 있고 페이지 오른쪽 하단에 수평 컬러바 범례가 있는 세계 지도를 보여주는 최종 스타일 지정된 플롯."}
+
+@sec-time-zones 장:
+
+![](images/final/time-zones.png){fig-align="center" fig-alt="세계 지도에서 서로 다른 시간대 위치를 나타내는 점으로, 점은 지리적 지역별로 색상이 지정됩니다. 제목과 부제목은 왼쪽 하단에 표시되며, 오른쪽 하단에 표시된 인셋 막대 차트가 범례로 사용됩니다."}
+@sec-house 장:
+
+![](images/final/us-elections.png){fig-align="center" fig-alt="시간 경과에 따른 정당별 득표율을 보여주는 미국 모양의 그리드로 배열된 패면 영역 차트. 캘리포니아에 대한 영역 차트의 확대 버전이 왼쪽에서 범례로 사용됩니다."}
+
+## 책 표지 {.unnumbered}
+
+이 책의 (작업 중인) 표지도 **`ggplot2`**로 만들어졌습니다. 아래에서 코드를 볼 수 있습니다.
 
 ```{r}
 #| file: R/cover.R

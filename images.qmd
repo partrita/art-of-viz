@@ -1,9 +1,9 @@
-# Working with images {#sec-images-intro .unnumbered}
+# 이미지 작업 {#sec-images-intro .unnumbered}
 
-Using images in charts can make them more eye-catching and engaging. They can also provide context to the data, especially if images (such as logos) may be more easily recognizable than plain text. Images often need some level of processing before being *chart-ready*, and this section aims to illustrate that you don't necessarily need image processing software, and that you can do many simple image operations directly in R.
+차트에 이미지를 사용하면 더 시선을 사로잡고 매력적으로 만들 수 있습니다. 또한 이미지(예: 로고)가 일반 텍스트보다 더 쉽게 인식될 수 있는 경우 데이터에 대한 맥락을 제공할 수 있습니다. 이미지는 종종 *차트 준비*가 되기 전에 어느 정도의 처리가 필요하며, 이 섹션에서는 이미지 처리 소프트웨어가 반드시 필요하지 않으며 R에서 직접 많은 간단한 이미지 작업을 수행할 수 있음을 보여주는 것을 목표로 합니다.
 
-* [Chapter]{.content-visible when-format="html"} @sec-lemurs describes two packages for working with images in R: **`magick`** and **`imager`**. You will learn how to read images into R and how to manipulate images by cropping them or making specific pixels transparent. You'll also see how these two different image packages can be used together.
+* []{.content-visible when-format="html"} @sec-lemurs 에서는 R에서 이미지 작업을 위한 두 가지 패키지인 **`magick`**과 **`imager`**에 대해 설명합니다. 이미지를 R로 읽어오는 방법과 이미지를 자르거나 특정 픽셀을 투명하게 만들어 조작하는 방법을 배웁니다. 또한 이 두 가지 다른 이미지 패키지를 함께 사용하는 방법도 볼 수 있습니다.
 
-* [Chapter]{.content-visible when-format="html"} @sec-r-pkgs illustrates how to work with multiple images, and how to read in and plot them in a data-driven way. 
+* []{.content-visible when-format="html"} @sec-r-pkgs 에서는 여러 이미지를 사용하는 방법, 이미지를 읽고 데이터 기반 방식으로 플롯하는 방법을 보여줍니다.
 
-This section also includes further discussion about dealing with missing data, as well as how to choose effective and accessible color palettes. It also illustrates an alternative package for working with fonts in R.
+이 섹션에는 또한 누락된 데이터를 처리하는 방법에 대한 추가 논의와 효과적이고 접근 가능한 색상 팔레트를 선택하는 방법이 포함되어 있습니다. 또한 R에서 글꼴 작업을 위한 대체 패키지도 보여줍니다.

@@ -12,19 +12,18 @@ fig-asp: 1
 #| file: R/options.R
 ```
 
-# Bee colony losses: visualizing quantities with Poisson disk sampling {#sec-bees}
+# 꿀벌 군집 손실:푸아송 디스크 샘플링으로 수량 시각화 {#sec-bees}
 
-In this chapter, we'll learn how to explore patterns in missing data, install R packages that aren't available on CRAN, find out how to perform Poisson disk sampling, and create plots that are faceted by two variables.
+이 장에서는 누락된 데이터의 패턴을 탐색하고, CRAN에서 사용할 수 없는 R 패키지를 설치하고, 푸아송 디스크 샘플링을 수행하는 방법을 알아보고, 두 변수로 패면 분류된 플롯을 만드는 방법을 배웁니다.
 
-By the end of this chapter, you'll be able to:
+이 장을 마치면 다음을 할 수 있습니다:
 
-* Get a quick overview of a dataset as a heatmap, and visualize missing data;
-* Re-purpose a *dot density plot*, typically used for geographic data, to show trends over time as an alternative to bar charts; and
-* Use simulation to generate the required dots, and create another custom chart type using just the geometries available in **`ggplot2`**.
+* 누락된 데이터를 시각화하여 패턴을 식별합니다;
+* `remotes` 패키지를 사용하여 비-CRAN 패키지를 설치합니다;
+* **`ggforce`** 패키지를 사용하여 원 채우기(circle packing)를 수행합니다;
+* 두 가지 다른 범주형 변수로 패면 분류(facetting)를 사용합니다.
 
-\index{dot density plot}
-
-We begin by loading the packages required in this chapter.
+이 장에 필요한 패키지들을 로드하는 것으로 시작해 보겠습니다.
 
 ```{r}
 #| label: bees-pkgs-req
@@ -33,26 +32,25 @@ We begin by loading the packages required in this chapter.
 library(dplyr)
 library(ggplot2)
 library(ggtext)
-library(poissoned)
+library(glue)
+library(lubridate)
 library(showtext)
 library(sysfonts)
 library(tidyr)
-library(tidytuesdayR)
-library(visdat)
 ```
 
-We'll be using **`ggplot2`** for plotting, and **`ggtext`** for text styling as we've done in previous chapters, with **`dplyr`** and **`tidyr`** used for preparing the data downloaded with **`tidytuesdayR`**. Again, **`sysfonts`** and **`showtext`** are used for loading and rendering different fonts. In this chapter, we'll be using two packages that haven't been mentioned yet:
+이 장에서는 두 개의 새로운 패키지도 사용합니다:
 
-* **`visdat`**: for creating heatmaps showing information about entire datasets, including missing data.
-* **`poissoned`**: for performing Poisson disk sampling.
+* **`naniar`**: 데이터 프레임의 결측값을 탐색하고 시각화합니다.
+* **`ggforce`**: 유용한 지오메트리, 통계 변환, 스케일 등을 추가하여 **`ggplot2`**를 확장합니다.
 
-\index{visdat} \index{poissoned}
+\index{naniar} \index{ggforce}
 
-## Data
+## 데이터
 
-As a major pollinator, bees are a vitally important part of our planet's ecosystem. However, their numbers are in decline due to factors including habitat loss, pesticide use, and diseases [@Brown2009]. The United States Department of Agriculture (USDA) annually publishes data on honey bee colonies, which includes information about the number of colonies, the size of colonies, the percentage of colonies lost or added, and factors that have been identified as colony health stressors [@bees_data].
+주요 수분 매개자로서의 꿀벌은 우리 지구 생태계의 매우 중요한 부분입니다. 그러나 서식지 손실, 살충제 사용 및 질병과 같은 요인으로 인해 꿀벌의 수가 감소하고 있습니다 [@Brown2009]. 미국 농무부(USDA)는 매년 꿀벌 군집에 대한 데이터를 발표하는데, 여기에는 군집 수, 군집 크기, 군집 손실 또는 추가 비율, 군집 건강 스트레스 요인으로 확인된 요소에 대한 정보가 포함됩니다 [@bees_data].
 
-The USDA honey bee colony data was used as a TidyTuesday [@tidytuesday] data set in January 2022 (after being suggested by [Georgios Karamanis](https://github.com/gkaramanis)), and so can be loaded in using the **`tidytuesdayR`** package: \index{tidytuesdayR!tt\_load}
+USDA 꿀벌 군집 데이터는 2022년 1월 TidyTuesday [@tidytuesday] 데이터 세트로 사용되었으며 ([Georgios Karamanis](https://github.com/gkaramanis)의 제안 이후), **`tidytuesdayR`** 패키지를 사용하여 로드할 수 있습니다: \index{tidytuesdayR!tt\_load}
 
 ```{r}
 #| label: bees-data-show
@@ -71,42 +69,42 @@ stressor <- tuesdata$stressor
 colony <- readr::read_csv("data/colony.csv")
 ```
 
-Since this version of the data is based on the 2021 release, it includes data up to June 2021. If you want to work with a more recent publication of the data, it can be obtained from {{< monolink "https://usda.library.cornell.edu/concern/publications/rn301137d" "usda.library.cornell.edu/concern/publications/rn301137d" >}}.
+이 데이터 버전은 2021년 릴리스를 기반으로 하므로 2021년 6월까지의 데이터가 포함됩니다. 최신 데이터로 작업하려면 {{< monolink "https://usda.library.cornell.edu/concern/publications/rn301137d" "usda.library.cornell.edu/concern/publications/rn301137d" >}}에서 얻을 수 있습니다.
 
-Two different data sets are included. The first, `colony`, contains information about the number and size of bee colonies in each US state per year since 2015. The second, `stressor`, contains information about different sources of health stressors for bee colonies and what percentage of colonies are affected by these stressors, again for different states and time periods.
+두 가지 다른 데이터 세트가 포함되어 있습니다. 첫 번째인 `colony`에는 2015년 이후 각 미국 주별 꿀벌 군집 수와 크기에 대한 정보가 포함되어 있습니다. 두 번째인 `stressor`에는 꿀벌 군집에 대한 다양한 건강 스트레스 원인과 이러한 스트레스 요인에 의해 영향을 받는 군집 비율에 대한 정보가 포함되어 있으며, 역시 주 및 기간별로 나뉩니다.
 
-## Exploratory work
+## 탐색 작업
 
-In this chapter, we'll focus on the `colony` data, where we'll try to build a picture of how bee colony numbers are changing over time.
+이 장에서는 `colony` 데이터에 초점을 맞추어 꿀벌 군집 수가 시간이 지남에 따라 어떻게 변하는지 그림을 그려보겠습니다.
 
-### Data exploration
+### 데이터 탐색
 
-Let's start by looking at a quick box plot of how the number of colonies (`colony_n`) is changing over time, using the base R `boxplot()` function: \index{graphics!boxplot}
+기본 R의 `boxplot()` 함수를 사용하여 꿀벌 군집 수(`colony_n`)가 시간이 지남에 따라 어떻게 변하는지에 대한 간단한 상자 그림을 살펴보는 것으로 시작하겠습니다: \index{graphics!boxplot}
 
 ```{r, echo=-1}
 #| label: fig-bees-boxplot
-#| fig-cap: "Simple boxplot of number of bee colonies per year, showing a highly skewed distribution."
-#| fig-alt: "Simple horizontal boxplot of number of bee colonies per year, showing a highly skewed distribution with many large valued outliers on the right. None on the left since bounded by zero below."
+#| fig-cap: "연도별 꿀벌 군집 수의 간단한 상자 그림으로, 매우 치우친 분포를 보여줍니다."
+#| fig-alt: "연도별 꿀벌 군집 수의 간단한 수평 상자 그림으로, 오른쪽에 많은 큰 값의 이상치가 있는 매우 치우친 분포를 보여줍니다. 아래쪽은 0으로 제한되어 있으므로 왼쪽에는 이상치가 없습니다."
 #| fig-asp: 0.66
 par(mar = c(2.1, 2.1, 1.1, 2.1))
 boxplot(
   colony_n ~ year,
   data = colony,
   horizontal = TRUE,
-  xlab = "Number of bee colonies",
+  xlab = "꿀벌 군집 수",
   ylab = NULL
 )
 ```
 
-@fig-bees-boxplot doesn't actually give us much information - except to suggest the distribution of the number of colonies is highly skewed and to suggest there are quite a few high values being classified as outliers. These outliers force the main section of the box plots to be squashed on the left of the plot, making it difficult to tell if much is changing on average each year. This is also a more general problem with box plots. There are many examples of data that illustrate the insufficiency of summary statistics, with Anscombe's quartet [@Anscombe1973] being perhaps the most famous example. Box plots are essentially just summary statistics in disguise. Different data with identical box plots can actually come from very different distributions [@Matejka2017].
+@fig-bees-boxplot 은 사실 많은 정보를 제공하지는 않습니다. 군집 수의 분포가 매우 치우쳐 있고 꽤 많은 높은 값이 이상치로 분류되고 있다는 점을 시사할 뿐입니다. 이러한 이상치들로 인해 상자 그림의 주요 부분이 플롯의 왼쪽으로 찌그러져 있어 매년 평균적으로 얼마나 변하는지 알기 어렵습니다. 이것은 상자 그림의 더 일반적인 문제이기도 합니다. Anscombe's quartet [@Anscombe1973]은 아마도 요약 통계의 불충분함을 보여주는 가장 유명한 예일 것입니다. 상자 그림은 본질적으로 변장한 요약 통계일 뿐입니다. 동일한 상자 그림을 가진 다른 데이터가 실제로는 매우 다른 분포에서 나올 수 있습니다 [@Matejka2017].
 
-Let's start by trying to understand what's causing these outliers. Are they real values? Are they mistakes in the data? Or have we made an incorrect assumption about the data? To understand this a bit better, let's zoom in on one year, 2020, and look at the number of colonies in each state to understand which states the largest outliers relate to. \index{base!subset} \index{graphics!boxplot}
+이러한 이상치의 원인을 이해하는 것부터 시작해 보겠습니다. 실제 값일까요? 데이터의 오류일까요? 아니면 데이터에 대해 잘못된 가정을 했을까요? 이를 더 잘 이해하기 위해 2020년 한 해를 확대하여 각 주의 군집 수를 살펴보고 가장 큰 이상치가 어떤 주와 관련이 있는지 이해해 보겠습니다. \index{base!subset} \index{graphics!boxplot}
 
 ```{r, echo=-1}
 #| fig-asp: 1.2
 #| label: fig-bees-boxplot2
-#| fig-cap: "Boxplot of the number of bee colonies per state, showing an issue with the definition of 'state'."
-#| fig-alt: "Boxplot of the number of bee colonies per state, showing an issue with the definition of 'state'. California and North Dakota show higher ranges, but the highest value is for the United States i.e. is a sum of all other values."
+#| fig-cap: "'state' 정의의 문제를 보여주는 주별 꿀벌 군집 수 상자 그림."
+#| fig-alt: "'state' 정의의 문제를 보여주는 주별 꿀벌 군집 수 상자 그림. 캘리포니아와 노스다코타는 더 높은 범위를 보여주지만 가장 높은 값은 미국 전체, 즉 다른 모든 값의 합계입니다."
 par(mar = c(4.1, 4.1, 1.1, 2.1), cex.axis = 0.5, cex.names = 0.5)
 colony_2020 <- subset(colony, year == 2020)
 boxplot(
@@ -114,43 +112,44 @@ boxplot(
   data = colony_2020,
   horizontal = TRUE,
   las = 1,
-  xlab = "Number of bee colonies",
+  xlab = "꿀벌 군집 수",
   ylab = NULL
 )
 ```
 
-Though there are a few states (California, Florida, and North Dakota) with a much higher number of colonies, the main issue is that one of the *states* is the entirety of the United States i.e. the sum of all of the other values. You can also see from @fig-bees-boxplot2 that not all states are included individually - an `"Other States"` category is also included instead which groups some states (and perhaps regions).
+군집 수가 훨씬 더 많은 몇 개의 주(캘리포니아, 플로리다, 노스다코타)가 있지만 주요 문제는 *주(state)* 중 하나가 미국 전체, 즉 다른 모든 값의 합계라는 것입니다. 또한 @fig-bees-boxplot2 에서 모든 주가 개별적으로 포함되는 것은 아니라는 것을 알 수 있습니다. 일부 주(아마도 지역)를 그룹화한 `"Other States"` 범주가 대신 포함되어 있습니다.
 
 ::: {#tip-bees-names .callout-tip}
 
-## Choose appropriate column names
+## 적절한 열 이름 선택
 
-It's unfortunately not uncommon for a column name to suggest one thing (e.g. each value relates to a state), but for that column to actually include other values as well (e.g. a country). If you're ever naming columns (especially for data you'll share with other people) choose appropriate column names to avoid confusion. For example, `region` would be a more appropriate column name here.
+불행히도 열 이름이 한 가지(예: 각 값은 주와 관련됨)를 암시하지만 해당 열에 실제로 다른 값(예: 국가)도 포함되는 것은 드문 일이 아닙니다. 열 이름을 지정할 때(특히 다른 사람과 공유할 데이터의 경우) 혼란을 피하기 위해 적절한 열 이름을 선택하십시오. 예를 들어 여기서는 `region`이 더 적절한 열 이름일 것입니다.
 
 :::
 
-The other aspect of our data that box plots don't tell us about is the missingness. Box plots only plot what's there, not what's not there. It's especially important to remember this step since base R graphics don't warn you about `NA` values in the way that **`ggplot2`** [@ggplot2] does. So how do we plot data that doesn't exist? \index{box plot} \index{missing data}
+상자 그림이 알려주지 않는 데이터의 또 다른 측면은 결측값입니다. 상자 그림은 있는 것만 플롯하고 없는 것은 플롯하지 않습니다. 기본 R 그래픽은 **`ggplot2`** [@ggplot2]가 하는 방식으로 `NA` 값에 대해 경고하지 않기 때문에 이 단계를 기억하는 것이 특히 중요합니다. 그렇다면 존재하지 않는 데이터는 어떻게 플롯할까요? \index{box plot} \index{missing data}
 
-The **`visdat`** package [@visdat] is an excellent way to take a quick look at your data. It includes the `vis_miss()` function which, as the name suggests, allows you to get a quick visualization of which values are missing. To avoid creating an overwhelmingly large plot, we'll start by visualising just the data for one state. We can use the `subset()` function from base R to obtain just the data for Alabama. \index{visdat!vis\_miss} \index{base!subset}
+**`visdat`** 패키지 [@visdat]는 데이터를 빠르게 살펴보는 훌륭한 방법입니다. 이름에서 알 수 있듯이 어떤 값이 누락되었는지 빠르게 시각화할 수 있는 `vis_miss()` 함수가 포함되어 있습니다. 압도적으로 큰 플롯을 만드는 것을 피하기 위해 한 주의 데이터만 시각화하는 것으로 시작하겠습니다. 기본 R의 `subset()` 함수를 사용하여 앨라배마주에 대한 데이터만 얻을 수 있습니다. \index{visdat!vis\_miss} \index{base!subset}
 
 ```{r}
 #| label: fig-bees-vismiss
-#| fig-cap: "A plot showing the missing values in the rows and columns in the subset of the data related to Alabama, with missing values represented by black squares."
-#| fig-alt: "A plot showing the missing values in the rows and columns in the subset of the data related to Alabama, with missing values represented by black squares. Besides dates and states, there are some time periods with no data available at all, and others where only the last column of data is missing. The label for this one is truncated."
+#| fig-cap: "앨라배마와 관련된 데이터의 하위 집합에서 행과 열의 결측값을 보여주는 플롯으로, 결측값은 검은색 사각형으로 표시됩니다."
+#| fig-alt: "앨라배마와 관련된 데이터의 하위 집합에서 행과 열의 결측값을 보여주는 플롯으로, 결측값은 검은색 사각형으로 표시됩니다. 날짜와 주 외에도 사용 가능한 데이터가 전혀 없는 기간이 있고 데이터의 마지막 열만 누락된 기간도 있습니다. 이 열의 레이블은 잘려 있습니다."
 #| fig-asp: 0.6
+library(visdat)
 colony_AL <- subset(colony, state == "Alabama")
 vis_miss(colony_AL)
 ```
 
-You may notice that the column names in the plot generated by `vis_miss()` in @fig-bees-vismiss are rotated and this causes the right-most column name to run off the edge of the chart area. There are two solutions that can help with this problem: \index{visdat!vis\_miss} \index{visdat!abbreviate\_vars} \index{ggplot2!theme}
+@fig-bees-vismiss 의 `vis_miss()`로 생성된 플롯의 열 이름이 회전되어 가장 오른쪽 열 이름이 차트 영역 가장자리를 벗어나는 것을 알 수 있습니다. 이 문제를 해결하는 데 도움이 되는 두 가지 솔루션이 있습니다: \index{visdat!vis\_miss} \index{visdat!abbreviate\_vars} \index{ggplot2!theme}
 
-* Use the `abbreviate_vars()` function from **`visdat`** which abbreviates column names, and makes them less likely to exceed the available space.
-* Exploit the fact that the plot output from `vis_miss()` is made with **`ggplot2`**. This means we can use the `theme()` function to extend the space available in the plot's right margin.
+* 열 이름을 축약하여 사용 가능한 공간을 초과할 가능성을 줄이는 **`visdat`**의 `abbreviate_vars()` 함수를 사용하십시오.
+* `vis_miss()`의 플롯 출력이 **`ggplot2`**로 만들어졌다는 사실을 활용하십시오. 즉, `theme()` 함수를 사용하여 플롯의 오른쪽 여백에 사용할 수 있는 공간을 확장할 수 있습니다.
 
 ```{r}
 #| label: fig-bees-vismiss-tip
-#| fig-cap: "A plot showing the missing values in the rows and columns in the subset of the data related to Alabama, with missing values represented by black squares. The label for the last column of data is now legible and not hidden by the edge of the plot."
-#| fig-alt: "A plot showing the missing values in the rows and columns in the subset of the data related to Alabama, with missing values represented by black squares. Besides dates and states, there are some time periods with no data available at all, and others where only the last column of data is missing. The column names are abbreviated."
+#| fig-cap: "앨라배마와 관련된 데이터의 하위 집합에서 행과 열의 결측값을 보여주는 플롯으로, 결측값은 검은색 사각형으로 표시됩니다. 데이터의 마지막 열에 대한 레이블은 이제 읽을 수 있으며 플롯의 가장자리에 숨겨져 있지 않습니다."
+#| fig-alt: "앨라배마와 관련된 데이터의 하위 집합에서 행과 열의 결측값을 보여주는 플롯으로, 결측값은 검은색 사각형으로 표시됩니다. 날짜와 주 외에도 사용 가능한 데이터가 전혀 없는 기간이 있고 데이터의 마지막 열만 누락된 기간도 있습니다. 열 이름이 축약되었습니다."
 #| fig-asp: 0.6
 #| message: false
 colony_AL |>
@@ -159,49 +158,49 @@ colony_AL |>
   theme(plot.margin = margin(r = 25))
 ```
 
-In @fig-bees-vismiss-tip, the rows are ordered in time, and you can see that there is no particular pattern appearing. The `colony_reno_pct` column has the most missing data, and that there a short time period where all data (other than the time and state) is missing. If you were to recreate this visualization for other states, you would see a similar pattern. \index{missing data}
+@fig-bees-vismiss-tip 에서 행은 시간 순서대로 정렬되어 있으며 특별한 패턴이 나타나지 않는 것을 볼 수 있습니다. `colony_reno_pct` 열에 결측 데이터가 가장 많고 모든 데이터(시간 및 주 제외)가 누락된 짧은 기간이 있습니다. 다른 주에 대해 이 시각화를 다시 생성하면 유사한 패턴을 볼 수 있습니다. \index{missing data}
 
-Data is unavailable for all states during the period April-June 2019. This suggests that the data is not simply randomly missing, but there was perhaps a persistent data collection issue during this time period. Though it cannot be seen in @fig-bees-vismiss-tip, there is also (implicitly) missing data for the end of the last year in the data. This is due to the time when the data is reported, with annual data releases happening in August. This means we need to be careful with taking averages across years, as data is not complete for all years.
+2019년 4월-6월 기간 동안 모든 주에 대한 데이터를 사용할 수 없습니다. 이는 데이터가 단순히 무작위로 누락된 것이 아니라 이 기간 동안 지속적인 데이터 수집 문제가 있었음을 시사합니다. @fig-bees-vismiss-tip 에서는 볼 수 없지만 데이터의 마지막 연도 말에 대한 데이터도 (암묵적으로) 누락되었습니다. 이는 데이터가 보고되는 시기(연간 데이터 릴리스는 8월에 발생함) 때문입니다. 즉, 모든 연도에 대해 데이터가 완전하지 않으므로 연간 평균을 구할 때 주의해야 합니다.
 
-For this chapter, we're not going to dive into methods for modelling, imputing, or removing missing values in data as that's a very big topic on its own. But whether or not you are explicitly addressing missing values, it's important to be aware of whether there are missing values, consider what aspect of the data collection processes might have caused them, and the impact this has on what conclusions you can draw.
+이 장에서는 데이터의 결측값을 모델링, 대치 또는 제거하는 방법에 대해서는 다루지 않을 것입니다. 그 자체로 매우 큰 주제이기 때문입니다. 그러나 결측값을 명시적으로 다루든 그렇지 않든 결측값이 있는지 확인하고, 데이터 수집 프로세스의 어떤 측면이 이를 유발했을 수 있는지 고려하고, 이것이 도출할 수 있는 결론에 미치는 영향을 고려하는 것이 중요합니다.
 
-Instead, we'll limit our visualization to a quarter for which we have complete data e.g. perhaps only looking at annual trends in the `"January-March"` time period, though this approach does still have its limitations. The data is recorded quarterly, so there are four options for us to choose from: `"January-March"`, `"April-June"`, `"July-September"`, or `"October-December"`. Here, we'll focus on data for `"October-December"`. The reason for this choice is because this time period is regarded as the start of the seasonal cycle for honey bees colonies, and the *"condition of the colony at this time of year greatly affects its prosperity for the next year"* [@Apiculture].
+대신 완전한 데이터가 있는 분기로 시각화를 제한하겠습니다. 예를 들어 `"October-December"` 기간의 연간 추세만 살펴보는 것입니다. 하지만 이 접근 방식은 여전히 한계가 있습니다. 데이터는 분기별로 기록되므로 `"January-March"`, `"April-June"`, `"July-September"` 또는 `"October-December"` 중에서 선택할 수 있는 네 가지 옵션이 있습니다. 여기서는 `"October-December"`에 대한 데이터에 초점을 맞출 것입니다. 이 선택의 이유는 이 기간이 꿀벌 군집의 계절적 주기의 시작으로 간주되며 *"이 시기의 군집 상태가 다음 해의 번영에 큰 영향을 미치기"* 때문입니다 [@Apiculture].
 
 ::: {#tip-bees-missing .callout-tip}
 
-## Avoid missing patterns about missingness
+## 누락된 패턴에 대한 패턴 놓치지 않기
 
-By default, the **`visdat`** packages assumes that missing data is encoded as `NA`. This is not always true - especially when you're working with data that's been processed by other software before you receive it. It's not uncommon for missing values to be encoded using values such as `""`, `" "`, `99`, `999`, `-`, or `0`. The **`naniar`** package [@naniar] is very useful for summarizing and wrangling missing values. The `replace_with_na()` function from **`naniar`** can help you to replace unusual encoding of missing values with `NA` for easier data processing in R. \index{naniar!replace\_with\_na}
+기본적으로 **`visdat`** 패키지는 누락된 데이터가 `NA`로 인코딩되어 있다고 가정합니다. 항상 그런 것은 아닙니다. 특히 직접 받기 전에 다른 소프트웨어로 처리된 데이터로 작업할 때 더욱 그렇습니다. 결측값이 `""`, `" "`, `99`, `999`, `-` 또는 `0`과 같은 값을 사용하여 인코딩되는 것은 드문 일이 아닙니다. **`naniar`** 패키지 [@naniar]는 결측값을 요약하고 처리하는 데 매우 유용합니다. **`naniar`**의 `replace_with_na()` 함수는 R에서 데이터를 더 쉽게 처리할 수 있도록 비정상적인 결측값 인코딩을 `NA`로 바꾸는 데 도움이 될 수 있습니다. \index{naniar!replace\_with\_na}
 
-It's also important to think about the ordering of the columns and rows when visualizing missing values. For example, if there is a column which holds a date, ordering the rows by date before visualising the missing data, will allow you to identify temporal patterns in the missingness. If the rows are ordered in some other way, you might miss this pattern.
+결측값을 시각화할 때 열과 행의 순서를 생각하는 것도 중요합니다. 예를 들어 날짜가 있는 열이 있는 경우 결측 데이터를 시각화하기 전에 날짜별로 행을 정렬하면 결측의 시간적 패턴을 식별할 수 있습니다. 행이 다른 방식으로 정렬된 경우 이 패턴을 놓칠 수 있습니다.
 
 :::
 
-### Exploratory sketches
+### 탐색적 스케치
 
-For each state, let's visualize the average number of colonies for each year. There are multiple ways we could do this: line charts or area charts are obvious first choices. Perhaps even a simple bar chart could be effective here. But let's try to be a bit more creative, and a bit more artistic, in our choice of visualization. There are many ways we could represent the number of *things* (bee colonies) in each *combination of two variables* (state and year). We have data available for every combination of state and year, so let's create a grid of states and years, as in @fig-bees-sketch-blank.
+각 주에 대해 매년 평균 군집 수를 시각화해 보겠습니다. 선형 차트나 영역 차트와 같이 분명한 첫 번째 선택 목록이 있습니다. 간단한 막대 차트도 여기에서 효과적일 수 있습니다. 하지만 시각화 선택에 있어 조금 더 창의적이고 예술적이어야 합니다. 두 변수(주 및 연도)의 각 조합에서 *사물*(꿀벌 군집)의 수를 나타낼 수 있는 방법은 많습니다. 주와 연도의 모든 조합에 사용할 수 있는 데이터가 있으므로 @fig-bees-sketch-blank 와 같이 주와 연도의 그리드를 만들어 보겠습니다.
 
-![Initial sketch showing a grid of squares, with each square representing a combination of year and US state.](images/sketch-bees-blank.png){#fig-bees-sketch-blank fig-align="center" fig-alt="A sketch of a grid of empty squares with columns identifying years, and rows for different US states"}
+![각 사각형이 연도와 미국 주의 조합을 나타내는 정사각형 그리드를 보여주는 초기 스케치.](images/sketch-bees-blank.png){#fig-bees-sketch-blank fig-align="center" fig-alt="연도를 식별하는 열과 서로 다른 미국 주에 대한 행이 있는 빈 정사각형 그리드의 스케치"}
 
-Now in each grid square, we're simply trying to show the number of *things*. How might you do that? You could draw a circle, where the size of the circle shows the number of things. Or you could color each square, where the intensity of the color shows the number of things. Or you could draw lots of points, where the number of points shows the number of things as in @fig-bees-sketch. This type of chart can be called a *dot density plot*, which is commonly used for geographic data. \index{dot density plot}
+이제 각 그리드 사각형에서 단순히 *사물*의 수를 보여주려고 합니다. 어떻게 할 수 있을까요? 원을 그리고 원의 크기로 사물의 수를 보여줄 수 있습니다. 또는 각 사각형에 색을 칠하고 색의 강도로 사물의 수를 보여줄 수 있습니다. 또는 @fig-bees-sketch 에서처럼 많은 점을 그리고 점의 수로 사물의 수를 보여줄 수 있습니다. 이러한 유형의 차트는 *점 밀도 플롯(dot density plot)*이라고 할 수 있으며 지리 데이터에 일반적으로 사용됩니다. \index{dot density plot}
 
-We might also choose to visualise only a subset of states (either focusing on states in a specific region, or simple states we're most interested in). 
+또한 특정 지역의 주에 초점을 맞추거나 우리가 가장 관심 있는 단순한 주들만 시각화하도록 선택할 수도 있습니다.
 
-![Initial sketch showing a grid of squares, with the number of dots representing the number of bee colonies in each year and US state.](images/sketch-bees.png){#fig-bees-sketch fig-align="center" fig-alt="A sketch of a grid of squares with columns identifying years, and rows for some different US state. There are a varying number of dots in each square, and placeholder scribbles are used for title text."}
+![각 연도 및 미국 주별 꿀벌 군집 수를 나타내는 점의 수를 보여주는 정사각형 그리드의 초기 스케치.](images/sketch-bees.png){#fig-bees-sketch fig-align="center" fig-alt="연도를 식별하는 열과 일부 다른 미국 주에 대한 행이 있는 정사각형 그리드의 스케치. 각 사각형에는 다양한 수의 점이 있으며 제목 텍스트에 자리 표시자 낙서가 사용됩니다."}
 
-## Preparing a plot
+## 플롯 준비
 
-To bring this plot to life, we need to complete several tasks:
+이 플롯을 생생하게 표현하려면 몇 가지 작업을 완료해야 합니다:
 
-* Calculate the average number of colonies per year, per state.
-* Simulate x- and y- coordinates for the points that will represent the number of colonies.
-* Plot the points.
+* 각 주별, 연도별 평균 군집 수를 계산합니다.
+* 군집 수를 나타낼 점에 대한 x 및 y 좌표를 시뮬레이션합니다.
+* 점을 플롯합니다.
 
-This is the type of chart that has a lot of (at times complex) preparation, but the plotting itself will be relatively straightforward.
+이것은 (때로는 복잡한) 준비가 많이 필요하지만 플로팅 자체는 비교적 간단한 차트 유형입니다.
 
-### Data wrangling
+### 데이터 랭글링
 
-Let's start by selecting a subset of states to visualize:
+시각화할 주(states)의 하위 집합을 선택하는 것으로 시작하겠습니다:
 
 ```{r}
 #| label: bees-states
@@ -211,7 +210,7 @@ states_to_plot <- c(
 )
 ```
 
-We then use the `filter()` function from **`dplyr`** to subset the data to only include rows for these states, and in our chosen time period of `"October-December"`. We also use the `select()` function to keep only the columns we actually need for our plot - the year, the state, and the number of colonies: \index{dplyr!filter} \index{dplyr!select}
+그런 다음 **`dplyr`**의 `filter()` 함수를 사용하여 데이터를 부분 집합화하여 이러한 주에 대한 행과 선택한 기간인 `"October-December"`만 포함합니다. 또한 `select()` 함수를 사용하여 연도, 주, 군집 수와 같이 플롯에 실제로 필요한 열만 유지합니다: \index{dplyr!filter} \index{dplyr!select}
 
 ```{r}
 #| label: bees-prep-data
@@ -225,7 +224,7 @@ plot_data <- colony |>
   )
 ```
 
-By default, the states will be ordered in alphabetical order. To make it easier to communicate patterns, we'll order the states based on the number of colonies in the final year of the data (2020). We start by determining what that order is by filtering the data to the year `2020`, arranging the data based on the `colony_n` column in a descending order (using `desc()` from **`dplyr`**), and then extracting the state column using `pull()`. \index{dplyr!filter} \index{dplyr!arrange} \index{dplyr!desc} \index{dplyr!pull}
+기본적으로 주는 알파벳 순서로 정렬됩니다. 패턴을 더 쉽게 전달하기 위해 데이터의 마지막 연도(2020)에 있는 군집 수를 기준으로 주를 정렬합니다. 먼저 데이터를 `2020`년으로 필터링하고 `colony_n` 열을 기준으로 내림차순( **`dplyr`**의 `desc()` 사용)으로 데이터를 정렬한 다음 `pull()`을 사용하여 주 열을 추출하여 해당 순서를 결정합니다. \index{dplyr!filter} \index{dplyr!arrange} \index{dplyr!desc} \index{dplyr!pull}
 
 ```{r}
 #| label: bees-state_order
@@ -235,23 +234,23 @@ state_levels <- plot_data |>
   pull(state)
 ```
 
-We'll convert the state column to a factor a little bit later, and this `state_levels` vector will provide us with the factor levels
+나중에 주 열을 팩터로 변환할 것이며, 이 `state_levels` 벡터는 팩터 레벨을 제공할 것입니다.
 
-Now we need to generate the points that will represent the number of honey bee colonies in each grid square, as we sketched in @fig-bees-sketch. We could do something simple, such as using the `runif()` function to generate `x` and `y` coordinates from a uniform distribution. However, this approach is likely to lead a plot that looks a bit messy. Randomness doesn't usually look very nice, and we would likely end up with lots of overlapping points. Instead, we want to generate points that don't overlap and are at least some minimum distance apart. To do this, we'll use *Poisson disk sampling*. \index{Poisson disk sampling}
+이제 @fig-bees-sketch 에서 스케치한 대로 각 그리드 사각형에서 꿀벌 군집 수를 나타낼 점을 생성해야 합니다. 균일 분포에서 `x` 및 `y` 좌표를 생성하는 `runif()` 함수를 사용하는 것과 같은 간단한 작업을 수행할 수 있습니다. 그러나 이 접근 방식은 약간 지저분해 보이는 플롯으로 이어질 가능성이 큽니다. 무작위성은 일반적으로 매우 좋아 보이지 않으며 많은 점이 겹쳐질 가능성이 큽니다. 대신 우리는 겹치지 않고 최소한 어느 정도 거리가 있는 점을 생성하고 싶습니다. 이를 위해 *푸아송 디스크 샘플링(Poisson disk sampling)*을 사용할 것입니다. \index{Poisson disk sampling}
 
-### Poisson disk sampling with **`poissoned`**
+### **`poissoned`**를 사용한 푸아송 디스크 샘플링
 
-Poisson disk sampling is one way of generating *blue noise*, a type pattern where the points are mostly random but are fairly evenly distributed. In Poisson disk sampling, all of the points must be at least some distance, $r$ apart i.e. you can draw a *disk* of radius $r$ around each point and no other point will be included in the disk.
+푸아송 디스크 샘플링은 점들이 대부분 무작위이지만 꽤 고르게 분포되는 패턴 유형인 *블루 노이즈(blue noise)*를 생성하는 한 가지 방법입니다. 푸아송 디스크 샘플링에서 모든 점은 적어도 $r$ 거리만큼 떨어져 있어야 합니다. 즉, 각 점 주위에 반경 $r$의 *디스크*를 그리면 디스크에 다른 점이 포함되지 않습니다.
 
-There are several approaches to Poisson disk sampling. A naive (very slow) way of generating data is to sample a data point. The sample a second data point. If it is within $r$ of an existing data point, throw it away. Otherwise accept it and add it to the data. Repeat. Thankfully, there are other, more computationally efficient approaches and, in R, the **`poissoned`** package [@poissoned] implements the approach outlined in @bridson2007. This package allows you to generate samples in two or three dimensions - though we'll stick to two dimensions here!
+푸아송 디스크 샘플링에는 여러 가지 접근 방식이 있습니다. 데이터를 생성하는 순진한(매우 느린) 방법은 데이터 포인트를 샘플링하는 것입니다. 두 번째 데이터 포인트를 샘플링합니다. 기존 데이터 포인트의 $r$ 내에 있으면 버립니다. 그렇지 않으면 받아들여 데이터에 추가합니다. 반복합니다. 다행히도 계산적으로 더 효율적인 다른 접근 방식이 있으며, R에서 **`poissoned`** 패키지 [@poissoned]는 @bridson2007 에 설명된 접근 방식을 구현합니다. 이 패키지를 사용하면 2차원 또는 3차원으로 샘플을 생성할 수 있습니다(여기서는 2차원을 고수하겠습니다!).
 
 ::: {#tip-bees-sampling .callout-tip}
 
-## Installing R packages from GitHub
+## GitHub에서 R 패키지 설치하기
 
-**Using `remotes`**
+**`remotes` 사용하기**
 
-When this chapter was first written, the **`poissoned`** package wasn't available on CRAN, so it had to be installed from GitHub instead. The **`remotes`** package [@remotes] can be used to install packages from remote repositories, such as GitHub or GitLab. We can use the `install_github()` function, passing in a character string of the form `"user/repository"`: \index{remotes!install\_github}
+이 장을 처음 작성했을 때 **`poissoned`** 패키지는 CRAN에서 사용할 수 없었으므로 GitHub에서 대신 설치해야 했습니다. **`remotes`** 패키지 [@remotes]를 사용하여 GitHub 또는 GitLab과 같은 원격 저장소에서 패키지를 설치할 수 있습니다. `"user/repository"` 형식의 문자열을 전달하여 `install_github()` 함수를 사용할 수 있습니다: \index{remotes!install\_github}
 
 ```{r}
 #| label: bees-install
@@ -260,9 +259,9 @@ library(remotes)
 install_github("coolbutuseless/poissoned")
 ```
 
-**Using `pak`**
+**`pak` 사용하기**
 
-An alternative to **`remotes`** is the **`pak`** package [@pak]. In fact, it is actually an alternative way to install R packages from CRAN, Bioconductor, GitHub, URLs, git repositories, or local directories. To install a package from GitHub using **`pak`**, use the `pkg_install()` function and again pass in the `"user/repository"` string: \index{pak!pkg\_install}
+**`remotes`**의 대안은 **`pak`** 패키지 [@pak]입니다. 사실 이것은 CRAN, Bioconductor, GitHub, URL, git 저장소 또는 로컬 디렉토리에서 R 패키지를 설치하는 또 다른 방법입니다. **`pak`**을 사용하여 GitHub에서 패키지를 설치하려면 `pkg_install()` 함수를 사용하고 다시 `"user/repository"` 문자열을 전달하십시오: \index{pak!pkg\_install}
 
 ```{r}
 #| label: bees-pak-install
@@ -271,16 +270,17 @@ library(pak)
 pkg_install("coolbutuseless/poissoned")
 ```
 
-The same function can be used for installing packages from CRAN e.g. `pkg_install("ggplot2")`.
+동일한 함수를 사용하여 CRAN에서 패키지를 설치할 수도 있습니다(예: `pkg_install("ggplot2")`).
 
 :::
 
-We need to generate the x- and y- coordinates of the points that will appear in each grid square. To do this, we'll use the `poisson2d()` function from **`poissoned`**. Since we're storing two coordinates (`x` and `y`) and the number of coordinate pairs will vary for each grid square, we'll store the output in a list column. We can add list columns in the same way we would add any other new column using the `mutate()` function from **`dplyr`**. Since we want to generate samples according to the values of `state`, `year`, and `colony_n` in each *row* of our data, we use the `rowwise()` function from **`dplyr`**. Since we're generating random data, we also need to make sure we set the random seed using `set.seed()` to ensure we get the same plot every time we run the code. \index{dplyr!mutate} \index{dplyr!rowwise} \index{base!set.seed}
+각 그리드 사각형에 나타날 점의 x 및 y 좌표를 생성해야 합니다. 이를 위해 **`poissoned`**의 `poisson2d()` 함수를 사용할 것입니다. 두 좌표(`x` 및 `y`)를 저장하고 좌표 쌍의 수가 각 그리드 사각형마다 다르므로 출력을 리스트 열에 저장할 것입니다. **`dplyr`**의 `mutate()` 함수를 사용하여 다른 새 열을 추가하는 것과 같은 방식으로 리스트 열을 추가할 수 있습니다. 데이터의 각 *행*에 있는 `state`, `year` 및 `colony_n` 값에 따라 샘플을 생성하려고 하므로 **`dplyr`**의 `rowwise()` 함수를 사용합니다. 무작위 데이터를 생성하므로 코드를 실행할 때마다 동일한 플롯을 얻을 수 있도록 `set.seed()`를 사용하여 랜덤 시드를 설정해야 합니다. \index{dplyr!mutate} \index{dplyr!rowwise} \index{base!set.seed}
 
-We want the area to be more populated and contain more points where the number of colonies is higher. This means the minimum radius between points should be smaller when the number of colonies is higher i.e. there is an inverse relationship between `r` and `colony_n`. The default grid in `poisson2d()` goes from 0 to 10 on both axes. The values in `colony_n` range from `r format(min(plot_data$colony_n), scientific = FALSE)` to `r format(max(plot_data$colony_n), scientific = FALSE)`, meaning that if we simply set the minimum radius to `1/colony_n`, we end up with points that are only `r format(1/max(plot_data$colony_n), scientific = FALSE)` apart. That's a bit too small! We can multiply by a constant factor to increase this distance. After some trial and error, we set `r` to `200000/colony_n`. \index{poissoned!poisson2d}
+군집 수가 더 많은 곳은 더 밀집되어 더 많은 점을 포함하기를 원합니다. 즉, 군집 수가 더 많을 때 점 사이의 최소 반경이 더 작아야 합니다. 즉, `r`과 `colony_n` 사이에는 역의 관계가 있습니다. `poisson2d()`의 기본 그리드는 두 축 모두에서 0에서 10까지입니다. `colony_n`의 값 범위는 `r format(min(plot_data$colony_n), scientific = FALSE)`에서 `r format(max(plot_data$colony_n), scientific = FALSE)`까지이므로 최소 반경을 단순히 `1/colony_n`로 설정하면 점이 `r format(1/max(plot_data$colony_n), scientific = FALSE)`만큼만 떨어져 있게 됩니다. 너무 작습니다! 상수 인수를 곱하여 이 거리를 늘릴 수 있습니다. 몇 번의 시행착오 끝에 `r`을 `200000/colony_n`으로 설정했습니다. \index{poissoned!poisson2d}
 
 ```{r}
 #| label: bees-disk-sampling
+library(poissoned)
 set.seed(123)
 bees_grid <- plot_data |>
   rowwise() |>
@@ -291,33 +291,33 @@ bees_grid <- plot_data |>
   )
 ```
 
-To see the difference between Poisson disk sampling and Uniform sampling, we can simulate some data and plot it: \index{poissoned!poisson2d} \index{graphics!plot} \index{stats!runif}
+푸아송 디스크 샘플링과 균일 샘플링의 차이를 확인하기 위해 일부 데이터를 시뮬레이션하고 플롯할 수 있습니다: \index{poissoned!poisson2d} \index{graphics!plot} \index{stats!runif}
 
 ```{r}
 #| label: fig-bees-sampling
-#| fig-cap: "Plots comparing data generated using Poisson disk sampling and uniform sampling."
-#| fig-alt: "Two plots side by side showing the difference between Poisson disk sampling and uniform sampling. In uniform sampling some points are close together and overlap, where as with Poisson disk they are more evenly spaced."
+#| fig-cap: "푸아송 디스크 샘플링과 균일 샘플링을 사용하여 생성된 데이터를 비교하는 플롯."
+#| fig-alt: "푸아송 디스크 샘플링과 균일 샘플링의 차이를 보여주는 두 개의 나란한 플롯. 균일 샘플링에서는 일부 점이 서로 가깝고 겹치는 반면 푸아송 디스크에서는 더 고르게 간격을 두고 있습니다."
 #| fig-subcap:
-#|   - "Poisson disk sampling"
-#|   - "Uniform sampling"
+#|   - "푸아송 디스크 샘플링"
+#|   - "균일 샘플링"
 #| layout-ncol: 2
 set.seed(123)
 # Poisson disk sampling
 pts <- poisson2d()
 plot(
   x = pts$x, y = pts$y,
-  main = "Poisson disk sampling"
+  main = "푸아송 디스크 샘플링"
 )
 # Uniform sampling same number of points
 plot(
   x = runif(nrow(pts)), y = runif(nrow(pts)),
-  main = "Uniform sampling"
+  main = "균일 샘플링"
 )
 ```
 
-You can see in @fig-bees-sampling that the location of the points for Poisson disk sampling is not actually completely random, and is much *nicer* in appearance.
+@fig-bees-sampling 에서 푸아송 디스크 샘플링의 점 위치가 실제로는 완전히 무작위가 아니며 모양이 훨씬 더 *좋다*는 것을 알 수 있습니다.
 
-Returning to our `bees_grid` data, we use `unnest()` from **`tidyr`** to expand the `pts` list column into separate rows and columns, and make sure that the `state` column is a factor, ordered by the `state_levels` variable we defined earlier. \index{tidyr!unnest}  \index{base!factor} \index{dplyr!mutate}
+`bees_grid` 데이터로 돌아가서 **`tidyr`**의 `unnest()`를 사용하여 `pts` 리스트 열을 별도의 행과 열로 확장하고 `state` 열이 앞서 정의한 `state_levels` 변수에 의해 정렬된 팩터인지 확인합니다. \index{tidyr!unnest}  \index{base!factor} \index{dplyr!mutate}
 
 ```{r}
 #| label: bees-disk-sampling2
@@ -328,23 +328,23 @@ bees_plot_data <- bees_grid |>
   )
 ```
 
-This generates a data set of the following form:
+이것은 다음과 같은 형태의 데이터 세트를 생성합니다:
 
 ```{r}
 #| label: bees-disk-sampling-data
 bees_plot_data
 ```
 
-### The first plot
+### 첫 번째 플롯
 
-As we've done in all previous chapters, we start our plot using the `ggplot()` function and pass in the default data and aesthetic mappings we'll use for all of the layers in the plot. To add the points we use `geom_point()`, in the same way if we were making a traditional scatter plot. \index{ggplot2!ggplot} \index{ggplot2!geom\_point} \index{ggplot2!aes}
+이전의 모든 장에서 했던 것처럼 `ggplot()` 함수를 사용하여 플롯을 시작하고 플롯의 모든 레이어에 사용할 기본 데이터 및 미적 매핑을 전달합니다. 점을 추가하기 위해 전통적인 산점도를 만드는 것과 같은 방식으로 `geom_point()`를 사용합니다. \index{ggplot2!ggplot} \index{ggplot2!geom\_point} \index{ggplot2!aes}
 
-In @sec-programming and @sec-museums, we used `facet_wrap()` to create small multiple plots based on the levels of a categorical variable. Here we want to do something similar, but split based on the combination of levels from two categorical variables. We add the `facet_grid()` function to create this grid of small multiple plots, with `state` being the rows and `year` being the columns of the grid. Setting `switch = "both"` places the facet labels on the opposite side of the grid from the default. This places labels on the left for the states, and on the bottom for the years. \index{ggplot2!facet\_wrap} \index{ggplot2!facet\_grid}
+@sec-programming 및 @sec-museums 에서 `facet_wrap()`을 사용하여 범주형 변수의 수준을 기반으로 작은 다중 플롯을 만들었습니다. 여기서 우리는 비슷한 것을 하고 싶지만 두 범주형 변수의 수준 조합을 기반으로 분할합니다. `facet_grid()` 함수를 추가하여 작은 다중 플롯의 그리드를 만듭니다. 여기서 `state`는 그리드의 행이고 `year`는 열입니다. `switch = "both"`를 설정하면 패싯 레이블이 기본값과 반대쪽 그리드 면에 배치됩니다. 이렇게 하면 레이블이 주의 경우 왼쪽에, 연도의 경우 아래쪽에 배치됩니다. \index{ggplot2!facet\_wrap} \index{ggplot2!facet\_grid}
 
 ```{r}
 #| label: fig-bees-base-plot
-#| fig-cap: "A 6x6 grid with each grid square denoting a year between 2015-2020, and one of California, North Dakota, Florida, Texas, Idaho, or South Dakota. Within each square, the density of points represents the number of bee colonies. The high density for California means that the points are so closely packed that they are not distinguishable from each other."
-#| fig-alt: "A 6x6 grid with each grid square denoting a year between 2015-2020, and one of California, North Dakota, Florida, Texas, Idaho, or South Dakota. Within each square, the density of points represents the number of bee colonies. The high density for California means that the points are so closely packed that they are not distinguishable from each other."
+#| fig-cap: "각 그리드 사각형이 2015-2020년 사이의 1년과 캘리포니아, 노스다코타, 플로리다, 텍사스, 아이다호 또는 사우스다코타 중 하나를 나타내는 6x6 그리드. 각 사각형 내에서 점의 밀도는 꿀벌 군집의 수를 나타냅니다. 캘리포니아의 밀도가 높다는 것은 점들이 너무 빽빽하게 모여 있어 서로 구별할 수 없음을 의미합니다."
+#| fig-alt: "각 그리드 사각형이 2015-2020년 사이의 1년과 캘리포니아, 노스다코타, 플로리다, 텍사스, 아이다호 또는 사우스다코타 중 하나를 나타내는 6x6 그리드. 각 사각형 내에서 점의 밀도는 꿀벌 군집의 수를 나타냅니다. 캘리포니아의 밀도가 높다는 것은 점들이 너무 빽빽하게 모여 있어 서로 구별할 수 없음을 의미합니다."
 basic_plot <- ggplot(
   data = bees_plot_data,
   mapping = aes(x = x, y = y)
@@ -354,15 +354,15 @@ basic_plot <- ggplot(
 basic_plot
 ```
 
-You'll notice that the points in @fig-bees-base-plot are slightly too large - the points for the California data are even distinguishable as points, it simply looks like a black square! We'll reduce the size of the points in the next iteration of the plot.
+@fig-bees-base-plot 의 점이 약간 너무 크다는 것을 알 수 있습니다. 캘리포니아 데이터의 점은 점으로 구별할 수조차 없고 검은색 사각형처럼 보입니다! 다음 플롯 반복에서는 점의 크기를 줄일 것입니다.
 
-## Advanced styling
+## 고급 스타일링
 
-Let's start editing the stylistic elements of this chart to make it look more professional and visually appealing.
+이 차트의 스타일 요소를 편집하여 더 전문적이고 시각적으로 매력적으로 보이도록 만들어 보겠습니다.
 
-### Colors
+### 색상
 
-We start by selecting some colors for our plot. We won't be mapping any colors to columns in the data, but we still need to define a background color and a color for highlighted elements. To keep the plot looking clean, we'll also use the same color for the text. Similar to @sec-programming, we can select these colors to match the topic of the data. What colors do you think of when you think of bees? Black and yellow. We'll use yellow for the background color, and black for the highlight color. \index{color}
+플롯의 색상을 선택하는 것으로 시작합니다. 열에 색상을 매핑하지는 않지만 플롯 배경색과 강조된 요소의 색상을 정의해야 합니다. 플롯을 깔끔하게 유지하기 위해 텍스트에도 동일한 색상을 사용합니다. @sec-programming 과 유사하게 데이터 주제에 맞는 색상을 선택할 수 있습니다. 꿀벌을 생각할 때 어떤 색상이 떠오르나요? 검은색과 노란색입니다. 배경색에는 노란색을, 강조 색상에는 검은색을 사용할 것입니다. \index{color}
 
 ```{r}
 #| label: bees-colors
@@ -370,14 +370,14 @@ bg_col <- "#FECC27"
 highlight_col <- "black"
 ```
 
-Since we want to visualise the number of points within each grid square, there needs to be a clear distinction between the grid squares and the plot background. This means we need to make the background color of the plotting area a different color to the background color of the facet grid square. The overall plot background should be yellow but each grid square should have a black background, and then the points will be yellow again. In hindsight, perhaps `highlight_col` is not the best name to represent the `"black"` color!
+각 그리드 사각형 내의 점 수를 시각화하려고 하므로 그리드 사각형과 플롯 배경 사이에 명확한 구분이 있어야 합니다. 즉, 플롯 영역의 배경색을 패싯 그리드 사각형의 배경색과 다른 색으로 만들어야 합니다. 전체 플롯 배경은 노란색이어야 하지만 각 그리드 사각형은 검은색 배경이어야 하며 점은 다시 노란색이어야 합니다. 돌이켜보면 아마도 `highlight_col`이 `"black"` 색상을 나타내는 가장 좋은 이름은 아닐 것입니다!
 
-Let's remake the `basic_plot` from @fig-bees-base-plot, but changing the `color` of the points and making them smaller using the `size` argument: \index{ggplot2!ggplot} \index{ggplot2!geom\_point} \index{ggplot2!aes} \index{ggplot2!facet\_grid}
+@fig-bees-base-plot 에서 `basic_plot`을 다시 만들되 `size` 인수를 사용하여 점의 `color`를 변경하고 크기를 작게 만듭니다: \index{ggplot2!ggplot} \index{ggplot2!geom\_point} \index{ggplot2!aes} \index{ggplot2!facet\_grid}
 
 ```{r}
 #| label: fig-bees-base-plot2
-#| fig-cap: "A 6x6 grid with each grid square denoting a year between 2015-2020, and one of California, North Dakota, Florida, Texas, Idaho, or South Dakota. Within each square, the density of points represents the number of bee colonies. The reduced (now yellow) point sizes allows points to be distinguishable from each other, even in the most densely packed grid squares."
-#| fig-alt: "A 6x6 grid with each grid square denoting a year between 2015-2020, and one of California, North Dakota, Florida, Texas, Idaho, or South Dakota. Within each square, the density of points represents the number of bee colonies. The reduced (now yellow) point sizes allows points to be distinguishable from each other, even in the most densely packed grid squares."
+#| fig-cap: "각 그리드 사각형이 2015-2020년 사이의 1년과 캘리포니아, 노스다코타, 플로리다, 텍사스, 아이다호 또는 사우스다코타 중 하나를 나타내는 6x6 그리드. 각 사각형 내에서 점의 밀도는 꿀벌 군집의 수를 나타냅니다. 축소된(이제 노란색) 점 크기를 통해 가장 빽빽하게 채워진 그리드 사각형에서도 점을 서로 구별할 수 있습니다."
+#| fig-alt: "각 그리드 사각형이 2015-2020년 사이의 1년과 캘리포니아, 노스다코타, 플로리다, 텍사스, 아이다호 또는 사우스다코타 중 하나를 나타내는 6x6 그리드. 각 사각형 내에서 점의 밀도는 꿀벌 군집의 수를 나타냅니다. 축소된(이제 노란색) 점 크기를 통해 가장 빽빽하게 채워진 그리드 사각형에서도 점을 서로 구별할 수 있습니다."
 #| source-line-numbers: "6,7"
 basic_plot <- ggplot(
   data = bees_plot_data,
@@ -391,11 +391,11 @@ basic_plot <- ggplot(
 basic_plot
 ```
 
-We'll edit the background color of the facet grid squares later in @sec-bees-theme.
+나중에 @sec-bees-theme 에서 패싯 그리드 사각형의 배경색을 편집할 것입니다.
 
-### Fonts
+### 글꼴
 
-Since this is already quite a visually complex chart, we'll avoid further distractions and use the same typeface for all text elements in the chart. This means we define only a single font variable, `body_font`. We'll also use a simple, easy-to-read typeface. *Red Hat* is a sans serif typeface, with the *Red Hat Text* version designed for increased legibility, especially at smaller font sizes. Again, it's available through Google Fonts and so can be loaded using `font_add_google()` from **`sysfonts`**, with `showtext_auto()` allowing plots to draw text using **`showtext`** automatically. \index{sysfonts!font\_add\_google} \index{showtext!showtext\_auto} \index{showtext!showtext\_opts} 
+이것은 이미 시각적으로 꽤 복잡한 차트이므로 더 이상의 산만함을 피하고 차트의 모든 텍스트 요소에 동일한 서체를 사용할 것입니다. 즉, 단일 글꼴 변수 `body_font`만 정의합니다. 또한 간단하고 읽기 쉬운 서체를 사용할 것입니다. *Red Hat*은 산세리프 서체이며 *Red Hat Text* 버전은 특히 작은 글꼴 크기에서 가독성을 높이도록 설계되었습니다. 다시 말하지만 Google Fonts를 통해 사용할 수 있으므로 **`sysfonts`**의 `font_add_google()`을 사용하여 로드할 수 있으며 `showtext_auto()`를 사용하면 플롯이 **`showtext`**를 사용하여 텍스트를 자동으로 그릴 수 있습니다. \index{sysfonts!font\_add\_google} \index{showtext!showtext\_auto} \index{showtext!showtext\_opts} 
 
 ```{r}
 #| label: bees-fonts
@@ -407,23 +407,23 @@ showtext_opts(dpi = 300)
 body_font <- "red_hat"
 ```
 
-### Adding text
+### 텍스트 추가
 
-As in previous chapters, we write text for a title, subtitle, and caption and store the strings as variables to keep the main plotting code looking cleaner. The subtitle both describes the motivation for why the chart is important (the impact of reduced bee numbers) and gives a short explainer about how to read this non-standard chart (how the bee numbers are represented). The caption credits both the source of the data and the chart author.
+이전 장과 마찬가지로 제목, 부제목 및 캡션에 대한 텍스트를 작성하고 문자열을 변수로 저장하여 기본 플로팅 코드를 더 깔끔하게 유지합니다. 부제목은 차트가 중요한 이유에 대한 동기(꿀벌 수 감소의 영향)를 설명하고 비표준 차트를 읽는 방법(꿀벌 수가 표시되는 방식)에 대한 짧은 설명을 제공합니다. 캡션은 데이터 소스와 차트 작성자 모두에게 크레딧을 제공합니다.
 
 ```{r}
 #| label: bees-text
-title <- "Bee colony losses in the United States"
-st <- "Bees are vital for the preservation of ecological balance and biodiversity in nature. Bee populations are rapidly declining around the world due to habitat loss, pollution and the use of pesticides, among other factors. The number of points in each square represents the number of bee colonies that exist during the months of October - December each year."
-cap <- "Data: USDA | Graphic: N. Rennie"
+title <- "미국의 꿀벌 군집 손실"
+st <- "꿀벌은 자연의 생태적 균형과 생물 다양성을 보존하는 데 필수적입니다. 서식지 손실, 오염, 살충제 사용 등의 요인으로 인해 전 세계적으로 꿀벌 개체 수가 급격히 감소하고 있습니다. 각 사각형의 점 수는 매년 10월부터 12월까지 존재하는 꿀벌 군집의 수를 나타냅니다."
+cap <- "데이터: USDA | 그래픽: N. Rennie"
 ```
 
-We can then add this text using the `labs()` function, and setting the `title`, `subtitle`, and `caption`. The x- and y- axes are meaningless for this visualization since the data is represented by the number of points rather than their locations. We remove the x- and y- axis titles by setting them both to `NULL` in @fig-bees-text-plot. \index{ggplot2!labs}
+그런 다음 `labs()` 함수를 사용하여 이 텍스트를 추가하고 `title`, `subtitle` 및 `caption`을 설정할 수 있습니다. 데이터가 위치가 아닌 점의 수로 표시되므로 x축과 y축은 이 시각화에서 의미가 없습니다. @fig-bees-text-plot 에서 둘 다 `NULL`로 설정하여 x축 및 y축 제목을 제거합니다. \index{ggplot2!labs}
 
 ```{r}
 #| label: fig-bees-text-plot
-#| fig-cap: "A 6x6 grid with each grid square denoting a year between 2015-2020, and one of California, North Dakota, Florida, Texas, Idaho, or South Dakota. Within each square, the density of points represents the number of bee colonies. A title, subtitle, and caption has been added though the subtitle runs off the side of the page."
-#| fig-alt: "A 6x6 grid with each grid square denoting a year between 2015-2020, and one of California, North Dakota, Florida, Texas, Idaho, or South Dakota. Within each square, the density of points represents the number of bee colonies. A title, subtitle, and caption has been added though the subtitle runs off the side of the page."
+#| fig-cap: "각 그리드 사각형이 2015-2020년 사이의 1년과 캘리포니아, 노스다코타, 플로리다, 텍사스, 아이다호 또는 사우스다코타 중 하나를 나타내는 6x6 그리드. 각 사각형 내에서 점의 밀도는 꿀벌 군집의 수를 나타냅니다. 제목, 부제목 및 캡션이 추가되었지만 부제목이 페이지 측면으로 벗어납니다."
+#| fig-alt: "각 그리드 사각형이 2015-2020년 사이의 1년과 캘리포니아, 노스다코타, 플로리다, 텍사스, 아이다호 또는 사우스다코타 중 하나를 나타내는 6x6 그리드. 각 사각형 내에서 점의 밀도는 꿀벌 군집의 수를 나타냅니다. 제목, 부제목 및 캡션이 추가되었지만 부제목이 페이지 측면으로 벗어납니다."
 text_plot <- basic_plot +
   labs(
     title = title,
@@ -434,11 +434,11 @@ text_plot <- basic_plot +
 text_plot
 ```
 
-### Adjusting themes {#sec-bees-theme}
+### 테마 조정 {#sec-bees-theme}
 
-We can then remove the axis text and ticks using `theme_void()`, which also removes the grid lines. Within `theme_void()`, we can also set the default typeface as our pre-defined `body_font` variable and reduce the size to ensure the facet labels fit within their allocated space. \index{ggplot2!theme\_void}
+그런 다음 그리드 선도 제거하는 `theme_void()`를 사용하여 축 텍스트와 눈금을 제거할 수 있습니다. `theme_void()` 내에서 기본 서체를 사전 정의된 `body_font` 변수로 설정하고 패싯 레이블이 할당된 공간 내에 맞도록 크기를 줄일 수도 있습니다. \index{ggplot2!theme\_void}
 
-Since the grid square goes from 0-10 for both the x and y axes, it would make sense for the grid square to actually be square rather than rectangular to avoid the points looking closer together in one direction. We we use `coord_fixed()` to force a 1:1 aspect ratio. Setting `expand = FALSE` to remove the extra padding around the edges of the plots also makes the differences in point density easier to see. \index{ggplot2!coord\_fixed} 
+그리드 사각형은 x축과 y축 모두 0-10이므로 점이 한 방향으로 더 가까워 보이는 것을 피하기 위해 그리드 사각형이 직사각형이 아니라 실제로 정사각형인 것이 합리적입니다. 1:1 종횡비를 강제하기 위해 `coord_fixed()`를 사용합니다. 플롯의 가장자리 주변의 추가 패딩을 제거하기 위해 `expand = FALSE`를 설정하면 점 밀도의 차이를 더 쉽게 볼 수 있습니다. \index{ggplot2!coord\_fixed} 
 
 ```{r}
 #| label: bees-theme-plot-1
@@ -450,20 +450,20 @@ theme_plot <- text_plot +
   )
 ```
 
-The last step is adjusting the remaining theme elements: \index{ggplot2!element\_rect} \index{ggplot2!element\_text} \index{ggplot2!margin} \index{ggtext!element\_textbox\_simple}
+마지막 단계는 나머지 테마 요소를 조정하는 것입니다: \index{ggplot2!element\_rect} \index{ggplot2!element\_text} \index{ggplot2!margin} \index{ggtext!element\_textbox\_simple}
 
-* Editing the background colors for the plot (`plot.background` set as yellow using `bg_col`) and grid squares (`panel.background` set as black using `highlight_col`).
+* 플롯의 배경색(`plot.background`는 `bg_col`을 사용하여 노란색으로 설정)과 그리드 사각형(`panel.background`는 `highlight_col`을 사용하여 검은색으로 설정)을 편집합니다.
 
-* The text text color and margin for facet labels can be modified using the `strip.text` argument. Here, the text is changed separately for the x and y facet labels because we are adding slightly different margins to the text (upper margin for x-axis facets, right margin for y-axis facets). 
+* 패싯 레이블의 텍스트 색상과 여백은 `strip.text` 인수를 사용하여 수정할 수 있습니다. 여기서는 텍스트에 약간 다른 여백을 추가하기 때문에(x축 패싯의 경우 위쪽 여백, y축 패싯의 경우 오른쪽 여백) 텍스트가 x 및 y 패싯 레이블에 대해 별도로 변경됩니다.
 
-* We change the title, subtitle, and caption text color to `highlight_col` and align the caption to the left using `element_text()`. Though the subtitle is defined using `element_textbox_simple()` from **`ggtext`** to enable automatic line wrapping of the long text as described in @sec-programming.
+* 제목, 부제목 및 캡션 텍스트 색상을 `highlight_col`로 변경하고 `element_text()`를 사용하여 캡션을 왼쪽에 정렬합니다. 부제목은 @sec-programming 에 설명된 대로 긴 텍스트의 자동 줄 바꿈을 활성화하기 위해 **`ggtext`**의 `element_textbox_simple()`을 사용하여 정의됩니다.
 
-* We adjust the `plot.margin` to add space around edges of the plot, with slightly more space added on the right hand side. This makes the plot appear more balanced, as this additional space counteracts the space generated from the facet label text on the left.
+* `plot.margin`을 조정하여 플롯 가장자리 주위에 공간을 추가하고 오른쪽에 약간 더 많은 공간을 추가합니다. 이렇게 하면 왼쪽의 패싯 레이블 텍스트에서 생성된 공간을 상쇄하므로 플롯이 더 균형 있게 보입니다.
 
 ```{r}
 #| label: bees-theme-plot-2
-#| fig-cap: "A 6x6 grid with each grid square denoting a year between 2015-2020, and one of California, North Dakota, Florida, Texas, Idaho, or South Dakota. Within each square, the density of points represents the number of bee colonies. The design is much more minimal, with the black background of the grid squares allowing the yellow points to be more easily seen due to the higher contrast."
-#| fig-alt: "A 6x6 grid with each grid square denoting a year between 2015-2020, and one of California, North Dakota, Florida, Texas, Idaho, or South Dakota. Within each square, the density of points represents the number of bee colonies. The design is much more minimal, with the black background of the grid squares allowing the yellow points to be more easily seen due to the higher contrast."
+#| fig-cap: "각 그리드 사각형이 2015-2020년 사이의 1년과 캘리포니아, 노스다코타, 플로리다, 텍사스, 아이다호 또는 사우스다코타 중 하나를 나타내는 6x6 그리드. 각 사각형 내에서 점의 밀도는 꿀벌 군집의 수를 나타냅니다. 디자인은 훨씬 더 미니멀하며 그리드 사각형의 검은색 배경으로 인해 대비가 높아져 노란색 점을 더 쉽게 볼 수 있습니다."
+#| fig-alt: "각 그리드 사각형이 2015-2020년 사이의 1년과 캘리포니아, 노스다코타, 플로리다, 텍사스, 아이다호 또는 사우스다코타 중 하나를 나타내는 6x6 그리드. 각 사각형 내에서 점의 밀도는 꿀벌 군집의 수를 나타냅니다. 디자인은 훨씬 더 미니멀하며 그리드 사각형의 검은색 배경으로 인해 대비가 높아져 노란색 점을 더 쉽게 볼 수 있습니다."
 theme_plot +
   theme(
     # background colors
@@ -501,7 +501,7 @@ theme_plot +
   )
 ```
 
-We now finished our plot and can save it with `ggsave()`: \index{ggplot2!ggsave}
+이제 플롯을 완성했으며 `ggsave()`로 저장할 수 있습니다. \index{ggplot2!ggsave}
 
 ```{r}
 #| label: bees-save
@@ -514,18 +514,18 @@ ggsave(
 )
 ```
 
-## Reflection
+## 성찰
 
-The bee-themed colors alongside the non-standard nature of this chart make it visually intriguing and fun. However, it takes a little bit more time to understand how to interpret the chart. This is a visualization that would work better in a setting where the author has time to explain how it works. For example, in a presentation or in an article with a *how to read this chart* explainer included. It would work less well in a standalone leaflet without an explanation where a reader might struggle to understand what is being shown. It's more difficult to see the trend over time with type of chart. A simple line chart could show the same data in a more *standard*, easy-to-interpret way. However, line charts don't catch attention in quite the same way. It all comes down to the purpose of the chart. Is the main aim to draw attention to important data on bee colonies, and show overall trends? Or is the main aim to communicate the colony size in each year, within some accuracy range? The answers to those questions will determine whether this is an appropriate chart type.
+이 차트의 비표준적 성격과 함께 꿀벌 테마의 색상은 시각적으로 흥미롭고 재미있습니다. 그러나 차트를 해석하는 방법을 이해하는 데는 조금 더 시간이 걸립니다. 이것은 저자가 차트의 작동 방식을 설명할 시간이 있는 환경에서 더 잘 작동할 시각화입니다. 예를 들어 프레젠테이션이나 *이 차트를 읽는 방법* 설명이 포함된 기사에서 그렇습니다. 설명이 없는 독립형 리플릿에서는 독자가 표시되는 내용을 이해하는 데 어려움을 겪을 수 있으므로 잘 작동하지 않을 것입니다. 차트 유형으로 시간 경과에 따른 추세를 보기는 더 어렵습니다. 간단한 선형 차트는 동일한 데이터를 보다 *표준적이고* 해석하기 쉬운 방식으로 표시할 수 있습니다. 그러나 선형 차트는 같은 방식으로 주의를 끌지 못합니다. 모든 것은 차트의 목적에 달려 있습니다. 주된 목표가 꿀벌 군집에 대한 중요한 데이터에 주의를 끌고 전반적인 추세를 보여주는 것입니까? 아니면 주된 목표가 각 연도의 군집 크기를 어느 정도의 정확도 범위 내에서 전달하는 것입니까? 이러한 질문에 대한 답이 이것이 적절한 차트 유형인지 여부를 결정할 것입니다.
 
-This version of the chart shows only data for six states, even though we know from our exploratory analysis that data is available for (almost) all states. Some explanation as to why these states have been chosen could be added in the subtitle, or data for all states could be shown - although this would result in a very long chart! The visualization also assigns each state equal chart area - perhaps implying that each state has an equal geographic area which is of course untrue. The chart shows there are a lot of bees in California. California is also the third largest state in terms of area [@UScensus] - maybe there's just more room for bees? Perhaps standardizing the data by state area (or state agricultural area) would provide an easier comparison between states. 
+이 차트 버전은 6개 주에 대한 데이터만 보여주지만 탐색적 분석을 통해 (거의) 모든 주에 대한 데이터를 사용할 수 있음을 알고 있습니다. 이러한 주가 선택된 이유에 대한 설명이 부제목에 추가되거나 모든 주에 대한 데이터가 표시될 수 있습니다. 비록 매우 긴 차트가 되겠지만 말입니다! 시각화는 또한 각 주에 동일한 차트 영역을 할당합니다. 아마도 각 주가 동일한 지리적 영역을 가지고 있음을 암시할 수 있지만 물론 사실이 아닙니다. 차트는 캘리포니아에 꿀벌이 많다는 것을 보여줍니다. 캘리포니아는 면적 면에서도 세 번째로 큰 주입니다 [@UScensus]. 아마도 꿀벌이 살 공간이 더 많을까요? 아마도 데이터를 주 면적(또는 주 농업 면적)으로 표준화하면 주 간의 비교가 더 쉬울 것입니다.
 
-Another disadvantage of this chart is that it visualizes only one variable - the number of bee colonies. However, even when the number of colonies is lower, if the colony sizes are larger that might mean the numbers of bees isn't changing very much. But we don't see that when we only look at the number of colonies - we don't get a full picture of the data by limiting the chart to only a single variable.
+이 차트의 또 다른 단점은 단 하나의 변수, 즉 꿀벌 군집 수만 시각화한다는 것입니다. 그러나 군집 수가 적더라도 군집 크기가 크면 꿀벌 수가 크게 변하지 않는다는 것을 의미할 수 있습니다. 그러나 군집 수만 보면 그것을 알 수 없습니다. 차트를 단일 변수로 제한하면 데이터의 전체 그림을 얻을 수 없습니다.
 
-Although this type of visualization has several disadvantages, and is far from perfect, hopefully it gives you an idea of how to think creatively about designing charts and how you might go about implementing them in R. 
+이러한 유형의 시각화에는 몇 가지 단점이 있고 완벽하지는 않지만 차트 디자인에 대해 창의적으로 생각하는 방법과 R에서 구현하는 방법에 대한 아이디어를 제공하기를 바랍니다.
 
-## Exercises
+## 연습 문제
 
-* Recreate the visualization from this chapter using the `colony_max` column instead of `colony_n`.
+* `colony_n` 대신 `colony_max` 열을 사용하여 이 장의 시각화를 다시 만드십시오.
 
-* How might you visualize both columns on the same chart?
+* 같은 차트에 두 열을 어떻게 시각화할 수 있습니까?

@@ -11,17 +11,17 @@ execute:
 #| file: R/options.R
 ```
 
-# Programming languages: dumbbell charts with **`ggplot2`** {#sec-programming}
+# 프로그래밍 언어: **`ggplot2`**를 이용한 덤벨 차트 {#sec-programming}
 
-In this chapter we'll learn how to combine points and lines to create dumbbell charts, create data-driven captions, and understand how to style charts using themes, fonts, and colors. 
+이 장에서는 점과 선을 결합하여 덤벨 차트를 만들고, 데이터 기반 캡션을 생성하며, 테마, 글꼴, 색상을 사용하여 차트 스타일을 지정하는 방법을 배웁니다.
 
-By the end of this chapter, you'll be able to:
+이 장을 마치면 다음을 할 수 있게 됩니다:
 
-* Create a dumbbell chart using basic geometries available in **`ggplot2`**;
-* Select an appropriate font for your chart design, and load it into R for use in plots; and
-* Understand how to save high quality images of plots in different formats.
+* **`ggplot2`**에서 제공하는 기본 도형을 사용하여 덤벨 차트 만들기
+* 차트 디자인에 적합한 글꼴을 선택하고 플롯에서 사용하기 위해 R로 로드하기
+* 고품질 플롯 이미지를 다양한 형식으로 저장하는 방법 이해하기
 
-We begin by loading the packages required in this chapter.
+이 장에 필요한 패키지를 로드하는 것으로 시작합니다.
 
 ```{r}
 #| label: languages-pkgs-req
@@ -37,22 +37,22 @@ library(tidyr)
 library(tidytuesdayR)
 ```
 
-It's assumed that you're already a little bit familiar with the **`dplyr`** and **`tidyr`** packages that we'll be using for data wrangling, alongside **`ggplot2`** itself of course! We'll introduce each of the other packages as we use them, but the following provides a brief summary of each package's purpose:
+데이터 랭글링에 사용할 **`dplyr`** 및 **`tidyr`** 패키지와 **`ggplot2`** 자체에 대해서는 이미 약간 익숙하다고 가정합니다! 다른 패키지들은 사용할 때 소개하겠지만, 각 패키지의 목적에 대해 간단히 요약하면 다음과 같습니다:
 
-* **`ggtext`**: allows you to use Markdown, HTML, and CSS formatting in **`ggplot2`** text.
-* **`glue`**: for *gluing* together R code with strings to create text.
-* **`showtext`** and **`sysfonts`**: for loading fonts and making them available within an R session.
-* **`tidytuesdayR`**: for accessing data published on GitHub as part of the TidyTuesday project.
+* **`ggtext`**: **`ggplot2`** 텍스트에서 마크다운, HTML, CSS 서식을 사용할 수 있게 해줍니다.
+* **`glue`**: R 코드와 문자열을 *접착(gluing)*하여 텍스트를 생성합니다.
+* **`showtext`** 및 **`sysfonts`**: 글꼴을 로드하고 R 세션 내에서 사용할 수 있게 해줍니다.
+* **`tidytuesdayR`**: TidyTuesday 프로젝트의 일부로 GitHub에 게시된 데이터에 액세스합니다.
 
 \index{ggtext} \index{glue} \index{showtext} \index{sysfonts} \index{tidytuesdayR}
 
-## Data
+## 데이터
 
-In this chapter, we're going to explore the Programming Languages Database (PLDB) [@pldb_data]. This database is an encyclopedia of programming languages, containing information on ranking, when it was created, what type of language it is, and how many GitHub repositories use the language - to name just a few variables. Programming language creators can use the database to help design and improve programming languages, whilst programming language users can use the database to help make decisions about which languages to use or learn. 
+이 장에서는 프로그래밍 언어 데이터베이스(PLDB) [@pldb_data]를 살펴보겠습니다. 이 데이터베이스는 프로그래밍 언어 백과사전으로, 순위, 생성 시기, 언어 유형, 해당 언어를 사용하는 GitHub 저장소 수 등 몇 가지 변수만 예로 들어도 많은 정보가 포함되어 있습니다. 프로그래밍 언어 제작자는 데이터베이스를 사용하여 프로그래밍 언어를 설계하고 개선할 수 있으며, 프로그래밍 언어 사용자는 데이터베이스를 사용하여 어떤 언어를 사용하거나 배울지 결정하는 데 도움을 받을 수 있습니다.
 
-The PLDB is *published to the public domain* and can be found online at {{< monolink "https://pldb.io/" "pldb.io" >}}, where you can make queries and view the data. You can also download the data in CSV or JSON format. The PLDB data was used as a TidyTuesday dataset in March 2023 (after being suggested by [Jesus M. Castagnetto](https://github.com/jmcastagnetto)), meaning we can also easily load the data into R using the **`tidytuesdayR`** R package [@tidytuesdayR]. 
+PLDB는 *공유 도메인으로 게시*되며 {{< monolink "https://pldb.io/" "pldb.io" >}}에서 온라인으로 찾아 쿼리를 만들고 데이터를 볼 수 있습니다. 데이터를 CSV 또는 JSON 형식으로 다운로드할 수도 있습니다. PLDB 데이터는 2023년 3월 TidyTuesday 데이터세트로 사용되었으므로([Jesus M. Castagnetto](https://github.com/jmcastagnetto)의 제안 이후), **`tidytuesdayR`** R 패키지 [@tidytuesdayR]를 사용하여 데이터를 R로 쉽게 로드할 수도 있습니다.
 
-The **`tidytuesdayR`** R package has several functions for helping to get data and information about TidyTuesday data into R. One of the most commonly used functions is the `tt_load()` function, which loads the data from a specific week (specified by the date) into your R session. For a given week, there may be multiple datasets, and a specific one can be accessed using the `$` notation: \index{tidytuesdayR!tt\_load} \index{TidyTuesday}
+**`tidytuesdayR`** R 패키지에는 TidyTuesday 데이터와 정보를 R로 가져오는 데 도움이 되는 여러 함수가 있습니다. 가장 일반적으로 사용되는 함수 중 하나는 특정 주(날짜로 지정)의 데이터를 R 세션으로 로드하는 `tt_load()` 함수입니다. 특정 주에 여러 데이터세트가 있을 수 있으며, `$` 표기법을 사용하여 특정 데이터세트에 액세스할 수 있습니다: \index{tidytuesdayR!tt\_load} \index{TidyTuesday}
 
 ```{r}
 #| label: languages-load-data-show
@@ -70,35 +70,35 @@ languages <- tuesdata$languages
 languages <- readr::read_csv("data/languages.csv")
 ```
 
-You can alternatively read the data in via **`tidytuesdayR`** using the year and week. For example `languages <- tt_load(2023, week = 12)`. You can also read the data in directly from the CSV file on GitHub using `read.csv()` from base R or `read_csv()` from **`readr`**. 
+또는 연도와 주를 사용하여 **`tidytuesdayR`**을 통해 데이터를 읽을 수도 있습니다. 예를 들어 `languages <- tt_load(2023, week = 12)`와 같습니다. 또한 기본 R의 `read.csv()` 또는 **`readr`**의 `read_csv()`를 사용하여 GitHub의 CSV 파일에서 직접 데이터를 읽을 수도 있습니다.
 
-What does the data look like? We can inspect the first six rows of the data using `head()`:
+데이터는 어떻게 생겼을까요? `head()`를 사용하여 데이터의 처음 6행을 검사할 수 있습니다:
 
 ```{r}
 #| label: languages-data-head
 head(languages)
 ```
 
-You can also use `View()` to open a new tab in RStudio to inspect the data in something that resembles a non-editable spreadsheet file if you prefer a more human-readable format. Inspecting the data in this very basic way (simply looking at it with our eyes first) helps to ensure that the data has been read in correctly. This dataset has `r nrow(languages)` rows and `r ncol(languages)` columns - giving us many options for variables to explore further. What variables do we have? The [data description contained in the TidyTuesday GitHub repository](https://github.com/rfordatascience/tidytuesday/blob/master/data/2023/2023-03-21/readme.md) is often a good place to start. A table containing the column names and what the data in each column means, can help give you some more context for the data you are looking at - especially since columns are not always named intuitively! For the PLDB dataset, you can also look at an even more in-depth description of the variables on the dataset's website at {{< monolink "https://pldb.io/csv.html" "pldb.io/csv.html" >}}. Here, you'll also notice that the TidyTuesday version of this dataset is a subset of a larger dataset which contains 356 variables - we'll stick with the smaller version for this chapter!
+더 읽기 쉬운 형식을 선호한다면 `View()`를 사용하여 RStudio에서 새 탭을 열어 편집 불가능한 스프레드시트 파일과 유사한 형태로 데이터를 검사할 수도 있습니다. 이 매우 기본적인 방법(먼저 눈으로만 보는 것)으로 데이터를 검사하면 데이터가 올바르게 읽혔는지 확인하는 데 도움이 됩니다. 이 데이터세트에는 `r nrow(languages)`개의 행과 `r ncol(languages)`개의 열이 있어 더 탐색할 수 있는 변수 옵션이 많습니다. 어떤 변수가 있을까요? [TidyTuesday GitHub 저장소에 포함된 데이터 설명](https://github.com/rfordatascience/tidytuesday/blob/master/data/2023/2023-03-21/readme.md)이 시작하기 좋은 곳인 경우가 많습니다. 열 이름과 각 열의 데이터가 무엇을 의미하는지 포함된 표는 보고 있는 데이터에 대한 더 많은 맥락을 제공하는 데 도움이 될 수 있습니다(특히 열 이름이 직관적이지 않은 경우 더욱 그렇습니다!). PLDB 데이터세트의 경우 {{< monolink "https://pldb.io/csv.html" "pldb.io/csv.html" >}}의 웹사이트에서 변수에 대한 훨씬 더 심층적인 설명을 볼 수 있습니다. 여기서 이 데이터세트의 TidyTuesday 버전은 356개의 변수를 포함하는 더 큰 데이터세트의 하위 집합이라는 것도 알 수 있습니다. 이 장에서는 더 작은 버전을 계속 사용하겠습니다!
 
-There are many variables with missing (`NA`) values in the data. Few languages have an entry in the `description` column, `github_` columns, `reference` column, or `is_open_source` column. Missing values are highly important. We don't always want to simply discard rows or columns with missing values as they can often tells us a lot of important information about our data. For example, the many missing values in the `github_` columns might be related to the fact that many programming languages precede GitHub's creation in 2008. Discarding rows if they have any missing values in these columns might mean we bias any analysis to newer programming languages. There are many methods of dealing with missing data, and which method you use will depend on what you are trying to achieve. Having said that, this isn't a statistics book, so for the purposes of visualization we'll focus on columns that are mostly complete. Further discussion of missing data can be found in @sec-bees and @sec-r-pkgs. \index{missing data}
+데이터에 결측값(`NA`)이 있는 변수가 많습니다. `description` 열, `github_` 열, `reference` 열 또는 `is_open_source` 열에 항목이 있는 언어는 거의 없습니다. 결측값은 매우 중요합니다. 결측값이 있는 행이나 열을 단순히 버리고 싶지는 않은데, 이는 종종 데이터에 대한 중요한 정보를 많이 알려줄 수 있기 때문입니다. 예를 들어, `github_` 열의 많은 결측값은 많은 프로그래밍 언어가 2008년 GitHub가 생성되기 이전에 만들어졌다는 사실과 관련이 있을 수 있습니다. 이 열에 결측값이 있다고 해서 행을 버리면 새로운 프로그래밍 언어에 대한 분석이 편향될 수 있습니다. 결측 데이터를 처리하는 방법은 여러 가지가 있으며, 어떤 방법을 사용할지는 달성하고자 하는 목표에 따라 다릅니다. 그렇긴 하지만, 이 책은 통계 책이 아니므로 시각화를 위해 대부분 완료된 열에 초점을 맞출 것입니다. 결측 데이터에 대한 추가 논의는 @sec-bees 및 @sec-r-pkgs 에서 찾을 수 있습니다. \index{missing data}
 
-So which columns should we explore first? Often when we're working with data, there is some *outcome* that we're interested in. Depending on your field, you might instead hear this called the *response* variable or the *dependent variable*. You might have multiple outcomes of interest. For example, in the PLDB data, we might be interested in what affects the ranking and/or the number of GitHub stars for a programming language. These are often the variables we want to tell a story about. However, it's also important to think about exploring relationships between other variables to make sure that the story you're telling is the correct one. It might seem obvious that there could be a relationship between `github_repo_stars` and `github_repo_forks`, but what exactly is that relationship? What about a less obvious connection between `last_activity` and `number_of_jobs` - is there a relationship there?
+그럼 어떤 열을 먼저 살펴봐야 할까요? 데이터를 다룰 때 종종 관심 있는 *결과*가 있습니다. 분야에 따라 이를 *반응* 변수 또는 *종속 변수*라고 부를 수도 있습니다. 관심 있는 결과가 여러 개일 수도 있습니다. 예를 들어 PLDB 데이터에서 우리는 프로그래밍 언어의 순위 및/또는 GitHub 스타 수에 무엇이 영향을 미치는지 관심이 있을 수 있습니다. 이것들은 종종 우리가 이야기하고 싶은 변수입니다. 그러나 여러분이 전하는 이야기가 올바른지 확인하기 위해 다른 변수 간의 관계를 탐색하는 것에 대해 생각하는 것도 중요합니다. `github_repo_stars`와 `github_repo_forks` 사이에 관계가 있을 수 있다는 것은 분명해 보이지만, 정확히 어떤 관계일까요? `last_activity`와 `number_of_jobs` 사이의 덜 분명한 연결은 어떨까요? 거기에 관계가 있을까요?
 
-## Exploratory work
+## 탐색 작업
 
-Beyond looking at the data, counting the rows and columns, and inspecting the values in different columns, a key part of exploratory work is visualizing data. These initial visualizations can help you to check if there are any issues with your data (e.g. a misspelling `Monday` as `Mnoday`). They can also help to identify interesting relationships or patterns in the data, which can guide you to further avenues for exploration and appropriate modelling techniques.
+데이터를 보고, 행과 열의 수를 세고, 다른 열의 값을 검사하는 것 외에도 탐색 작업의 핵심 부분은 데이터를 시각화하는 것입니다. 이러한 초기 시각화는 데이터에 문제가 있는지(예: `Monday`를 `Mnoday`로 잘못 입력함) 확인하는 데 도움이 될 수 있습니다. 또한 데이터에서 흥미로운 관계나 패턴을 식별하는 데 도움이 되어 탐색 및 적절한 모델링 기술을 위한 추가 방향을 안내할 수 있습니다.
 
-There are many different types of plot, and you'll see several different examples in this book - some you may have seen before, others you may have not. But often, for those initial exploratory plots, the *classic* charts are a good place to start: scatter plots, bar charts, box plots, density plots, and line charts. Scatter plots are useful for exploring a relationship between two continuous variables; multiple density plots or box plots for exploring a relationship between a categorical and continuous variable; bar charts for exploring a relationship between multiple categorical variables; and line charts for how continuous variables how change over time. 
+다양한 유형의 플롯이 있으며 이 책에서 여러 가지 다른 예를 볼 수 있습니다. 일부는 이전에 본 적이 있을 수도 있고 다른 일부는 그렇지 않을 수도 있습니다. 그러나 초기 탐색 플롯의 경우 종종 산점도, 막대 차트, 상자 그림, 밀도 플롯 및 선형 차트와 같은 *고전적인* 차트가 시작하기 좋은 곳입니다. 산점도는 두 연속 변수 간의 관계를 탐색하는 데 유용하고, 다중 밀도 플롯 또는 상자 그림은 범주형 변수와 연속형 변수 간의 관계를 탐색하는 데 유용하며, 막대 차트는 여러 범주형 변수 간의 관계를 탐색하는 데 유용하고, 선형 차트는 연속형 변수가 시간에 따라 어떻게 변하는지 보여주는 데 유용합니다.
 
-### Data exploration
+### 데이터 탐색
 
-We can't explore every column in this chapter, but you're encouraged to do so at home. So we'll start with `language_rank` - the most obvious outcome that we might want to consider. Note that, in this data, the rank starts at 0 (insert your own joke about indexing from 1 being better here...). We might want to look at the `last_activity` column in relation to the rank: are programming languages with more recent activity also more popular? Let's start by making a scatter plot of last activity (on the x-axis) and language rank (on the y-axis). Adding better axis titles with `xlab` and `ylab` in @fig-languages-scatter isn't necessary if it's just you looking at these plots, but if you're sharing them with anyone else it can be a useful thing to do. Especially if the column names are less descriptive than we see here! \index{scatter plot}
+이 장에서 모든 열을 탐색할 수는 없지만 집에서 직접 해보시길 권장합니다. 우리는 고려하고 싶은 가장 분명한 결과인 `language_rank`부터 시작하겠습니다. 이 데이터에서 순위는 0부터 시작합니다(1부터 인덱싱하는 것이 더 낫다는 농담을 여기에 삽입하세요...). 우리는 `last_activity` 열을 순위와 관련하여 살펴보고 싶을 수 있습니다. 최근 활동이 더 많은 프로그래밍 언어가 더 인기가 있을까요? 마지막 활동(x축)과 언어 순위(y축)의 산점도를 만드는 것으로 시작하겠습니다. @fig-languages-scatter 에서 `xlab` 및 `ylab`으로 더 나은 축 제목을 추가하는 것은 혼자만 이 플롯을 보는 경우 불필요하지만, 다른 사람과 공유하는 경우 유용한 작업이 될 수 있습니다. 특히 열 이름이 여기서 보는 것보다 덜 설명적인 경우 더욱 그렇습니다! \index{scatter plot}
 
 ```{r, echo=-1}
 #| label: fig-languages-scatter
-#| fig-cap: "A basic scatter plot of how language rank varies based on last activity, showing some unusual date values."
-#| fig-alt: "The scatterplot shows last activity on the x-axis and rank on the y-axis. However, there seem to be some negative values on the x-axis, which might indicate an issue with the data."
+#| fig-cap: "마지막 활동에 따라 언어 순위가 어떻게 변하는지 보여주는 기본 산점도로, 일부 특이한 날짜 값을 보여줍니다."
+#| fig-alt: "산점도는 x축에 마지막 활동을, y축에 순위를 보여줍니다. 그러나 x축에 음수 값이 일부 있어 데이터에 문제가 있음을 나타낼 수 있습니다."
 par(mar = c(5.1, 4.1, 2.1, 2.1), cex.axis = 0.5, cex.names = 0.5)
 plot(
   x = languages$last_activity,
@@ -108,27 +108,27 @@ plot(
 )
 ```
 
-Straight away this highlights the role of data visualization in exploratory analysis. This scatter plot don't look quite right - the `last_activity` data ranges from around -1000 to just over 2000, with most of the values close to the 2000 mark. If this is supposed to be a date column, we need to think about whether these values are correct. 
+이것은 탐색적 분석에서 데이터 시각화의 역할을 바로 강조합니다. 이 산점도는 꽤 올바르게 보이지 않습니다. `last_activity` 데이터는 약 -1000에서 2000이 조금 넘는 범위이며 대부분의 값은 2000 표시 근처에 있습니다. 이것이 날짜 열이어야 한다면 이 값이 올바른지 생각해야 합니다.
 
-* Are these simply incorrect entries?
-* Are these missing values? It's not uncommon for missing values to be encoded as `-999` for example. This is especially true if data has been processed in some other software before it's loaded into R. Just because you have `NA` values in your data, doesn't mean you can't also have these unusually coded missing values. Values can be missing for different reasons, and sometimes they are encoded in multiple ways to demonstrate this difference. 
-* Are these values transformed in some way we don't expect? Dates can be encoded as integer values - often as number of days since some origin time. The origin time used in R is often `"1970-01-01"`, so it's perfectly reasonable to have negative dates if you're dealing with data pre-1970. 
+* 단순히 잘못된 입력인가요?
+* 결측값인가요? 결측값이 예를 들어 `-999`로 인코딩되는 것은 드문 일이 아닙니다. 데이터가 R로 로드되기 전에 다른 소프트웨어에서 처리된 경우 특히 그렇습니다. 데이터에 `NA` 값이 있다고 해서 이렇게 비정상적으로 코딩된 결측값도 가질 수 없다는 의미는 아닙니다. 값은 다양한 이유로 누락될 수 있으며 때로는 이러한 차이를 보여주기 위해 여러 가지 방식으로 인코딩됩니다.
+* 이 값들이 우리가 예상하지 못한 방식으로 변환되나요? 날짜는 정수 값으로 인코딩될 수 있습니다. 종종 기원 시간 이후의 일수로 인코딩됩니다. R에서 사용되는 기원 시간은 종종 `"1970-01-01"`이므로 1970년 이전 데이터를 다루는 경우 음수 날짜가 있는 것은 합리적입니다.
 
-In this case, the dates are actually given as just a year (rather than a `Date` object) so the negative values are unlikely to be incorrectly transformed values. If we're going to filter out these rows, which year do we use to filter them out? Before 1500? Before 1970? Let's actually look at these rows:
+이 경우 날짜는 실제로는(`Date` 객체가 아니라) 연도로만 주어지므로 음수 값이 잘못 변환된 값일 가능성은 낮습니다. 이 행들을 걸러낼 경우 어떤 연도를 기준으로 걸러내야 할까요? 1500년 이전? 1970년 이전? 실제로 이 행들을 살펴보겠습니다:
 
 ```{r}
 #| label: languages-view-odd
 languages[order(languages$last_activity), ] |> head()
 ```
 
-Though the name of the Programming Languages Database may suggest that it focuses exclusively on programming languages, this isn't true. It also includes information on query languages, stylesheet languages, and protocols, among other things. Including numeral systems as you can see here.
+프로그래밍 언어 데이터베이스라는 이름은 프로그래밍 언어에만 초점을 맞추고 있음을 암시할 수 있지만 사실은 그렇지 않습니다. 쿼리 언어, 스타일시트 언어 및 프로토콜 등에 대한 정보도 포함되어 있습니다. 여기에서 볼 수 있듯이 숫자 체계도 포함됩니다.
 
-Let's look at the balance between these different types of languages in the data using a bar chart created using the `barplot()` function from the {graphics} package in base R. The `barplot()` function takes a (named) vector or matrix of counts for each category. We can create this vector of counts using the `table()` function from base R. Wrapping the vector inside `sort()` means that the bars will be plotted in ascending order. \index{graphics!barplot} \index{base!table} \index{base!sort} \index{bar chart}
+기본 R의 `{graphics}` 패키지에 있는 `barplot()` 함수를 사용하여 만든 막대 차트를 사용하여 데이터에서 이러한 다른 유형의 언어 간 균형을 살펴보겠습니다. `barplot()` 함수는 각 범주에 대한 개수의 (이름이 지정된) 벡터 또는 행렬을 취합니다. 기본 R의 `table()` 함수를 사용하여 이 개수 벡터를 만들 수 있습니다. 벡터를 `sort()` 안에 래핑하면 막대가 오름차순으로 플롯됩니다. \index{graphics!barplot} \index{base!table} \index{base!sort} \index{bar chart}
 
 ```{r, echo=-1}
 #| label: fig-languages-pl-barplot
-#| fig-cap: "A bar chart showing the number of different languages of each type, sorted in ascending in order from left to right."
-#| fig-alt: "The bar plot shows various categories on the x-axis, with one category having an extremely high count compared to others. The y-axis represents the frequency, with values reaching up to 3000. This suggests a highly skewed distribution with one dominant category."
+#| fig-cap: "각 유형의 서로 다른 언어 수를 보여주는 막대 차트로, 왼쪽에서 오른쪽으로 오름차순으로 정렬되어 있습니다."
+#| fig-alt: "막대 그래프는 x축에 다양한 범주를 보여주며, 한 범주가 다른 범주에 비해 횟수가 매우 높습니다. y축은 빈도를 나타내며 값이 최대 3000에 이릅니다. 이는 하나의 지배적인 범주가 있는 매우 치우친 분포를 시사합니다."
 par(mar = c(7.1, 4.1, 2.1, 2.1), cex.axis = 0.5, cex.names = 0.5)
 barplot(
   height = sort(table(languages$type)),
@@ -136,12 +136,12 @@ barplot(
 )
 ```
 
-Almost all of them are programming languages so let's focus on them only, and recreate our `last_activity` against `language_rank` scatter plot. We can use the `subset()` function to extract only rows of the data where the `type` is `"pl"` and save this to a new object called `pl_df`. \index{base!subset}
+그들 중 거의 대부분이 프로그래밍 언어이므로 그것들에만 초점을 맞추고 `last_activity` 대 `language_rank` 산점도를 다시 만들어 보겠습니다. `subset()` 함수를 사용하여 `type`이 `"pl"`인 데이터 행만 추출하고 `pl_df`라는 새 객체에 저장할 수 있습니다. \index{base!subset}
 
 ```{r, echo=-1}
 #| label: fig-languages-scatter-filter
-#| fig-cap: "A basic scatter plot of how language rank varies based on last activity, showing clustering of languages with last activity before and after 2000."
-#| fig-alt: "The scatterplot displays 'Last activity' on the x-axis, ranging from 1950 to 2010, and 'Rank' on the y-axis. The data points are densely clustered in certain time periods, with many ranks overlapping. This suggests temporal trends or concentrated activity during specific years."
+#| fig-cap: "마지막 활동에 따라 언어 순위가 어떻게 변하는지 보여주는 기본 산점도로, 2000년 전후의 마지막 활동을 가진 언어들의 군집화를 보여줍니다."
+#| fig-alt: "산점도는 x축에 '마지막 활동'을 1950년부터 2010년까지, y축에 '순위'를 표시합니다. 데이터 포인트는 특정 기간에 밀집되어 있으며 많은 순위가 겹칩니다. 이는 특정 연도 동안의 시간적 추세나 집중된 활동을 시사합니다."
 par(mar = c(5.1, 4.1, 2.1, 2.1), cex.axis = 0.5, cex.names = 0.5)
 pl_df <- subset(languages, type == "pl")
 plot(
@@ -152,13 +152,13 @@ plot(
 )
 ```
 
-Now, our scatter plot looks much more reasonable - with the first entries in the early 1950's. It also presents an interesting pattern where the programming languages are split into two different clusters. Languages with `last_activity` after 2000 are higher ranked (in the top 3000), and those with their last activity before the year 2000 mostly ranked below. Although this is interesting, remember that we can't really make any directional statements here. Do people prefer using languages that are more actively maintained? Or are languages more actively maintained because people prefer using them?
+이제 우리의 산점도는 훨씬 더 합리적으로 보입니다. 첫 번째 항목은 1950년대 초반에 있습니다. 또한 프로그래밍 언어가 서로 다른 두 개의 군집으로 나뉘는 흥미로운 패턴을 제시합니다. 2000년 이후 `last_activity`가 있는 언어는 더 높은 순위(상위 3000위 이내)이고, 2000년 이전에 마지막 활동이 있었던 언어는 대부분 그 아래에 순위가 매겨져 있습니다. 이것이 흥미롭기는 하지만 여기서는 실제로 어떤 방향성을 가진 진술을 할 수 없다는 것을 기억하세요. 사람들은 더 활발하게 유지 관리되는 언어를 사용하는 것을 선호합니까? 아니면 사람들이 사용하는 것을 선호하기 때문에 언어가 더 활발하게 유지 관리되는 것입니까?
 
 ::: {#tip-languages-subset .callout-tip}
 
-## Subsetting data in R
+## R에서 데이터 부분집합 만들기
 
-You can also subset the data using the `filter()` function from **`dplyr`**, either with or without the use of the pipe operator: \index{dplyr!filter}
+파이프 연산자를 사용하거나 사용하지 않고 **`dplyr`**의 `filter()` 함수를 사용하여 데이터의 부분집합을 만들 수도 있습니다: \index{dplyr!filter}
 
 ```{r}
 #| label: languages-filter
@@ -167,16 +167,16 @@ You can also subset the data using the `filter()` function from **`dplyr`**, eit
 pl_df <- filter(languages, type == "pl")
 ```
 
-Both approaches are equally valid. For this book, if we're plotting in **`ggplot2`**, we'll prepare data using other **`tidyverse`** packages. But if we're plotting in base R, we'll prepare data using base R as well.
+두 접근 방식 모두 동등하게 유효합니다. 이 책에서는 **`ggplot2`**로 플로팅하는 경우 다른 **`tidyverse`** 패키지를 사용하여 데이터를 준비합니다. 그러나 기본 R에서 플로팅하는 경우 기본 R을 사용하여 데이터를 준비합니다.
 
 :::
 
-Which other columns might we explore? In R, we write comments using the `#` symbol. For personal curiosity, we might be interested in how common that is. Of these programming languages, which symbols are used to denote comments? We can create a bar chart of the different types of `line_comment_token` using the `barplot()` function again: \index{graphics!barplot} \index{bar chart}
+어떤 다른 열을 탐색할 수 있을까요? R에서는 `#` 기호를 사용하여 주석을 작성합니다. 개인적인 호기심으로 그것이 얼마나 흔한지 관심이 있을 수 있습니다. 이 프로그래밍 언어 중 주석을 나타내는 데 사용되는 기호는 무엇입니까? `barplot()` 함수를 다시 사용하여 다양한 유형의 `line_comment_token`에 대한 막대 차트를 만들 수 있습니다: \index{graphics!barplot} \index{bar chart}
 
 ```{r, echo=-1}
 #| label: fig-languages-comment-barplot
-#| fig-cap: "A bar chart showing the number of different programming languages that each each comment symbol, sorted in ascending in order from left to right."
-#| fig-alt: "Bar chart of the number of different langauges that use different comment symbols, showing quite a skewed distribution and with double forward slashes ranked top."
+#| fig-cap: "각 주석 기호를 사용하는 서로 다른 프로그래밍 언어의 수를 보여주는 막대 차트로, 왼쪽에서 오른쪽으로 오름차순으로 정렬되어 있습니다."
+#| fig-alt: "다양한 주석 기호를 사용하는 언어 수의 막대 차트로, 꽤 치우친 분포를 보여주며 이중 슬래시가 1위를 차지했습니다."
 #| dev: "ragg_png"
 par(mar = c(4.1, 4.1, 2.1, 2.1), cex.axis = 0.5, cex.names = 0.5)
 barplot(
@@ -184,35 +184,35 @@ barplot(
 )
 ```
 
-Using `#` for comments is the second most common symbol behind `//`. Is this a new trend?
+주석에 `#`을 사용하는 것은 `//` 뒤를 이어 두 번째로 흔한 기호입니다. 이것은 새로운 추세입니까?
 
-### Exploratory sketches
+### 탐색적 스케치
 
-The aspects of the data that we are interested in visualizing are:
+우리가 시각화하는 데 관심이 있는 데이터의 측면은 다음과 같습니다:
 
-* when the programming language has been used (the time between `appeared` and `last_activity_date`)
-* what the comment symbol is
-* the ranking of the programming languages
+* 프로그래밍 언어가 언제 사용되었는지(`appeared`와 `last_activity_date` 사이의 시간)
+* 주석 기호가 무엇인지
+* 프로그래밍 언어의 순위
 
-To visualize the time between two things happening, e.g. time between `appeared` and `last_activity_date`, we could use a dumbbell chart. Essentially, a point at each of the time points and a (usually horizontal) line connecting the two - named for their resemblance to dumbbell weights. Dumbbell charts are also commonly used to show the difference between values for two categories e.g. heights for men and women, or blood pressure readings before and after a treatment. \index{dumbbell chart}
+두 가지 일이 일어나는 사이의 시간, 예를 들어 `appeared`와 `last_activity_date` 사이의 시간을 시각화하기 위해 덤벨 차트를 사용할 수 있습니다. 기본적으로 각 시점의 점과 두 점을 연결하는(보통 수평) 선으로, 덤벨 무게와 닮았다고 해서 붙여진 이름입니다. 덤벨 차트는 또한 두 범주에 대한 값의 차이, 예를 들어 남성과 여성의 키 또는 치료 전후의 혈압 수치를 보여주는 데 일반적으로 사용됩니다. \index{dumbbell chart}
 
 ::: {#tip-languages-sketching .callout-tip}
 
-## The importance of sketching
+## 스케치의 중요성
 
-Whether you choose to use pen and paper or digital drawing tools, sketching is an important part of the design process. Sketching is for exploring visualizations (in the same way you explore the data before you decide how to process it) and refining your design ideas. It's a quick way to describe an idea, it's an easy way to collaborate with other people, and (because it's just a sketch) it's easy to throw it away if it doesn't work. You'll see exploratory sketches in every chapter of this book - you shouldn't expect them to look polished or pretty!
+펜과 종이를 사용하든 디지털 그리기 도구를 사용하든 스케치는 디자인 과정의 중요한 부분입니다. 스케치는 시각화를 탐색하고(데이터를 처리하는 방법을 결정하기 전에 데이터를 탐색하는 것과 같은 방식으로) 디자인 아이디어를 다듬기 위한 것입니다. 아이디어를 설명하는 빠른 방법이고, 다른 사람들과 협업하는 쉬운 방법이며, (그저 스케치일 뿐이므로) 작동하지 않으면 버리기 쉽습니다. 이 책의 모든 장에서 탐색적 스케치를 볼 수 있습니다. 세련되거나 예쁘게 보일 것이라고 기대해서는 안 됩니다!
 
 :::
 
-A dumbbell chart for the timelines of languages that use a `#` for comments might look something like this:
+`#`을 주석으로 사용하는 언어의 타임라인에 대한 덤벨 차트는 다음과 비슷할 수 있습니다:
 
-![Initial sketch of a dumbbell chart showing the time frame that different languages are active for a specific comment character.](images/sketch-languages.png){#fig-languages-sketch fig-align="center" fig-alt="The hand-drawn chart titled 'Comment: #' shows the evolution of a language over time, with dots and lines representing different stages and developments. It starts around 1950 and extends to 2020, suggesting a significant period of linguistic change."}
+![특정 주석 문자에 대해 서로 다른 언어가 활성화된 기간을 보여주는 덤벨 차트의 초기 스케치.](images/sketch-languages.png){#fig-languages-sketch fig-align="center" fig-alt="손으로 그린 'Comment: #'이라는 제목의 차트는 시간 경과에 따른 언어의 진화를 보여주며, 점과 선은 서로 다른 단계와 발전을 나타냅니다. 1950년경에 시작하여 2020년까지 확장되어 언어 변화의 상당한 기간을 암시합니다."}
 
-To show how this differs between different comment symbols, we might create small multiples of this chart - essentially creating the same plot multiple times for different subsets of the data. In **`ggplot2`**, these are called *facets*, and might look something like this:
+이것이 서로 다른 주석 기호 간에 어떻게 다른지 보여주기 위해 이 차트의 작은 다중(small multiples)을 만들 수 있습니다. 기본적으로 데이터의 다른 하위 집합에 대해 동일한 플롯을 여러 번 만드는 것입니다. **`ggplot2`**에서 이것은 *패면(facets)*이라고 하며 다음과 비슷할 수 있습니다:
 
-![Initial sketch of a dumbbell chart showing the time frame that different languages are active for a specific comment character.](images/sketch-languages-2.png){#fig-languages-sketch-2 fig-align="center" fig-alt="The hand-drawn chart titled 'Title' shows the evolution of three different languages over time. Each language is represented by a vertical line with dots and horizontal lines indicating changes and developments. The lines extend from 1950 to 2020, suggesting a significant period of linguistic evolution. The comments '#', '//', and ';' likely denote different types of changes or features within each language."}
+![특정 주석 문자에 대해 서로 다른 언어가 활성화된 기간을 보여주는 덤벨 차트의 초기 스케치.](images/sketch-languages-2.png){#fig-languages-sketch-2 fig-align="center" fig-alt="'Title'이라는 제목의 손으로 그린 차트는 시간 경과에 따른 세 가지 다른 언어의 진화를 보여줍니다. 각 언어는 수직선으로 표시되며 점과 수평선은 변화와 발전을 나타냅니다. 선은 1950년부터 2020년까지 확장되어 언어 진화의 상당한 기간을 암시합니다. '#', '//', ';' 주석은 각 언어 내의 다른 유형의 변경 또는 기능을 나타낼 가능성이 높습니다."}
 
-## Preparing a plot
+## 플롯 준비하기
 
 Dumbbell charts are essentially a combination of two things: lines and points. Although there isn't a built-in function for creating dumbbell charts in **`ggplot2`**, there are built-in functions for creating lines and points so we have everything we need to make a dumbbell chart. 
 
@@ -223,11 +223,11 @@ In this chapter, we're not going to use either of those for a couple of reasons:
 * Extension packages are perfect for making charts quickly and easily, and I would encourage you to try them. But it's also really useful to understand that, as long as you can break down the chart you want into lines, points, and polygons, then you can make it with **`ggplot2`**. That's, at least in part, what this book is about.
 * We're going to apply reasonably advanced customization to our dumbbell chart, and it's useful to see how these work in **`ggplot2`** first so that you can later apply them to other plot types more easily. 
 
-### Data wrangling
+### 데이터 랭글링
 
-We'll start by sub-setting the data to keep only the rows relating to languages that use one of the comment symbols that we're interested in. If we want to look at only languages that use a `//`, `#`, or `;` for comments, we can use the `filter()` function from **`dplyr`** in conjunction with the `%in%` operator. This keeps only rows where the value in the  `line_comment_token` column is in the vector `c("//", "#", ";")`. We'll be faceting by `line_comment_token`, and we want to make sure that the title of the facet is informative - not just a `#` symbol on its own. Although we could create a labeling function to do this, it's even easier to just edit the text in the `line_comment_token` token. We use the `paste()` function to add the phrase `"Comment token:"` before each symbol and add this as a new column called `label` using `mutate()` from **`dplyr`**. \index{dplyr!filter} \index{dplyr!mutate} \index{base!paste}
+관심 있는 주석 기호 중 하나를 사용하는 언어와 관련된 행만 유지하기 위해 데이터의 부분집합을 만드는 것으로 시작하겠습니다. `//`, `#` 또는 `;`를 주석으로 사용하는 언어만 보고자 하는 경우 `%in%` 연산자와 함께 **`dplyr`**의 `filter()` 함수를 사용할 수 있습니다. 이렇게 하면 `line_comment_token` 열의 값이 `c("//", "#", ";")` 벡터에 있는 행만 유지됩니다. `line_comment_token`을 기준으로 패면 분류(faceting)할 것이며, 패면의 제목이 정보가 되도록 하고 싶습니다 - 단순히 `#` 기호만 있는 것이 아니라요. 이를 수행하기 위해 라벨링 함수를 만들 수도 있지만, `line_comment_token` 토큰의 텍스트를 편집하는 것이 훨씬 쉽습니다. `paste()` 함수를 사용하여 각 기호 앞에 `"Comment token:"`이라는 문구를 추가하고 **`dplyr`**의 `mutate()`를 사용하여 이를 `label`이라는 새 열로 추가합니다. \index{dplyr!filter} \index{dplyr!mutate} \index{base!paste}
 
-To keep our data tidy and manageable, we can drop the columns we no longer need using the `select()` function from **`dplyr`** to keep only the five columns we'll be using in the visualization. We'll also discard any rows that contain an `NA` value in any of these columns using `drop_na()` from **`tidyr`**. \index{dplyr!select} \index{tidyr!drop\_na}
+데이터를 깔끔하고 관리하기 쉽게 유지하기 위해 **`dplyr`**의 `select()` 함수를 사용하여 시각화에 사용할 5개 열만 유지하고 필요 없는 열을 삭제할 수 있습니다. 또한 **`tidyr`**의 `drop_na()`를 사용하여 이러한 열에 `NA` 값이 포함된 행을 삭제합니다. \index{dplyr!select} \index{tidyr!drop\_na}
 
 ```{r}
 #| label: languages-data-wrangling-1
@@ -244,11 +244,11 @@ comment_df <- pl_df |>
   drop_na()
 ```
 
-In each facet, we could list all programming languages that use the comment symbol related to that facet. This would also display information about how many languages use each symbol. Alternatively, we may choose to use only the top 10 ranked languages for each symbol. 
+각 패면에서 해당 패면과 관련된 주석 기호를 사용하는 모든 프로그래밍 언어를 나열할 수 있습니다. 이렇게 하면 각 기호를 사용하는 언어의 수에 대한 정보도 표시됩니다. 또는 각 기호에 대해 상위 10위권 언어만 사용하도록 선택할 수도 있습니다.
 
-We can extract the top 10 using `slice_min()` from **`dplyr`** and select the 10 with the smallest values in `language_rank`. Alternatively, since the data is already sorted in rank order, we can use `slice_head()` from **`dplyr`** to extract the first 10 rows. Since we want the top 10 rows from each comment symbol category (not just the top 10 overall), we need to `group()` the data based on the `label` column. Before we `ungroup()` the data, we also want to create a new column that defines the within-group ranking as this will help with plotting. The `row_number()` function from **`dplyr`** identifies the row number within each group so is used to define this within-group ranking. We add it as a new column called `n` using `mutate()`. \index{dplyr!slice\_min} \index{dplyr!slice\_head} \index{dplyr!group} \index{dplyr!mutate} \index{dplyr!row\_number}
+**`dplyr`**의 `slice_min()`을 사용하여 상위 10개를 추출하고 `language_rank` 값이 가장 작은 10개를 선택할 수 있습니다. 또는 데이터가 이미 순위 순서로 정렬되어 있으므로 **`dplyr`**의 `slice_head()`를 사용하여 처음 10개 행을 추출할 수 있습니다. 전체 상위 10개가 아니라 각 주석 기호 범주에서 상위 10개 행을 원하므로 `label` 열을 기준으로 데이터를 `group()`(그룹화)해야 합니다. 데이터 `ungroup()`(그룹 해제)하기 전에 플로팅에 도움이 되므로 그룹 내 순위를 정의하는 새 열도 만들고 싶습니다. **`dplyr`**의 `row_number()` 함수는 각 그룹 내의 행 번호를 식별하므로 이 그룹 내 순위를 정의하는 데 사용됩니다. `mutate()`를 사용하여 `n`이라는 새 열로 추가합니다. \index{dplyr!slice\_min} \index{dplyr!slice\_head} \index{dplyr!group} \index{dplyr!mutate} \index{dplyr!row\_number}
 
-To aid in plotting, we also want to reformat the data to put both year columns (`appeared` and `last_activity`) into one column. We can do this using `pivot_longer()` from **`tidyr`**. \index{tidyr!pivot\_longer}
+플로팅을 돕기 위해 두 연도 열(`appeared` 및 `last_activity`)을 하나의 열로 넣도록 데이터 형식을 다시 지정하려고 합니다. **`tidyr`**의 `pivot_longer()`를 사용하여 이를 수행할 수 있습니다. \index{tidyr!pivot\_longer}
 
 ```{r}
 #| label: languages-data-wrangling-2
@@ -266,29 +266,29 @@ plot_data <- comment_df |>
   )
 ```
 
-Our `plot_data` looks like this:
+우리의 `plot_data`는 다음과 같습니다:
 
 ```{r}
 #| label: languages-plot-data-head
 head(plot_data)
 ```
 
-Now we're ready to start plotting!
+이제 플로팅을 시작할 준비가 되었습니다!
 
-### The first plot
+### 첫 번째 플롯
 
-One of the especially nice features of **`ggplot2`** is the ability to save plots as variables, and iteratively add (using `+`) layers to it. To make the code a little bit clearer, we'll be creating each aspect of our plot in stages, and gradually adding more complex styling to it. We'll save the first plot we create as `basic_plot`. 
+**`ggplot2`**의 특히 좋은 기능 중 하나는 플롯을 변수로 저장하고 반복적으로( `+`를 사용하여) 레이어를 추가할 수 있다는 것입니다. 코드를 조금 더 명확하게 만들기 위해 플롯의 각 측면을 단계별로 만들고 점차 더 복잡한 스타일을 추가하겠습니다. 우리가 만드는 첫 번째 플롯을 `basic_plot`으로 저장할 것입니다.
 
-As with most plots created with **`ggplot2`**, we'll start by calling the `ggplot()` function. We can define which data and aesthetic mapping we want to use either globally (in the `ggplot()` function) or in each individual layer. We'll be using the same data (`plot_data`) for all layers, so we pass it into the `data` argument of `ggplot()`. \index{ggplot2!ggplot}
+**`ggplot2`**로 만든 대부분의 플롯과 마찬가지로 `ggplot()` 함수를 호출하는 것으로 시작합니다. `ggplot()` 함수에서 전역적으로 또는 각 개별 레이어에서 사용할 데이터와 미적 매핑(aesthetic mapping)을 정의할 수 있습니다. 모든 레이어에 대해 동일한 데이터(`plot_data`)를 사용할 것이므로 `ggplot()`의 `data` 인수에 전달합니다. \index{ggplot2!ggplot}
 
-Next, we start adding geometries: lines and points. The order we add the geometries is important here. We want the points to be plotted on top of the lines so that we don't see the lines overlapping with the points. This means we need to plot the lines first, then the points. We add geometries using the different `geom_*` functions. To add lines, we use `geom_line()`. Although **`ggplot2`** is smart, it's not smart enough to guess which variables will be plotted on each axis. We need to specify an *aesthetic mapping* using the `aes()` function - to define which columns from the data are going on the `x` and `y` axes. We want to draw horizontal lines for our dumbbell chart, meaning that `year` goes on the `x`-axis, and the rank category, `n`, goes on the `y`-axis. By default, `geom_line()` draws lines between the co-ordinates in the order of the variable on the x-axis. That's not really what we want here. We want a separate line drawn for each language, i.e. each rank, `n`. So we pass this into the `group` argument as well. This will still draw lines between co-ordinates in order of the variable of the x-axis, but separately for each rank category. To add points at each end of the dumbbell, we add `geom_point()` - specifying the aesthetic mapping to put the year on the x-axis and the rank on the y-axis again. We don't need to specify a `group` here, although it won't make any difference if we do. \index{ggplot2!geom\_point} \index{ggplot2!geom\_line} \index{ggplot2!aes}
+다음으로 선과 점이라는 도형(geometries)을 추가하기 시작합니다. 여기서 도형을 추가하는 순서가 중요합니다. 선이 점과 겹치지 않도록 점을 선 위에 플롯하고 싶습니다. 즉, 선을 먼저 플롯한 다음 점을 플롯해야 합니다. 다른 `geom_*` 함수를 사용하여 도형을 추가합니다. 선을 추가하려면 `geom_line()`을 사용합니다. **`ggplot2`**가 똑똑하긴 하지만 각 축에 어떤 변수가 플롯될지 추측할 만큼 똑똑하지는 않습니다. `aes()` 함수를 사용하여 *미적 매핑*을 지정해야 합니다. 데이터의 어떤 열이 `x` 및 `y` 축에 들어가는지 정의하는 것입니다. 덤벨 차트에 수평선을 그리고 싶으므로 `year`가 `x`축에, 순위 범주 `n`이 `y`축에 들어갑니다. 기본적으로 `geom_line()`은 x축에 있는 변수의 순서대로 좌표 사이아에 선을 그립니다. 그것은 여기서 우리가 정말로 원하는 것이 아닙니다. 우리는 각 언어, 즉 각 순위 `n`에 대해 별도의 선을 그리고 싶습니다. 그래서 이것을 `group` 인수에도 전달합니다. 이렇게 하면 여전히 x축의 변수 순서대로 좌표 사이에 선을 그리지만 각 순위 범주별로 별도로 그립니다. 덤벨의 양쪽 끝에 점을 추가하기 위해 `geom_point()`를 추가합니다. 미적 매핑을 지정하여 `year`를 x축에, 순위를 다시 y축에 넣습니다. 여기서 `group`을 지정할 필요는 없지만 지정해도 차이는 없습니다. \index{ggplot2!geom\_point} \index{ggplot2!geom\_line} \index{ggplot2!aes}
 
-Finally, we also add `facet_wrap()` to create a small multiple plot (facet) for each category in the `label` column. Note the `~` required before the name of the column we wish to facet by.  \index{ggplot2!facet\_wrap}
+마지막으로 `facet_wrap()`을 추가하여 `label` 열의 각 범주에 대한 작은 다중 플롯(패면)을 만듭니다. 패면 분류하려는 열의 이름 앞에 `~`가 필요하다는 점에 유의하세요. \index{ggplot2!facet\_wrap}
 
 ```{r}
 #| label: fig-languages-basic-plot1
-#| fig-cap: "A faceted dumbbell chart showing time between language appearance and last activity, for the top 10 languages that use each of #, //, and ; as a comment symbol."
-#| fig-alt: "The visualization tracks the usage of three comment tokens ('#', '//', and ';') from 1980 to 2020."
+#| fig-cap: "각각 #, //, ;를 주석 기호로 사용하는 상위 10개 언어에 대해 언어 출현과 마지막 활동 사이의 시간을 보여주는 패면 덤벨 차트."
+#| fig-alt: "시각화는 1980년부터 2020년까지 세 가지 주석 토큰('#', '//', ';')의 사용을 추적합니다."
 #| warning: false
 basic_plot <- ggplot(data = plot_data) +
   geom_line(mapping = aes(x = year, y = n, group = n)) +
@@ -297,14 +297,14 @@ basic_plot <- ggplot(data = plot_data) +
 basic_plot
 ```
 
-In **`ggplot2`** (and most other plotting software) the y-axis starts with 0 at the bottom with increasing values going upwards. However, when we visualize rankings, we usually want to put the smallest number (highest rank) at the top. So we want to reverse the y-axis here. In **`ggplot2`**, for a discrete axes, we do this by passing the `rev()` (short for reverse) function to the `limits` argument of `scale_y_discrete()`. \index{base!rev} \index{ggplot2!scale\_y\_discrete}
+**`ggplot2`**(및 대부분의 다른 플로팅 소프트웨어)에서 y축은 아래에서 0으로 시작하여 위로 갈수록 값이 증가합니다. 그러나 순위를 시각화할 때는 일반적으로 가장 작은 숫자(가장 높은 순위)를 맨 위에 두고 싶습니다. 그래서 여기서는 y축을 뒤집고 싶습니다. **`ggplot2`**에서 이산 축의 경우 `rev()`(reverse의 줄임말) 함수를 `scale_y_discrete()`의 `limits` 인수에 전달하여 이를 수행합니다. \index{base!rev} \index{ggplot2!scale\_y\_discrete}
 
-The current y-axis labels are not especially informative - it would be more useful to add in the names of the languages or the overall ranking rather than simply the numbers 1 to 10. Later, we're going to add some labels in each facet to provide this information, so we'll expand the left hand side of the x-axis to leave some space for those labels. By setting `expand = expansion(0, 0)` we remove the extra space that's automatically added at either side of the axis. 
+현재 y축 레이블은 특별히 유익하지 않습니다. 단순히 1에서 10까지의 숫자보다는 언어의 이름이나 전체 순위를 추가하는 것이 더 유용할 것입니다. 나중에 각 패면에 이 정보를 제공하기 위해 레이블을 몇 개 추가할 예정이므로 해당 레이블을 위한 공간을 남겨두기 위해 x축의 왼쪽을 확장합니다. `expand = expansion(0, 0)`을 설정하면 축의 양쪽에 자동으로 추가되는 여분의 공간이 제거됩니다.
 
 ```{r}
 #| label: fig-languages-scales-plot
-#| fig-cap: "A faceted dumbbell chart showing time between language appearance and last activity, for the top 10 languages that use each of #, //, and ; as a comment symbol. High ranked languages are at the top of the chart, and the x-axis extends from 1930 to 2030."
-#| fig-alt: "The chart tracks the use of three comment tokens ('#', '//', and ';') from 1970 to 2030."
+#| fig-cap: "각각 #, //, ;를 주석 기호로 사용하는 상위 10개 언어에 대해 언어 출현과 마지막 활동 사이의 시간을 보여주는 패면 덤벨 차트입니다. 상위 순위 언어가 차트 상단에 있으며 x축은 1930년부터 2030년까지 확장됩니다."
+#| fig-alt: "이 차트는 1970년부터 2030년까지 세 가지 주석 토큰('#', '//', ';')의 사용을 추적합니다."
 basic_plot +
   scale_y_discrete(limits = rev) +
   scale_x_continuous(
@@ -314,29 +314,29 @@ basic_plot +
   )
 ```
 
-We now have a basic plot that looks a little bit like the sketch in @fig-languages-sketch-2. But it doesn't look great yet. It needs a bit more work to improve both the aesthetics and the clarity of the visualization. 
+이제 @fig-languages-sketch-2 의 스케치와 약간 비슷한 기본 플롯이 생겼습니다. 하지만 아직 멋져 보이지는 않습니다. 시각화의 미학과 명확성을 모두 개선하려면 약간의 작업이 더 필요합니다.
 
-## Advanced styling
+## 고급 스타일링
 
-There are lots of different elements of applying more advanced styling to charts, and we'll cover a few of them in this section: colors, fonts, and themes.
+차트에 고급 스타일을 적용하는 요소는 다양하며, 이 섹션에서는 색상, 글꼴 및 테마 등 몇 가지 요소를 다룹니다.
 
-### Colors
+### 색상
 
-Let's start with colors. How do you decide which colors to use? The more complex case is where color represents a variable in the data - either through a color gradient for continuous variables, or a set of distinct colors for discrete, categorical data. We'll come back to choosing colors for this setting in @sec-museums and @sec-lemurs. Here, it's a little bit easier since we only need to think about a few colors: the background color(s), the text color(s), and the colors for the different geometric elements. \index{color}
+색상부터 시작해 볼까요? 어떤 색상을 사용할지 어떻게 결정하나요? 더 복잡한 경우는 색상이 데이터의 변수를 나타내는 경우입니다. 연속 변수의 경우 색상 그라디언트를 사용하거나 이산형 범주형 데이터의 경우 구별되는 색상 세트를 사용합니다. @sec-museums 및 @sec-lemurs 에서 이러한 설정에 대한 색상 선택으로 돌아오겠습니다. 여기서는 배경색, 텍스트 색상 및 다양한 기하학적 요소에 대한 색상과 같이 몇 가지 색상만 생각하면 되므로 조금 더 쉽습니다. \index{color}
 
-To make visualizations that are more aesthetically pleasing, it's often useful to think about whether you can match your color choices to the theme of the data. For example, if you're creating a bar chart of pumpkin sizes, you might want to use orange for the bar color. Here, we're creating a chart about programming languages. What color do you associate with programming languages? Personally, I think of green. Specifically, the green used in *green screens* ([monochrome monitors](https://en.wikipedia.org/wiki/Monochrome_monitor) that used green phosphor screens) typically in the early days of computing. 
+더 심미적으로 보기 좋은 시각화를 만들려면 색상 선택을 데이터의 테마와 일치시킬 수 있는지 생각하는 것이 종종 유용합니다. 예를 들어 호박 크기에 대한 막대 차트를 만드는 경우 막대 색상으로 주황색을 사용할 수 있습니다. 여기서는 프로그래밍 언어에 대한 차트를 만들고 있습니다. 프로그래밍 언어와 어떤 색상을 연관시키나요? 개인적으로 저는 녹색이 생각납니다. 구체적으로 말하자면, 초기 컴퓨팅 시절에 전형적인 *그린 스크린*([단색 모니터](https://en.wikipedia.org/wiki/Monochrome_monitor)로 녹색 인광 스크린을 사용함)에 사용된 녹색입니다.
 
-We can define some variables to store our colors in: a variable called `bg_col` that's dark gray color we'll use for the background; and a variable called `main_col` that's a hex code for a bright green color we'll use for the text and other geometric elements.
+색상을 저장할 몇 가지 변수를 정의할 수 있습니다. 배경에 사용할 짙은 회색인 `bg_col` 변수와 텍스트 및 기타 기하학적 요소에 사용할 밝은 녹색의 16진수 코드인 `main_col` 변수입니다.
 
 ::: {#tip-languages-colors .callout-tip}
 
-## Colors in R
+## R의 색상
 
-The dark gray, `"gray5"`, is a pre-defined color in R. Run `colors()` to see the list of all `r length(colors())` pre-defined colors available. \index{color}
+짙은 회색인 `"gray5"`는 R에 미리 정의된 색상입니다. `colors()`를 실행하여 사용 가능한 모든 `r length(colors())`개의 미리 정의된 색상 목록을 확인하세요. \index{color}
 
 :::
 
-It's useful to save colors as variables because it makes it much easier to edit colors later on. We *could* just use the hex code directly in each argument where we want to use the color. But as you'll see when we start applying the colors to our chart, this can be many different arguments. If we decided we actually want to use a slightly different shade of green, we'd have to manually change all of them. By using a variable, we only need to change it once.
+나중에 색상을 편집하기가 훨씬 쉽기 때문에 색상을 변수로 저장하는 것이 유용합니다. 색상을 사용하려는 각 인수에 16진수 코드를 직접 사용할 *수도* 있습니다. 그러나 차트에 색상을 적용하기 시작하면 알 수 있듯이 인수가 많을 수 있습니다. 약간 다른 그늘의 녹색을 사용하고 싶다고 결정하면 모든 녹색을 수동으로 변경해야 합니다. 변수를 사용하면 한 번만 변경하면 됩니다.
 
 ```{r}
 #| label: languages-color-vars
@@ -344,14 +344,14 @@ bg_col <- "gray5"
 main_col <- "#66FF00"
 ```
 
-Although you can use `update_geom_defaults()` to change the default colors used for lines, points, and text, this approach also changes the colors for all future plots in your R session and it's quite tricky to return to the previous defaults. Instead, we can simply rewrite the code we already have and add in the additional colors. Note that these colors are added outside of the `aes()` function since they are not mapped to variables in the data. \index{ggplot2!aes} \index{ggplot2!update\_geom\_defaults}
+`update_geom_defaults()`를 사용하여 선, 점 및 텍스트에 사용되는 기본 색상을 변경할 수 있지만 이 접근 방식은 R 세션의 모든 미래 플롯에 대한 색상도 변경하며 이전 기본값으로 돌아가는 것은 꽤 까다롭습니다. 대신 이미 가지고 있는 코드를 다시 작성하고 추가 색상을 추가할 수 있습니다. 이러한 색상은 데이터의 변수에 매핑되지 않으므로 `aes()` 함수 외부에 추가된다는 점에 유의하세요. \index{ggplot2!aes} \index{ggplot2!update\_geom\_defaults}
 
-The point character (`pch`) for `geom_point()` is also set to `22` - a square which allows you to color the square and its outline different colors. The outline `color` is set to our green `main_col` and the square `fill` color is set to the dark gray `bg_col`.
+`geom_point()`에 대한 점 문자(`pch`)도 `22`로 설정됩니다. 이는 네모난 모양으로, 사각형과 윤곽선을 다른 색상으로 칠할 수 있게 해줍니다. 윤곽선 `color`는 녹색 `main_col`로 설정되고 사각형 `fill` 색상은 짙은 회색 `bg_col`로 설정됩니다.
 
 ```{r}
 #| label: fig-languages-basic-plot2
-#| fig-cap: "A faceted dumbbell chart showing time between language appearance and last activity, for the top 10 languages that use each of #, //, and ; as a comment symbol with green lines and green-outlined dark gray points."
-#| fig-alt: "The chart tracks the use of three comment tokens ('#', '//', and ';') from 1970 to 2030. The lines are green, showing a clear distinction between the time periods."
+#| fig-cap: "각각 #, //, ;를 주석 기호로 사용하는 상위 10개 언어에 대해 언어 출현과 마지막 활동 사이의 시간을 보여주는 패면 덤벨 차트로, 녹색 선과 녹색 윤곽선의 어두운 회색 점이 있습니다."
+#| fig-alt: "차트는 1970년부터 2030년까지 세 가지 주석 토큰('#', '//', ';')의 사용을 추적합니다. 선은 녹색으로 시간, 기간을 명확하게 구분하여 보여줍니다."
 #| source-line-numbers: "4,8,9,10"
 basic_plot <- ggplot(data = plot_data) +
   geom_line(
@@ -365,7 +365,7 @@ basic_plot <- ggplot(data = plot_data) +
     pch = 22
   ) +
   facet_wrap(~label) +
-  # add scales back in
+  # 스케일 다시 추가
   scale_y_discrete(limits = rev) +
   scale_x_continuous(
     breaks = c(1970, 1990, 2010, 2030),
@@ -375,11 +375,11 @@ basic_plot <- ggplot(data = plot_data) +
 basic_plot
 ```
 
-### Text and fonts {#sec-lang-text-fonts}
+### 텍스트와 글꼴 {#sec-lang-text-fonts}
 
-Adding text to a visualization is important - a title, subtitle, and perhaps caption can add information to make it easier for a reader to understand what's going on. A title quickly explains what the chart is about. Though more informative titles may be viewed as more aesthetically pleasing, there's no evidence that they are more effective for conveying information [@Wanzer2021].  A subtitle might give some more information about the underlying data, explain how to interpret more complex charts, or state the conclusions a reader should come to. Captions are a good place to put information such as who made the graphic, what the source of the data is, or other important conditions on the data.
+시각화에 텍스트를 추가하는 것은 중요합니다. 제목, 부제목, 캡션을 통해 독자가 무슨 일이 일어나고 있는지 이해하기 쉽게 정보를 추가할 수 있습니다. 제목은 차트가 무엇에 관한 것인지 빠르게 설명합니다. 더 많은 정보를 제공하는 제목이 심미적으로 더 즐거울 수 있지만 정보를 전달하는 데 더 효과적이라는 증거는 없습니다 [@Wanzer2021]. 부제목은 기본 데이터에 대한 정보를 더 제공하거나 더 복잡한 차트를 해석하는 방법을 설명하거나 독자가 도달해야 할 결론을 명시할 수 있습니다. 캡션은 그래픽을 만든 사람, 데이터 소스 또는 데이터에 대한 기타 중요한 조건과 같은 정보를 넣기에 좋은 곳입니다.
 
-As with colors, we'll define text as variables. This helps to keep the plotting code looking a little bit cleaner. It's often easier to write the text after you've made the plot, and defining variables make it easy to add placeholder text while you're working on the plot.
+색상과 마찬가지로 텍스트를 변수로 정의합니다. 이렇게 하면 플로팅 코드를 조금 더 깔끔하게 유지하는 데 도움이 됩니다. 플롯을 만든 후 텍스트를 작성하는 것이 더 쉬운 경우가 많으며 변수를 정의하면 플롯 작업을 하는 동안 자리 표시자 텍스트를 쉽게 추가할 수 있습니다.
 
 ```{r}
 #| label: languages-text-vars-1
@@ -387,38 +387,38 @@ title <- "Programming Languages"
 caption <- "Data: Programming Language DataBase | Graphic: N. Rennie"
 ```
 
-Since our visualization doesn't give information on how many languages use each comment symbol and just focuses on the top 10, we might want to instead present this information in the subtitle instead:
+우리의 시각화는 각 주석 기호를 사용하는 언어의 수에 대한 정보를 제공하지 않고 상위 10개에만 초점을 맞추고 있으므로 대신 부제목에 이 정보를 표시하고 싶을 수 있습니다:
 
 ```{r}
 #| label: languages-text-vars-2
 subtitle <- "Of the 4,303 programming languages listed in the Programming Language DataBase, 205 use //, 101 use #, and 64 use ; to define which lines are comments. 3,831 languages do not have a comment token listed."
 ```
 
-The problem with writing out the values into a text string like this is that it's hard to update. The snapshot of data we're working with here is from March 2023. If we updated the data to a more recent version, we'd have to recalculate these values manually then copy and paste them into the text string. A better approach is to use data-driven text - combine calculation with text.
+이렇게 값을 텍스트 문자열로 작성하는 것의 문제는 업데이트하기 어렵다는 것입니다. 여기서 작업 중인 데이터 스냅샷은 2023년 3월의 것입니다. 데이터를 최신 버전으로 업데이트하면 이러한 값을 수동으로 다시 계산한 다음 텍스트 문자열에 복사하여 붙여넣어야 합니다. 더 나은 접근 방식은 데이터 기반 텍스트(계산과 텍스트 결합)를 사용하는 것입니다.
 
-The **`glue`** package [@glue] makes it easy to combine text with variable values. The `glue()` function evaluates R code inside curly brackets `{}` and inserts it into the string. Alternatively, you can use `paste()` as we did earlier for the facet labels, or `sprintf()` in base R. 
+**`glue`** 패키지 [@glue]를 사용하면 텍스트와 변수 값을 쉽게 결합할 수 있습니다. `glue()` 함수는 중괄호 `{}` 안의 R 코드를 평가하고 문자열에 삽입합니다. 또는 패면 레이블에 대해 이전에 수행한 것처럼 `paste()`를 사용하거나 기본 R의 `sprintf()`를 사용할 수도 있습니다.
 
 ::: {#tip-languages-glue .callout-tip}
 
-## Opening and closing brackets in `glue()`
+## `glue()`에서 괄호 열고 닫기
 
-If you need to use a curly bracket inside the string text, you can change the `.open` and `.close` arguments of `glue()` to a different delimiter.
+문자열 텍스트 안에서 중괄호를 사용해야 하는 경우 `glue()`의 `.open` 및 `.close` 인수를 다른 구분 기호로 변경할 수 있습니다.
 
 :::
 
-Since the values are going into a sentence we can make use of the `format()` function to add commas into the number formatting - showing `4,303` instead of `4303`: \index{base!format} \index{glue!glue}
+값이 문장으로 들어가므로 `format()` 함수를 사용하여 숫자 서식에 쉼표를 추가할 수 있습니다 - `4303` 대신 `4,303` 표시: \index{base!format} \index{glue!glue}
 
 ```{r}
 #| label: languages-text-vars-3
 subtitle <- glue("Of the {format(nrow(languages), big.mark = ',')} programming languages listed in the Programming Language DataBase, {sum(languages$line_comment_token == '//', na.rm = TRUE)} use //, {sum(languages$line_comment_token == '#', na.rm = TRUE)} use #, and {sum(languages$line_comment_token == ';', na.rm = TRUE)} use ; to define which lines are comments. {format(sum(is.na(languages$line_comment_token)), big.mark = ',')} languages do not have a comment token listed.")
 ```
 
-Let's add the title, subtitle, and caption to the plot using the `labs()` function: \index{ggplot2!labs}
+`labs()` 함수를 사용하여 제목, 부제목, 캡션을 플롯에 추가해 보겠습니다: \index{ggplot2!labs}
 
 ```{r}
 #| label: fig-languages-text_plot
-#| fig-cap: "A faceted dumbbell chart showing time between language appearance and last activity, for the top 10 languages that use each of #, //, and ; as a comment symbol. An unformatted title, subtitle, and caption have been added."
-#| fig-alt: "The chart titled 'Programming Languages' tracks the use of three comment tokens (#, //, and ;) from 1970 to 2030. The lines are green, showing a clear distinction between the time periods."
+#| fig-cap: "각각 #, //, ;를 주석 기호로 사용하는 상위 10개 언어에 대해 언어 출현과 마지막 활동 사이의 시간을 보여주는 패면 덤벨 차트입니다. 서식이 지정되지 않은 제목, 부제목 및 캡션이 추가되었습니다."
+#| fig-alt: "'Programming Languages'라는 제목의 차트는 1970년부터 2030년까지 세 가지 주석 토큰('#', '//', ';')의 사용을 추적합니다. 선은 녹색으로 시간, 기간을 명확하게 구분하여 보여줍니다."
 text_plot <- basic_plot +
   labs(
     title = title,
@@ -428,11 +428,11 @@ text_plot <- basic_plot +
 text_plot
 ```
 
-You'll notice that the subtitle text runs off the edge of the plot here - we'll deal with that a little bit later. Let's first decide on a typeface to use in the plot. As with choosing colors, when choosing typefaces it's useful to think about choosing one that fits with the theme. Think about the typefaces used in horror films posters. Isn't it quite different to the typefaces used in marketing children's toys? Since we're going with a monochrome monitor theme for the colors, we can extend that to the typeface choice by choosing a monospace typeface reminiscent of early computers. 
+여기서 부제목 텍스트가 플롯의 가장자리를 벗어나는 것을 알 수 있습니다. 이에 대해서는 나중에 조금 다루겠습니다. 먼저 플롯에 사용할 서체를 결정합시다. 색상 선택과 마찬가지로 서체를 선택할 때 테마에 맞는 서체를 선택하는 것이 유용합니다. 공포 영화 포스터에 사용되는 서체를 생각해 보세요. 어린이 장난감을 마케팅하는 데 사용되는 서체와는 상당히 다르지 않나요? 색상에 단색 모니터 테마를 사용하고 있으므로 초기 컴퓨터를 연상시키는 고정폭(monospace) 서체를 선택하여 서체 선택까지 그 테마를 확장할 수 있습니다.
 
-Working with fonts in R isn't always easy. When it comes to using a different font for text in R, you can use fonts that come installed with your operating system or download font files from elsewhere and load them into R. An easy way to use external fonts is through the `font_add_google()` function from **`sysfonts`** [@sysfonts]. This function allows you to load Google Fonts in R without worrying about downloading or installing font files. You can browse Google Fonts at {{< monolink "https://fonts.google.com/" "fonts.google.com" >}}. The `VT323` and `Share Tech Mono` typefaces both look like they'll fit in with our theme. The `font_add_google()` function looks through the Google Fonts database for the specified typeface `name` (e.g. `"VT323"`) and loads the font files you'll need. The second argument, `family` is how we'll refer to the typeface when using it in R. By default it's the same as the `name` but it's often useful to change it to something else (e.g. `"vt"`), especially for long typeface names. \index{sysfonts} \index{sysfonts!font\_add\_google}
+R에서 글꼴 작업이 항상 쉬운 것은 아닙니다. R의 텍스트에 다른 글꼴을 사용하는 경우 운영 체제에 설치된 글꼴을 사용하거나 다른 곳에서 글꼴 파일을 다운로드하여 R로 로드할 수 있습니다. 외부 글꼴을 사용하는 쉬운 방법은 **`sysfonts`** [@sysfonts]의 `font_add_google()` 함수를 사용하는 것입니다. 이 함수를 사용하면 글꼴 파일을 다운로드하거나 설치할 걱정 없이 R에서 Google Fonts를 로드할 수 있습니다. {{< monolink "https://fonts.google.com/" "fonts.google.com" >}}에서 Google Fonts를 찾아볼 수 있습니다. `VT323` 및 `Share Tech Mono` 서체는 모두 우리의 테마에 잘 어울릴 것 같습니다. `font_add_google()` 함수는 지정된 서체 `name`(예: `"VT323"`)에 대해 Google Fonts 데이터베이스를 검색하고 필요한 글꼴 파일을 로드합니다. 두 번째 인수 `family`는 R에서 사용할 때 서체를 참조하는 방법입니다. 기본적으로 `name`과 같지만 특히 긴 서체 이름의 경우 다른 것(예: `"vt"`)으로 변경하는 것이 종종 유용합니다. \index{sysfonts} \index{sysfonts!font\_add\_google}
 
-We also need to make sure that whichever graphics device we are using, is able to make use of these fonts. This is where the **`showtext`** package [@showtext] comes in. By running `showtext_auto()`, this means that the **`showtext`** package is automatically used to render text. We can also set `showtext_opts(dpi = 300)` to use fonts in the resolution we plan to save our image in later - see @sec-save-image for more details on image resolution. \index{showtext} \index{showtext!showtext\_auto} \index{showtext!showtext\_opts} 
+또한 우리가 사용하는 그래픽 장치가 이러한 글꼴을 사용할 수 있는지 확인해야 합니다. 여기서 **`showtext`** 패키지 [@showtext]가 등장합니다. `showtext_auto()`를 실행하면 텍스트 렌더링에 **`showtext`** 패키지가 자동으로 사용됨을 의미합니다. 또한 `showtext_opts(dpi = 300)`을 설정하여 나중에 이미지를 저장할 해상도로 글꼴을 사용할 수 있습니다. 이미지 해상도에 대한 자세한 내용은 @sec-save-image 를 참조하세요. \index{showtext} \index{showtext!showtext\_auto} \index{showtext!showtext\_opts} 
 
 ```{r}
 #| label: languages-showtext
@@ -448,17 +448,17 @@ showtext_opts(dpi = 300)
 
 ::: {#tip-languages-showtext .callout-tip}
 
-## Alternatives to **`showtext`**
+## **`showtext`**의 대안
 
-There are several alternatives to **`showtext`** for working with fonts in R. Depending on what you're creating, you might find one of these works better for you:
+R에서 글꼴 작업을 위한 **`showtext`**의 대안은 여러 가지가 있습니다. 만들고 있는 것에 따라 다음 중 하나가 더 잘 맞을 수 있습니다:
 
-* The **`ragg`** package [@ragg] uses a different graphics device, and allows to use any fonts installed on your system. You can usually install additional fonts by downloading the relevant font files, then right clicking and choosing the install option.
-* The **`systemfonts`** package [@systemfonts] allows you to locate or load local font files based on font family and style. We'll look at an example of using {systemfonts} in @sec-lemurs.
-* The **`extrafont`** package [@extrafont] which focuses on using TrueType fonts in PDF formats.
+* **`ragg`** 패키지 [@ragg]는 다른 그래픽 장치를 사용하며 시스템에 설치된 모든 글꼴을 사용할 수 있습니다. 일반적으로 관련 글꼴 파일을 다운로드한 다음 마우스 오른쪽 버튼을 클릭하고 설치 옵션을 선택하여 추가 글꼴을 설치할 수 있습니다.
+* **`systemfonts`** 패키지 [@systemfonts]는 글꼴 패밀리 및 스타일을 기반으로 로컬 글꼴 파일을 찾거나 로드할 수 있습니다. @sec-lemurs 에서 {systemfonts}를 사용하는 예를 살펴보겠습니다.
+* PDF 형식에서 TrueType 글꼴을 사용하는 데 중점을 둔 **`extrafont`** 패키지 [@extrafont].
 
 :::
 
-Exactly, as we did with colors, we'll save typeface names as variables to make it easier to see how our plots look with different typefaces. We'll save two variables: `title_font` that store the typeface for the title (and other important elements), and `body_font` for all other text.
+색상과 마찬가지로 서체 이름을 변수로 저장하여 다른 서체로 플롯이 어떻게 보이는지 쉽게 확인할 수 있습니다. 제목(및 기타 중요한 요소)의 서체를 저장하는 `title_font`와 다른 모든 텍스트에 대한 `body_font` 두 가지 변수를 저장합니다.
 
 ```{r}
 #| label: languages-font-vars
@@ -466,18 +466,18 @@ body_font <- "share"
 title_font <- "vt"
 ```
 
-When it comes to styling to all of the non-geom elements of your plot (such as the background color, the typeface used for the title, or how the caption is aligned) this is handled by the `theme()` function in **`ggplot2`**. There are several built-in themes which pre-set some of the arguments such as `theme_classic()`, `theme_minimal()`, or `theme_gray()`. The default theme is `theme_gray()` - this is where the default gray background comes from. \index{ggplot2!theme\_minimal} \index{ggplot2!theme\_classic} \index{ggplot2!theme\_gray} \index{ggplot2!theme}
+플롯의 모든 비-기하학적(non-geom) 요소(예: 배경색, 제목에 사용되는 서체 또는 캡션 정렬 방식)의 스타일링은 **`ggplot2`**의 `theme()` 함수에서 처리됩니다. `theme_classic()`, `theme_minimal()` 또는 `theme_gray()`와 같은 몇 가지 인수를 미리 설정하는 여러 내장 테마가 있습니다. 기본 테마는 `theme_gray()`이며 기본 회색 배경은 여기에서 비롯됩니다. \index{ggplot2!theme\_minimal} \index{ggplot2!theme\_classic} \index{ggplot2!theme\_gray} \index{ggplot2!theme}
 
-Normally, we want the title text to appear larger than other text. Similarly, we might want the axis text to be smaller than other text. In **`ggplot2`**, all text is defined relative to some baseline text size. If we want to increase (or decrease) the size of all text used in the plot, changing the `base_size` argument in the built-in themes sets the baseline text size used for all elements. This means you don't have to individually increase the size of every single text element. Similarly, the `base_family` changes the default typeface used for all (non-geom) text elements.
+일반적으로 제목 텍스트가 다른 텍스트보다 크게 나타나기를 원합니다. 마찬가지로 축 텍스트는 다른 텍스트보다 작기를 원할 수 있습니다. **`ggplot2`**에서 모든 텍스트는 어떤 기준 텍스트 크기에 상대적으로 정의됩니다. 플롯에 사용되는 모든 텍스트의 크기를 늘리거나 줄이려면 내장 테마의 `base_size` 인수를 변경하면 모든 요소에 사용되는 기준 텍스트 크기가 설정됩니다. 즉, 모든 단일 텍스트 요소의 크기를 개별적으로 늘릴 필요가 없습니다. 마찬가지로 `base_family`는 모든 (비-기하학적) 텍스트 요소에 사용되는 기본 서체를 변경합니다.
 
-Here, we might start with `theme_minimal()` and set the `base_size` to `8`. This is quite a small font size (smaller than the default size of 11) to make sure the plot fits within the width of the printed version of this book.
+여기서는 `theme_minimal()`로 시작하고 `base_size`를 `8`로 설정할 수 있습니다. 이것은 꽤 작은 글꼴 크기(기본 크기인 11보다 작음)로 플롯이 이 책의 인쇄 버전 너비에 맞는지 확인하기 위한 것입니다.
 
-We can also set the `base_family` equal to `body_font` - the variable we defined earlier to store the name of the typeface we want to use for the text. \index{ggplot2!theme\_minimal}
+또한 `base_family`를 앞서 텍스트에 사용하려는 서체 이름을 저장하기 위해 정의한 변수인 `body_font`와 동일하게 설정할 수도 있습니다. \index{ggplot2!theme\_minimal}
 
 ```{r}
 #| label: languages-minimal-theme
-#| fig-cap: "A faceted dumbbell chart showing time between language appearance and last activity, for the top 10 languages that use each of #, //, and ; as a comment symbol. The default font has been changed, and the font made slightly smaller."
-#| fig-alt: "The chart titled 'Programming Languages' tracks the use of three comment tokens (#, //, and ;;) in 4,303 programming languages from 1970 to 2030. The lines are green, showing a clear distinction between the time periods."
+#| fig-cap: "각각 #, //, ;를 주석 기호로 사용하는 상위 10개 언어에 대해 언어 출현과 마지막 활동 사이의 시간을 보여주는 패면 덤벨 차트입니다. 기본 글꼴이 변경되었으며 글꼴이 약간 작아졌습니다."
+#| fig-alt: "'Programming Languages'라는 제목의 차트는 1970년부터 2030년까지 4,303개의 프로그래밍 언어에서 세 가지 주석 토큰('#', '//', ';')의 사용을 추적합니다. 선은 녹색으로 시간, 기간을 명확하게 구분하여 보여줍니다."
 theme_plot1 <- text_plot +
   theme_minimal(
     base_size = 8,
@@ -486,21 +486,21 @@ theme_plot1 <- text_plot +
 theme_plot1
 ```
 
-### Adjusting themes
+### 테마 조정하기
 
-We can make some further adjustments to the styling by editing individual arguments in the `theme()` function. When editing `theme()` arguments, many arguments are specified as a type of element: `element_text()`, `element_line()`, `element_rect()`, `element_grob()`, `element_render()`, or `element_blank()`. 
+`theme()` 함수의 개별 인수를 편집하여 스타일을 추가로 조정할 수 있습니다. `theme()` 인수를 편집할 때 많은 인수는 요소 유형으로 지정됩니다: `element_text()`, `element_line()`, `element_rect()`, `element_grob()`, `element_render()`, 또는 `element_blank()`.
 
-#### Background color
+#### 배경 색상
 
-We can edit the background color using the `panel.background` and `plot.background` arguments. The `panel.background` refers to the area within the plot e.g. the area that is gray by default. The `plot.background` refers to area outside of this. Both of these are specified using `element_rect()` since they are effectively just rectangles. We want to change both the `fill` (inner color of the rectangle) and `color` (outline color of the rectangle to our chosen background color.)
+`panel.background` 및 `plot.background` 인수를 사용하여 배경색을 편집할 수 있습니다. `panel.background`는 플롯 내부 영역, 예: 기본적으로 회색인 영역을 나타냅니다. `plot.background`는 이 외부 영역을 나타냅니다. 이 둘은 사실상 직사각형일 뿐이므로 `element_rect()`를 사용하여 지정됩니다. `fill`(직사각형의 내부 색상)과 `color`(직사각형의 윤곽선 색상)를 모두 선택한 배경색으로 변경하려고 합니다.
 
-#### Grid lines
+#### 그리드 선
 
-Grid lines in **`ggplot2`** fall into two categories: major and minor. Major grid lines are usually slightly bolder and correspond to the axis text labels. Minor grid lines are usually lighter and unlabeled. They can be controlled using the `panel.grid.major` and `panel.grid.minor` arguments, with finer control possible for x- and y-axis gridlines. They are all defined using `element_line()`. We can change the color of the major x-axis gridlines using the color element. To ensure the bright green color doesn't become distracting as a background element, we can make it semi-transparent using the `alpha()` function from **`ggplot2`** - `0` means fully transparent and `1` means fully opaque. The `linewidth` controls the width of the lines. We remove all the y-axis grid lines and all minor grid lines by setting both `panel.grid.major.y` and `panel.grid.minor` to `element_blank()` which removes the elements completely. We can also remove all axis ticks using `axis.ticks = element_blank()`.
+**`ggplot2`**의 그리드 선은 주(major) 및 부(minor) 두 가지 범주로 나뉩니다. 주 그리드 선은 일반적으로 약간 더 굵고 축 텍스트 레이블에 해당합니다. 부 그리드 선은 일반적으로 더 가볍고 레이블이 없습니다. `panel.grid.major` 및 `panel.grid.minor` 인수를 사용하여 제어할 수 있으며 x축 및 y축 그리드선에 대해 더 세밀한 제어가 가능합니다. 모두 `element_line()`을 사용하여 정의됩니다. color 요소를 사용하여 주 x축 그리드선의 색상을 변경할 수 있습니다. 밝은 녹색이 배경 요소로 산만해지지 않도록 **`ggplot2`**의 `alpha()` 함수를 사용하여 반투명하게 만들 수 있습니다. `0`은 완전히 투명함을 의미하고 `1`은 완전히 불투명함을 의미합니다. `linewidth`는 선의 너비를 제어합니다. `panel.grid.major.y`와 `panel.grid.minor`를 모두 `element_blank()`로 설정하여 모든 y축 그리드 선과 모든 부 그리드 선을 제거합니다. `axis.ticks = element_blank()`를 사용하여 모든 축 눈금도 제거할 수 있습니다.
 
-#### Text elements
+#### 텍스트 요소
 
-Unfortunately, there is no `base_color` argument that allows us to change the color of all text elements in the same way as the `base_size` and `base_family` arguments. Within the `theme()` function, we can edit the `text` argument:
+불행히도 `base_size` 및 `base_family` 인수와 같은 방식으로 모든 텍스트 요소의 색상을 변경할 수 있는 `base_color` 인수는 없습니다. `theme()` 함수 내에서 `text` 인수를 편집할 수 있습니다:
 
 ```{r}
 #| label: languages-text-col
@@ -510,27 +510,27 @@ theme(
 )
 ```
 
-However, this unfortunately misses some of the text elements in the chart such as the axis labels which retain their default colors. To make sure we edit all the text elements we need to, we can edit the color of the relevant text elements individually and change them to the green `main_col` color. This includes the `strip.text` (the facet title text) and `axis.text` (axis value labels), as well as the `plot.title`, `plot.subtitle`, and `plot.caption`.
+그러나 안타깝게도 이것은 기본 색상을 유지하는 축 레이블과 같은 차트의 일부 텍스트 요소를 놓칩니다. 필요한 모든 텍스트 요소를 편집하려면 관련 텍스트 요소의 색상을 개별적으로 편집하고 녹색 `main_col` 색상으로 변경할 수 있습니다. 여기에는 `strip.text`(패면 제목 텍스트) 및 `axis.text`(축 값 레이블), `plot.title`, `plot.subtitle` 및 `plot.caption`이 포함됩니다.
 
 ::: {#tip-languages-ggplot-v4 .callout-tip}
 
-## Improvements to the themes
+## 테마 개선 사항
 
-Version 4 of *`ggplot2`* brings updates to the `theme()` functions, and adds arguments called `ink` which deals with the foreground colors, and `paper` which deals with the background colors. You can read about the updates at {{< monolink "https://www.tidyverse.org/blog/2025/09/ggplot2-4-0-0/" "www.tidyverse.org/blog/2025/09/ggplot2-4-0-0" >}} [@vandenBrandv4].
+*`ggplot2`* 버전 4는 `theme()` 함수에 업데이트를 가져오고 전경색을 다루는 `ink`와 배경색을 다루는 `paper`라는 인수를 추가합니다. 업데이트에 대한 내용은 {{< monolink "https://www.tidyverse.org/blog/2025/09/ggplot2-4-0-0/" "www.tidyverse.org/blog/2025/09/ggplot2-4-0-0" >}} 에서 읽을 수 있습니다 [@vandenBrandv4].
 
 :::
 
 
-For the x-axis text, we also adjust the `vjust` argument to move the text slightly higher up closer to the plot area. For the y-axis text, we'll remove it using `element_blank()` as well add our own labels later. The `family` of the title text can also be adjusted to the `title_font` variable we defined earlier to change the typeface. We may also want to make the title font even larger by adjusting the `size` element. Instead of specifying a number directly in the `size` argument, we instead use the `rel()` function. The `rel()` function defines the font size relative to the base size - meaning that if you change the base size, the title will also rescale accordingly. \index{ggplot2!rel}
+x축 텍스트의 경우 `vjust` 인수를 조정하여 텍스트를 플롯 영역에 더 가깝게 약간 위로 이동합니다. y축 텍스트의 경우 `element_blank()`를 사용하여 제거하고 나중에 자체 레이블을 추가합니다. 제목 텍스트의 `family`도 앞서 정의한 `title_font` 변수로 조정하여 서체를 변경할 수 있습니다. `size` 요소를 조정하여 제목 글꼴을 더 크게 만들 수도 있습니다. `size` 인수에 숫자를 직접 지정하는 대신 `rel()` 함수를 사용합니다. `rel()` 함수는 기본 크기에 상대적인 글꼴 크기를 정의합니다. 즉, 기본 크기를 변경하면 제목도 그에 따라 다시 조정됩니다. \index{ggplot2!rel}
 
-#### Margins
+#### 여백
 
-To add a little bit of space around the outside edge of the plot, we can define the `plot.margin` argument. This is specified using the `margin()` function (instead of one of the `element_*()` functions) which takes four arguments: the top, right, bottom, and left margins. A little bit of trial and error can help you to find values that look good.
+플롯의 바깥쪽 가장자리에 약간의 공간을 추가하기 위해 `plot.margin` 인수를 정의할 수 있습니다. 이것은 (`element_*()` 함수 중 하나 대신) `margin()` 함수를 사용하여 지정되며 위쪽, 오른쪽, 아래쪽 및 왼쪽 여백의 네 가지 인수를 취합니다. 약간의 시행착오는 보기 좋은 값을 찾는 데 도움이 될 수 있습니다.
 
 ```{r}
 #| label: fig-languages-style1
-#| fig-cap: "A faceted dumbbell chart showing time between language appearance and last activity, for the top 10 languages that use each of #, //, and ; as a comment symbol, with a dark gray background and green text."
-#| fig-alt: "The chart titled 'Programming Languages' tracks the use of three comment tokens (#, //, and ;;) in 4,303 programming languages from 1970 to 2030. The lines are green, showing a clear distinction between the time periods. The background is black with green text."
+#| fig-cap: "각각 #, //, ;를 주석 기호로 사용하는 상위 10개 언어에 대해 언어 출현과 마지막 활동 사이의 시간을 보여주는 패면 덤벨 차트로, 짙은 회색 배경과 녹색 텍스트가 있습니다."
+#| fig-alt: "'Programming Languages'라는 제목의 차트는 1970년부터 2030년까지 4,303개의 프로그래밍 언어에서 세 가지 주석 토큰('#', '//', ';')의 사용을 추적합니다. 선은 녹색으로 시간, 기간을 명확하게 구분하여 보여줍니다. 배경은 검은색이고 텍스트는 녹색입니다."
 theme_plot1 +
   theme(
     # Background color
@@ -579,21 +579,21 @@ theme_plot1 +
   )
 ```
 
-We also need to deal with the fact that the subtitle text is too long and is running off the side of the page. There are a few options for this:
+또한 부제목 텍스트가 너무 길어 페이지 측면 밖으로 나가는 문제를 처리해야 합니다. 이를 위한 몇 가지 옵션이 있습니다:
 
-* We can manually add line breaks by adding in `"\n"` to the subtitle string where we want the line to break. This is very much a manual approach that requires a lot of trial and error. 
-* We can use `str_wrap()` from **`stringr`** to split the text with a specified number of characters per line. This still involves a bit of trial and error to find the best line length. It also means you need to re-optimize the line length if you change the text size.
-* One of the best solutions is to use `element_textbox_simple()` from the **`ggtext`** package [@ggtext]. The **`ggtext`** package provides improved text rendering support for **`ggplot2`**, including support for using Markdown and HTML text which you'll see several examples of in later chapters. The `element_textbox_simple()` function enables you to places text in a box, with word wrapping. 
-* The **`marquee`** package provides a similar functionality to **`ggtext`**, which we'll cover in @sec-turbines.
+* 줄을 바꾸고 싶은 부제목 문자열에 `"\n"`을 추가하여 수동으로 줄 바꿈을 추가할 수 있습니다. 이것은 많은 시행착오가 필요한 매우 수동적인 접근 방식입니다.
+* **`stringr`**의 `str_wrap()`을 사용하여 한 줄에 지정된 문자 수로 텍스트를 분할할 수 있습니다. 이것은 여전히 최적의 줄 길이를 찾기 위해 약간의 시행착오가 필요합니다. 또한 텍스트 크기를 변경하면 줄 길이를 다시 최적화해야 함을 의미합니다.
+* 가장 좋은 해결책 중 하나는 **`ggtext`** 패키지 [@ggtext]의 `element_textbox_simple()`을 사용하는 것입니다. **`ggtext`** 패키지는 이후 장에서 여러 예를 보게 될 Markdown 및 HTML 텍스트 사용 지원을 포함하여 **`ggplot2`**에 대한 향상된 텍스트 렌더링 지원을 제공합니다. `element_textbox_simple()` 함수를 사용하면 단어 줄 바꿈이 있는 상자에 텍스트를 배치할 수 있습니다.
+* **`marquee`** 패키지는 **`ggtext`**와 유사한 기능을 제공하며 @sec-turbines 에서 다룰 것입니다.
 
 \index{stringr!str\_wrap} \index{ggtext!element\_textbox\_simple}
 
-We can replace `element_text()` with `element_textbox_simple()` in the `theme()` argument for `plot.subtitle` to wrap the subtitle text at any font size:
+`plot.subtitle`에 대한 `theme()` 인수의 `element_text()`를 `element_textbox_simple()`로 대체하여 모든 글꼴 크기에서 부제목 텍스트를 줄 바꿈할 수 있습니다:
 
 ```{r}
 #| label: fig-languages-style2
-#| fig-cap: "A faceted dumbbell chart showing time between language appearance and last activity, for the top 10 languages that use each of #, //, and ; as a comment symbol. The subtitle text now wraps to the width of the page."
-#| fig-alt: "The chart titled 'Programming Languages' tracks the use of three comment tokens (#, //, and ;;) in 4,303 programming languages from 1970 to 2030. The lines are green, showing a clear distinction between the time periods."
+#| fig-cap: "각각 #, //, ;를 주석 기호로 사용하는 상위 10개 언어에 대해 언어 출현과 마지막 활동 사이의 시간을 보여주는 패면 덤벨 차트입니다. 이제 부제목 텍스트가 페이지 너비에 맞춰 줄 바꿈됩니다."
+#| fig-alt: "'Programming Languages'라는 제목의 차트는 1970년부터 2030년까지 4,303개의 프로그래밍 언어에서 세 가지 주석 토큰('#', '//', ';')의 사용을 추적합니다. 선은 녹색으로 시간, 기간을 명확하게 구분하여 보여줍니다."
 #| source-line-numbers: "31-35"
 theme_plot2 <- theme_plot1 +
   theme(
@@ -641,22 +641,22 @@ theme_plot2 <- theme_plot1 +
 theme_plot2
 ```
 
-Finally, since we've removed the y-axis labels, we need to add in some labels using `geom_text()`. The `geom_text()` function has three required aesthetics: the `x` and `y` co-ordinates of where the label should be placed, and `label` which defines what text is written. Here, we use the language `title` as the label, and put a label in each rank category, `n`, on the y-axis. We override the `x` aesthetic to place all labels in the same horizontal alignment - the exact value will take a little bit of trial and error to get right. 
+마지막으로 y축 레이블을 제거했으므로 `geom_text()`를 사용하여 레이블을 추가해야 합니다. `geom_text()` 함수에는 세 가지 필수 미학이 있습니다. 레이블을 배치해야 하는 `x` 및 `y` 좌표와 어떤 텍스트가 작성되는지 정의하는 `label`입니다. 여기서 언어 `title`을 레이블로 사용하고 y축의 각 순위 범주 `n`에 레이블을 넣습니다. 모든 레이블을 동일한 수평 정렬에 배치하기 위해 `x` 미학을 재정의합니다. 정확한 값은 올바르게 얻기 위해 약간의 시행착오가 필요합니다.
 
-We also need to edit the appearance of the text, since its styling is separate from the `theme` elements. We pass out `body_font` variable into the `family` argument to set the font family for the labels, and set `hjust = 0` to left-align the text. The `size` and `color` arguments can also be adjusted.
+또한 텍스트의 스타일은 `theme` 요소와 별개이므로 텍스트의 모양도 편집해야 합니다. `body_font` 변수를 `family` 인수에 전달하여 레이블의 글꼴 패밀리를 설정하고 `hjust = 0`으로 설정하여 텍스트를 왼쪽 정렬합니다. `size`와 `color` 인수도 조정할 수 있습니다.
 
 ::: {#tip-languages-font-size .callout-tip}
 
-## Default font sizes in `geom_text()`
+## `geom_text()`의 기본 글꼴 크기
 
-The default font size of `geom_text()` is 3.88. This is slightly confusing because the size in `geom_text()` is defined in `mm` whereas the size in `theme()` elements is defined in `pt`. To match the font size in `geom_text()` to the theme’s font size, specify `size.unit = "pt"` in `geom_text()`. This argument is available from version 3.5.0 of **`ggplot2`**.
+`geom_text()`의 기본 글꼴 크기는 3.88입니다. `geom_text()`의 크기는 `mm`로 정의되는 반면 `theme()` 요소의 크기는 `pt`로 정의되기 때문에 약간 혼란스럽습니다. `geom_text()`의 글꼴 크기를 테마의 글꼴 크기와 일치시키려면 `geom_text()`에서 `size.unit = "pt"`를 지정하세요. 이 인수는 **`ggplot2`** 버전 3.5.0부터 사용할 수 있습니다.
 
 :::
 
 ```{r}
 #| label: fig-languages-add-labels
-#| fig-cap: "A faceted dumbbell chart showing time between language appearance and last activity, for the top 10 languages that use each of #, //, and ; as a comment symbol, with labels added to denote the langauge."
-#| fig-alt: "The chart titled 'Programming Languages' tracks the use of three comment tokens (#, //, and ;;) in 4,303 programming languages from 1970 to 2030. The lines are green, showing a clear distinction between the time periods. Labels details the language name."
+#| fig-cap: "각각 #, //, ;를 주석 기호로 사용하는 상위 10개 언어에 대해 언어 출현과 마지막 활동 사이의 시간을 보여주는 패면 덤벨 차트로, 언어를 나타내는 레이블이 추가되었습니다."
+#| fig-alt: "'Programming Languages'라는 제목의 차트는 1970년부터 2030년까지 4,303개의 프로그래밍 언어에서 세 가지 주석 토큰('#', '//', ';')의 사용을 추적합니다. 선은 녹색으로 시간, 기간을 명확하게 구분하여 보여줍니다. 레이블은 언어 이름을 자세히 설명합니다."
 theme_plot2 +
   geom_text(
     mapping = aes(x = 1932, y = n, label = title),
@@ -667,7 +667,7 @@ theme_plot2 +
   )
 ```
 
-Although these labels are an improvement on not having any language label, they're still not as informative as they could be. There's no information about the overall rank included in the plot. There's no way to tell if the top ranked language that uses `#` as a comment symbol is also the top ranked language overall or ranked as low as 1000! Let's create a more informative label using the **`glue`** package again. We can create a new `rank_label` column using `mutate()` which combines the language name from the `title` column, the text `"Rank: `, and the rank from the `language_rank` column. The `\n` adds a line break between the language name and rank text. \index{dplyr!mutate} \index{glue!glue}
+이 레이블이 언어 레이블이 없는 것보다는 개선되었지만 가능한 한 유익하지는 않습니다. 플롯에 포함된 전체 순위에 대한 정보가 없습니다. `#`을 주석 기호로 사용하는 최상위 언어가 전체 최상위 언어인지 아니면 1000위 정도로 낮은지 알 수 있는 방법이 없습니다! **`glue`** 패키지를 다시 사용하여 더 유익한 레이블을 만들어 보겠습니다. `title` 열의 언어 이름, `"Rank: "` 텍스트, `language_rank` 열의 순위를 결합하는 `rank_label`이라는 새 열을 `mutate()`를 사용하여 만들 수 있습니다. `\n`은 언어 이름과 순위 텍스트 사이에 줄 바꿈을 추가합니다. \index{dplyr!mutate} \index{glue!glue}
 
 ```{r}
 #| label: languages-better-labels
@@ -679,12 +679,12 @@ plot_data <- plot_data |>
   )
 ```
 
-Let's add these new and improved labels to our plot using `geom_text()`. Note that since we've updated the `plot_data` object, we need to pass the data in again: \index{ggplot2!geom\_text}
+`geom_text()`를 사용하여 이 새롭고 개선된 레이블을 플롯에 추가해 보겠습니다. `plot_data` 객체를 업데이트했으므로 데이터를 다시 전달해야 한다는 점에 유의하세요: \index{ggplot2!geom\_text}
 
 ```{r}
 #| label: fig-languages-add-better-labels
-#| fig-cap: "A faceted dumbbell chart showing time between language appearance and last activity, for the top 10 languages that use each of #, //, and ; as a comment symbol, with labels added to denote the langauge and rank."
-#| fig-alt: "The chart titled 'Programming Languages' tracks the use of three comment tokens (#, //, and ;;) in 4,303 programming languages from 1970 to 2030. The lines are green, showing a clear distinction between the time periods. Labels detail the language name and overall rank."
+#| fig-cap: "각각 #, //, ;를 주석 기호로 사용하는 상위 10개 언어에 대해 언어 출현과 마지막 활동 사이의 시간을 보여주는 패면 덤벨 차트로, 언어와 순위를 나타내는 레이블이 추가되었습니다."
+#| fig-alt: "'Programming Languages'라는 제목의 차트는 1970년부터 2030년까지 4,303개의 프로그래밍 언어에서 세 가지 주석 토큰('#', '//', ';')의 사용을 추적합니다. 선은 녹색으로 시간, 기간을 명확하게 구분하여 보여줍니다. 레이블은 언어 이름과 전체 순위를 자세히 설명합니다."
 theme_plot2 +
   geom_text(
     data = plot_data,
@@ -698,17 +698,17 @@ theme_plot2 +
   )
 ```
 
-And we're finished!
+그리고 우리는 끝났습니다!
 
-### Saving to an image file {#sec-save-image}
+### 이미지 파일로 저장하기 {#sec-save-image}
 
-There are many different options available for saving plots created with R to a file you can later use in presentations, on social media, in publications, or anywhere else you might need to: \index{grDevices!png} \index{ragg!agg\_png}
+R로 만든 플롯을 나중에 프레젠테이션, 소셜 미디어, 출판물 또는 필요한 다른 곳에서 사용할 수 있도록 파일로 저장하는 데 사용할 수 있는 다양한 옵션이 있습니다: \index{grDevices!png} \index{ragg!agg\_png}
 
-* You can use the interactive interface in RStudio by going to the **Plots** tab, then clicking **Export** and **Save as Image**. This creates a pop-up window where you can choose your desired file type, set the size, and choose a location to save the file in. However, this approach doesn't allow you to set the resolution (image quality) of the file you save. 
-* The base R **`grDevices`** package provides several functions for saving to different file types. For example, the `png()` function enables you to save PNG files with a specific height, width, and resolution. You can also set other arguments such as the background color in the `png()` function. The **`ragg`** package [@ragg] provides a similar set of functions. For example, the `agg_png()` function. 
-* If you are using **`ggplot2`** to create your plots, the `ggsave()` function is the easiest way to save your visualizations to a file. As detailed in the help file it *defaults to saving the last plot that you displayed, using the size of the current graphics device. It also guesses the type of graphics device from the extension.*
+* RStudio의 대화형 인터페이스를 사용하여 **Plots** 탭으로 이동한 다음 **Export** 및 **Save as Image**를 클릭할 수 있습니다. 이렇게 하면 원하는 파일 유형을 선택하고 크기를 설정하고 파일을 저장할 위치를 선택할 수 있는 팝업 창이 생성됩니다. 그러나 이 접근 방식은 저장하는 파일의 해상도(이미지 품질)를 설정할 수 없습니다.
+* 기본 R **`grDevices`** 패키지는 다양한 파일 형식으로 저장하기 위한 여러 함수를 제공합니다. 예를 들어 `png()` 함수를 사용하면 특정 높이, 너비 및 해상도로 PNG 파일을 저장할 수 있습니다. `png()` 함수에서 배경색과 같은 다른 인수를 설정할 수도 있습니다. **`ragg`** 패키지 [@ragg]는 유사한 함수 세트를 제공합니다. 예를 들어 `agg_png()` 함수가 있습니다.
+* **`ggplot2`**를 사용하여 플롯을 만드는 경우 `ggsave()` 함수가 시각화를 파일로 저장하는 가장 쉬운 방법입니다. 도움말 파일에 자세히 나와 있듯이 *기본적으로 현재 그래픽 장치의 크기를 사용하여 마지막으로 표시한 플롯을 저장합니다. 또한 확장자에서 그래픽 장치의 유형을 추측합니다.*
 
-It's recommended to save your images in a specific size, rather than using the size of the current graphics device in RStudio - it makes it much easier to reproduce the same image again! You can set the width and height in `ggsave()`, using a calculation instead of a specific value if you want a specific aspect ratio: \index{ggplot2!ggsave}
+RStudio의 현재 그래픽 장치 크기를 사용하는 대신 특정 크기로 이미지를 저장하는 것이 좋습니다. 동일한 이미지를 다시 재현하기가 훨씬 쉬워집니다! 특정 종횡비를 원하는 경우 특정 값 대신 계산을 사용하여 `ggsave()`에서 너비와 높이를 설정할 수 있습니다: \index{ggplot2!ggsave}
 
 ```{r}
 #| label: languages-save
@@ -721,7 +721,7 @@ ggsave(
 )
 ```
 
-By default, the width and height is given in inches (though you can change this with the `unit` argument) and the resolution (set with the `dpi` argument) is 300. If you've saved your final plot to a variable in R, you can pass this directly to `ggsave()` instead of printing the object first:
+기본적으로 너비와 높이는 인치 단위로 제공되며(`unit` 인수로 변경할 수 있음) 해상도(`dpi` 인수로 설정)는 300입니다. 최종 플롯을 R 변수에 저장했다면 객체를 먼저 인쇄하는 대신 `ggsave()`에 직접 전달할 수 있습니다:
 
 ```{r}
 #| label: languages-save-2
@@ -735,30 +735,30 @@ ggsave(
 )
 ```
 
-If you're creating plots with other R packages, some of those packages will also come with their own built-in *save* functions. 
+다른 R 패키지로 플롯을 만드는 경우 해당 패키지 중 일부에는 자체 내장 *저장* 함수가 함께 제공됩니다.
 
-If you're saving images at a different size or resolution (e.g. 300 dpi) to the resolution that you preview images in (e.g. 96 dpi), then your saved image might not look quite how you expect. The lines and text might appear much thinner or thicker than you expect. The `scale` argument in `ggsave()` or the `scaling` argument in the **`ragg`** family of functions is one option for dealing with this. These arguments apply a scaling factor to line and text sizes allowing you to scale up (or down) your plot if it appears too small (or large) at your desired size and resolution. An even easier way to deal with this problem is to make sure you are previewing your plot at the same size and resolution as you'd like your final image to be. The **`camcorder`** [@camcorder] package provides a solution to this issue, and you can read more about how to use it in @sec-other.
+이미지를 미리보기하는 해상도(예: 96dpi)와 다른 크기나 해상도(예: 300dpi)로 이미지를 저장하면 저장된 이미지가 예상과 다르게 보일 수 있습니다. 선과 텍스트가 예상보다 훨씬 얇거나 두껍게 보일 수 있습니다. `ggsave()`의 `scale` 인수 또는 **`ragg`** 함수 제품군의 `scaling` 인수는 이 문제를 처리하는 한 가지 옵션입니다. 이러한 인수는 선 및 텍스트 크기에 배율 인수를 적용하여 원하는 크기 및 해상도에서 플롯이 너무 작게(또는 크게) 나타나는 경우 플롯을 확대(또는 축소)할 수 있게 해줍니다. 이 문제를 처리하는 훨씬 더 쉬운 방법은 최종 이미지가 되기를 원하는 것과 동일한 크기 및 해상도로 플롯을 미리 보고 있는지 확인하는 것입니다. **`camcorder`** [@camcorder] 패키지는 이 문제에 대한 해결책을 제공하며 @sec-other 에서 사용 방법에 대해 자세히 읽을 수 있습니다.
 
-## Reflection
+## 회고
 
-Even though we're essentially *finished* with this visualization, it's useful to get some feedback on how effective it is. You could share your visualization with a colleague or friend and ask for them to critique it. Alternatively, you can reflect on your own work with a critical eye. Reflecting on your own work is often more successful if you leave your visualization alone for a little while first. When you come back to it, think about whether your choice of plot was the best one, whether the fonts need re-sizing, or if you should use a different color scheme. So, which elements of this visualization could still be improved?
+우리는 기본적으로 이 시각화를 *끝냈지만*, 얼마나 효과적인지에 대한 피드백을 받는 것은 유용합니다. 동료나 친구와 시각화를 공유하고 비평해 달라고 요청할 수 있습니다. 또는 비판적인 눈으로 자신의 작업을 되돌아볼 수 있습니다. 자신의 작업을 되돌아보는 것은 시각화를 잠시 그대로 둔 다음 다시 볼 때 종종 더 성공적입니다. 다시 돌아왔을 때 플롯 선택이 최선이었는지, 글꼴 크기를 조정해야 하는지, 아니면 다른 색상 구성표를 사용해야 하는지 생각해 보세요. 그렇다면 이 시각화의 어떤 요소를 더 개선할 수 있을까요?
 
-When using dumbbell charts to show time frames like this, the dots at each end are often taken as start and end time points. In this chart, that doesn't quite make sense. Imagine a programming language that was last active twenty years ago and is officially no longer maintained. Then imagine a different language that was last updated last week. The end time point (showing `last_activity`) is represented the same way in these two cases. Using an open-ended dumbbell for languages that are still actively being maintained might be more representative of what's actually happening in the data.
+덤벨 차트를 사용하여 이와 같은 기간을 표시할 때 양쪽 끝의 점은 종종 시작 및 종료 시점으로 간주됩니다. 이 차트에서는 그것이 꽤 말이 되지 않습니다. 20년 전에 마지막으로 활성화되었고 공식적으로 더 이상 유지 관리되지 않는 프로그래밍 언어를 상상해 보세요. 그런 다음 지난주에 마지막으로 업데이트된 다른 언어를 상상해 보세요. 종료 시점(`last_activity` 표시)은 이 두 경우에 동일한 방식으로 표시됩니다. 여전히 활발하게 유지 관리되는 언어에 대해 개방형 덤벨을 사용하는 것이 데이터에서 실제로 일어나는 일을 더 잘 나타낼 수 있습니다.
 
-The labels showing the name and rank of the programming languages are a little bit hard to read. Each label isn't distinct enough from the labels above or below it. One option would be to change the size of the image - making the image taller would allow more space between each label. A second option would be to make the language name a slightly larger bold font, with the rank in a slightly smaller font below. This would make it clearer that there are ten labels rather than 20! We'll discuss how to add more complex formatting to text labels in @sec-cats, using the **`ggtext`** package. 
+프로그래밍 언어의 이름과 순위를 보여주는 레이블은 읽기가 조금 어렵습니다. 각 레이블은 위 또는 아래 레이블과 충분히 구별되지 않습니다. 한 가지 옵션은 이미지의 크기를 변경하는 것입니다. 이미지를 더 길게 만들면 각 레이블 사이에 더 많은 공간이 생깁니다. 두 번째 옵션은 언어 이름을 약간 더 큰 굵은 글꼴로 만들고 순위를 그 아래에 약간 더 작은 글꼴로 만드는 것입니다. 이렇게 하면 20개가 아니라 10개의 레이블이 있다는 것이 더 명확해질 것입니다! @sec-cats 에서 **`ggtext`** 패키지를 사용하여 텍스트 레이블에 더 복잡한 서식을 추가하는 방법에 대해 논의할 것입니다.
 
 \index{ggtext}
 
 ::: {.content-visible when-format="html"}
 
-Each plot created during the process of developing the original version of this visualization was captured using **`camcorder`**, and is shown in the gif below. If you'd like to learn more about how **`camcorder`** can be used in the data visualization process, see @sec-camcorder.
+이 시각화의 원래 버전을 개발하는 과정에서 생성된 각 플롯은 **`camcorder`**를 사용하여 캡처되었으며 아래 gif에 표시됩니다. **`camcorder`**가 데이터 시각화 프로세스에서 어떻게 사용될 수 있는지 자세히 알고 싶다면 @sec-camcorder 를 참조하세요.
 
-![](images/languages.gif){fig-align="center" fig-alt="Gif of the process of building the chart"}
+![](images/languages.gif){fig-align="center" fig-alt="차트 작성 과정의 Gif"}
 
 :::
 
-## Exercises
+## 연습 문제
 
-* Use open-ended dumbbells for languages that were last active in 2023 i.e. don't plot a *closing* point.
+* 2023년에 마지막으로 활동한 언어에 대해 개방형 덤벨을 사용하세요. 즉, *닫는* 점을 플롯하지 마세요.
 
-* Instead of showing the top 10 ranked languages for these three comment symbols, recreate the visualization showing all languages that use each symbol.
+* 이 세 가지 주석 기호에 대한 상위 10위 언어를 표시하는 대신 각 기호를 사용하는 모든 언어를 표시하는 시각화를 다시 만드세요.

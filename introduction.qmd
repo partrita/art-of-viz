@@ -7,71 +7,72 @@ fig-width: 5
 fig-asp: 0.75
 ---
 
-# Introduction {#sec-intro}
+# 소개 {#sec-intro}
 
-## Who is this book aimed at?
+## 이 책의 대상 독자는 누구인가요?
 
-This book is primarily aimed at those who wish to develop their data visualization skills in R. Readers of this book may find a basic knowledge of R, more specifically of the **`tidyverse`** ecosystem, useful - although all code used in examples is fully explained. Readers do not need to be experienced in **`ggplot2`**, though this book will also be of interest to those who are. This book will also be of interest to those who are already familiar with R (including **`ggplot2`**), and wish to develop their skills in designing data visualizations further. It will also interest those who already design data visualizations using other tools, and want to learn how to do the equivalent in R.
+이 책은 주로 R로 데이터 시각화 기술을 개발하고자 하는 분들을 대상으로 합니다. 이 책의 독자는 R, 더 구체적으로는 `tidyverse` 생태계에 대한 기본 지식이 있으면 유용할 수 있습니다. 하지만 예제에 사용된 모든 코드는 자세히 설명되어 있습니다. 독자가 `ggplot2`에 숙련되어 있을 필요는 없지만, 이미 숙련된 분들에게도 이 책은 흥미로울 것입니다. 또한 R(및 `ggplot2`)에 이미 익숙하고 데이터 시각화 디자인 기술을 더 발전시키고자 하는 분들에게도 관심이 갈 것입니다. 다른 도구를 사용하여 데이터 시각화를 디자인하고 있으며 R에서 동일한 작업을 수행하는 방법을 배우고 싶은 분들에게도 흥미로울 것입니다.
 
-## What do you need to know before reading this book?
+## 이 책을 읽기 전에 무엇을 알아야 하나요?
 
-This book assumes you know the basics of using R and know what the **`tidyverse`** is. For example, you'll be able to:
+이 책은 여러분이 R 사용의 기초를 알고 `tidyverse`가 무엇인지 알고 있다고 가정합니다. 예를 들어, 여러분은 다음을 할 수 있어야 합니다:
 
-* install and load packages
-* call a function and save the output to variables
+* 패키지 설치 및 로드
+* 함수 호출 및 출력을 변수에 저장
 
-If you're not that familiar with R, any of the following books should provide some good pre-reading:
+R에 익숙하지 않다면 다음 책들을 미리 읽어보면 좋습니다:
 
-* **R for Data Science** (Second Edition) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund. It can be found online at {{< monolink "https://r4ds.hadley.nz/" "r4ds.hadley.nz" >}} [@r4ds].
+* R for Data Science (Second Edition) - Hadley Wickham, Mine Çetinkaya-Rundel, Garrett Grolemund 저. 온라인 {{< monolink "https://r4ds.hadley.nz/" "r4ds.hadley.nz" >}} [@r4ds]에서 볼 수 있습니다.
 
-* **R for the Rest of Us: A Statistics-Free Introduction** by David Keyes. It can be found online at {{< monolink "https://book.rfortherestofus.com/" "book.rfortherestofus.com" >}} [@r4rest].
+* R for the Rest of Us: A Statistics-Free Introduction - David Keyes 저. 온라인 {{< monolink "https://book.rfortherestofus.com/" "book.rfortherestofus.com" >}} [@r4rest]에서 볼 수 있습니다.
 
-* **Learn R: As a Language** by . It can be found online at {{< monolink "https://www.learnr-book.info/" "www.learnr-book.info" >}} [@aphalo2024].
+* Learn R: As a Language - Aphalo 저. 온라인 {{< monolink "https://www.learnr-book.info/" "www.learnr-book.info" >}} [@aphalo2024]에서 볼 수 있습니다.
 
-## Code style used in this book
+## 이 책에서 사용된 코드 스타일
 
-There are many different versions of R, many different packages in R, and many different styles of writing code - and there isn't a single *best* way of doing things. You may write code differently from the way you see it written in this book, and that's perfectly fine. Throughout the book, a few choices have been made to keep code consistent:
+R에는 다양한 버전, 다양한 패키지, 다양한 코드 작성 스타일이 존재하며, 한 가지 *최고의* 방법만 있는 것은 아닙니다. 여러분이 코드를 작성하는 방식은 이 책에서 보는 방식과 다를 수 있으며, 그것은 완전히 괜찮습니다. 책 전체에서 코드를 일관되게 유지하기 위해 몇 가지 선택을 했습니다:
 
-* In R, the pipe operator *takes the thing on its left and passes it along to the function on its right* [@r4ds]. You can find a full description of the pipe operator in [R for Data Science](https://r4ds.hadley.nz/data-transform#sec-the-pipe). The pipe (`%>%`) was first introduced to R via the **`magrittr`** package. Since version 4.1.0 of R, a version of the pipe (`|>`) has existed in base R. The base R version of the pipe is used throughout the book. Although there are some differences between the two version of the pipe, in this book they can be used interchangeably.
+* R에서 파이프 연산자는 *왼쪽에 있는 것을 가져와 오른쪽에 있는 함수로 전달*합니다 [@r4ds]. 파이프 연산자에 대한 자세한 설명은 [R for Data Science](https://r4ds.hadley.nz/data-transform#sec-the-pipe)에서 찾을 수 있습니다. 파이프(`%>%`)는 `magrittr` 패키지를 통해 R에 처음 도입되었습니다. R 버전 4.1.0부터는 기본 R 버전의 파이프(`|>`)가 존재합니다. 이 책 전체에서는 기본 R 파이프가 사용됩니다. 두 버전의 파이프 사이에는 약간의 차이가 있지만, 이 책에서는 서로 바꿔 사용할 수 있습니다.
 
 \index{pipe} \index{magrittr}
 
-* In this book, we'll primarily use base R for initial exploration and visualization, and then **`ggplot2`** and it's associated extension packages to create our final graphic in each chapter.
+* 이 책에서는 주로 기본 R을 사용하여 초기 탐색 및 시각화를 수행한 다음, `ggplot2`와 관련 확장 패키지를 사용하여 각 장의 최종 그래픽을 만듭니다.
 
-* In R, functions can be loaded from packages in different ways: through loading the entire package via the `library()` function; using *namespacing* (the pre-fixing of functions with the package name and `::`); or (since R version 4.5.0) through using the `use()` function. Namespacing is useful for two reasons (i) from a learning perspective, it makes it easier to recognize where functions come from and how they connect together, and (ii) from a programming perspective, it reduces conflicts and errors - something we all want less of! However, to make this book more accessible to beginners and to ensure code works with earlier versions of R, we'll be using `library()` throughout. Each chapter begins with a section discussing which packages will be used, and where functions come from is explained throughout.
+* R에서는 패키지의 함수를 로드하는 방법이 여러 가지 있습니다: `library()` 함수를 통해 전체 패키지를 로드하는 방법, *네임스페이싱*(함수 이름 앞에 패키지 이름과 `::`를 붙임)을 사용하는 방법, 또는 (R 버전 4.5.0부터) `use()` 함수를 사용하는 방법이 있습니다. 네임스페이싱은 두 가지 이유로 유용합니다. (i) 학습 관점에서 함수가 어디서 왔고 어떻게 연결되는지 쉽게 인식할 수 있게 해주고, (ii) 프로그래밍 관점에서 충돌과 오류를 줄여줍니다(우리 모두가 덜 겪고 싶어하는 것이죠!). 하지만 이 책을 초보자가 더 쉽게 접근할 수 있게 하고 코드가 이전 버전의 R에서도 작동하도록 하기 위해 전체적으로 `library()`를 사용할 것입니다. 각 장은 어떤 패키지가 사용될지 논의하는 섹션으로 시작하며, 함수가 어디서 왔는지는 전체적으로 설명됩니다.
 
 \index{namespacing} \index{base!use}
 
-* Package names are identified in a bold, monospaced typeface to help differentiate them from functions with the same or similar names. For example **`ggplot2`**. 
+* 패키지 이름은 굵은 고정폭 글꼴로 표시하여 동일하거나 유사한 이름을 가진 함수와 구별하는 데 도움을 줍니다. 예를 들어 `ggplot2`와 같습니다.
 
-* All software requirements, including a complete list of package versions, can be found in the Appendix.
+* 전체 패키지 버전 목록을 포함한 모든 소프트웨어 요구 사항은 부록에서 확인할 수 있습니다.
 
-## Code evolves over time
+## 코드는 시간이 지남에 따라 진화합니다
 
-You may also notice that some of the final images differ slightly from those initially created and published on social media. You might also find some small differences in the code used to produce them if you compare the contents of this book to original scripts in the {{< monolink "https://github.com/nrennie/tidytuesday" "github.com/nrennie/tidytuesday" >}} GitHub repository. These differences are likely due to one of four reasons: 
+최종 이미지 중 일부는 초기에 만들어져 소셜 미디어에 게시된 것과 약간 다를 수 있음을 알 수 있습니다. 또한 이 책의 내용을 {{< monolink "https://github.com/nrennie/tidytuesday" "github.com/nrennie/tidytuesday" >}} GitHub 저장소의 원본 스크립트와 비교하면 코드를 생성하는 데 사용된 코드에 약간의 차이가 있음을 발견할 수 있습니다. 이러한 차이는 주로 다음 네 가지 이유 중 하나 때문일 가능성이 큽니다:
 
-* Packages have since been updated and code has been changed to use newer syntax. Many of the code changes relate to changes in **`ggplot2`** version 3.5.0;
-* Some aspects have been omitted from a visualization to avoid explaining *everything* in the first chapter - but those aspects are all covered and linked to in later chapters;
-* After several years of practice, there may be more efficient ways of re-writing code from some of the earlier plots. Any changes are clearly labelled and discussed;
-* Some images may be different due to copyright reasons.
+* 패키지가 업데이트되어 최신 구문을 사용하도록 코드가 변경되었습니다. 많은 코드 변경 사항은 `ggplot2` 버전 3.5.0의 변경 사항과 관련이 있습니다.
+* 첫 번째 장에서 *모든 것*을 설명하는 것을 피하기 위해 시각화의 일부 측면이 생략되었을 수 있습니다. 하지만 이러한 측면은 모두 나중에 나오는 장에서 다뤄지고 링크됩니다.
+* 수년 간의 연습 끝에 초기 플롯의 일부 코드를 다시 작성하는 더 효율적인 방법이 있을 수 있습니다. 모든 변경 사항은 명확하게 라벨이 지정되고 논의됩니다.
+* 저작권 문제로 인해 일부 이미지가 다를 수 있습니다.
 
-## The structure of this book
+## 이 책의 구조
 
-There are four main sections in this book:
+이 책에는 네 가지 주요 섹션이 있습니다:
 
-* **Common charts don't need to be boring!**: which teaches you how to make *classic* chart types such as lines charts, and bar charts more effective and more interesting.
-* **Making use of icons, fonts, and text**: where you'll see different ways to load fonts into R, be able to use icons within charts, and use colored text as an alternative to a traditional legend.
-* **Working with images**: where you'll see examples of loading and processing images in R, and learn how to add them to plots to create custom labels.
-* **Visualizing spatial data**: where you'll learn how to manipulate spatial data, create choropleth maps, coordinate plots, and arranging small multiples in a geographic grid.
+* 일반적인 차트도 지루할 필요는 없습니다!: 선형 차트 및 막대형 차트와 같은 *고전적인* 차트 유형을 더 효과적이고 흥미롭게 만드는 방법을 가르쳐줍니다.
+* 아이콘, 글꼴 및 텍스트 활용: R에 글꼴을 로드하는 다양한 방법을 보고, 차트 내에서 아이콘을 사용하고, 기존 범례 대신 색상 텍스트를 사용하는 방법을 배웁니다.
+* 이미지 작업: R에서 이미지를 로드하고 처리하는 예제를 보고, 사용자 정의 라벨을 만들기 위해 플롯에 이미지를 추가하는 방법을 배웁니다.
+* 공간 데이터 시각화: 공간 데이터를 조작하고, 등치 지역도(choropleth map), 좌표 플롯을 만들고, 지리적 격자에 작은 다중 플롯을 배열하는 방법을 배웁니다.
 
-Each chapter is a case study of a different visualization, which follows roughly the same structure:
+각 장은 서로 다른 시각화에 대한 사례 연구이며, 대략 동일한 구조를 따릅니다:
 
-* **Data**: an introduction to the data set used in each chapter and how to load it into R. Across the chapters, you'll see ways of loading data via R packages, local CSV files, APIs, and directly from URLs.
-* **Exploratory work**: exploring the structure of the dataset, identifying issues, and considering potential approaches to visualizaton. 
-* **Preparing a plot**: performing the data wrangling needed to make the plot, and creating a first draft using basic **`ggplot2`** functionality.
-* **Advanced styling**: editing the basic plot to make it of publication quality with custom styling, including fonts, colors, text, and legends.
-* **Reflection**: some thoughts on how the visualization created in each chapter may be improved, and what aspects of its design are successful.
-* **Exercises**: a few questions for following up on improving the visualizations. These exercises are purposefully left open-ended, rather than prescriptive questions with defined answers. You're encouraged to think about how you would design and implement different solutions - sharing them on social media is optional!
+* 데이터: 각 장에서 사용되는 데이터세트 소개 및 R로 로드하는 방법. 각 장을 통해 R 패키지, 로컬 CSV 파일, API 및 URL에서 직접 데이터를 로드하는 방법을 볼 수 있습니다.
+* 탐색 작업: 데이터세트의 구조를 탐색하고, 문제를 식별하고, 시각화에 대한 잠재적 접근 방식을 고려합니다.
+* 플롯 준비: 플롯을 만드는 데 필요한 데이터 랭글링을 수행하고 기본 `ggplot2` 기능을 사용하여 초안을 만듭니다.
+* 고급 스타일링: 기본 플롯을 편집하여 글꼴, 색상, 텍스트 및 범례를 포함한 사용자 정의 스타일링으로 출판 품질로 만듭니다.
+* 성찰: 각 장에서 만든 시각화를 개선할 수 있는 방법과 디자인의 어떤 측면이 성공적인지에 대한 몇 가지 생각입니다.
+* 연습 문제: 시각화 개선에 대한 후속 조치를 위한 몇 가지 질문입니다. 이 연습 문제는 정해진 답이 있는 규범적인 질문보다는 개방형으로 의도되었습니다. 다양한 솔루션을 어떻게 설계하고 구현할지 생각해보도록 권장합니다. 소셜 미디어에 공유하는 것은 선택 사항입니다!
 
-There is an additional chapter at the end with some further tips and tricks for improving your plots. 
+마지막에는 플롯을 개선하기 위한 몇 가지 추가 팁과 요령이 담긴 추가 장이 있습니다.
+ 
 

@@ -1,11 +1,11 @@
-# Visualizing spatial data {#sec-spatial-intro .unnumbered}
+# 공간 데이터 시각화 {#sec-spatial-intro .unnumbered}
 
-Spatial data refers to information about the physical location or shape of objects, and their relationships to each other. Examples of spatial data include latitude and longitude of a place; the boundary lines of a region; or a grid showing the elevation of an area.
+공간 데이터는 사물의 물리적 위치나 모양, 그리고 서로 간의 관계에 대한 정보를 말합니다. 공간 데이터의 예로는 장소의 위도와 경도, 지역의 경계선, 지역의 고도를 보여주는 격자 등이 있습니다.
 
-* [Chapter]{.content-visible when-format="html"} @sec-doctors will discuss extracting country boundary data using the **`maps`** package, and then plotting choropleth maps with **`ggplot2`** to visualize the value of a variable for each country.
+* []{.content-visible when-format="html"} @sec-doctors 에서는 **`maps`** 패키지를 사용하여 국가 경계 데이터를 추출한 다음 **`ggplot2`**로 등치 지역도(choropleth map)를 그려 각 국가의 변수 값을 시각화하는 방법에 대해 설명합니다.
 
-* [Chapter]{.content-visible when-format="html"} @sec-time-zones introduces you to the **`sf`** package for manipulating spatial data in R, and shows you how to plot geographic coordinate data. This chapter also covers co-ordinate systems.
+* []{.content-visible when-format="html"} @sec-time-zones 에서는 R에서 공간 데이터를 조작하기 위한 **`sf`** 패키지를 소개하고 지리적 좌표 데이터를 플롯하는 방법을 보여줍니다. 이 장에서는 좌표계도 다룹니다.
 
-* [Chapter]{.content-visible when-format="html"} @sec-house describes creating multiple area charts, each for a different region, and then arranging them in a grid that represents the underlying geography using the **`geofacet`** package.
+* []{.content-visible when-format="html"} @sec-house 에서는 각 지역에 대해 서로 다른 여러 영역 차트를 만든 다음 **`geofacet`** 패키지를 사용하여 기본 지리를 나타내는 격자에 배열하는 방법에 대해 설명합니다.
 
-In this section, you'll also learn how to create and arrange custom legends using **`patchwork`**, as well as repurposing elements of **`ggplot2`** charts to create more aesthetically pleasing titles.
+이 섹션에서는 또한 **`patchwork`**를 사용하여 사용자 정의 범례를 만들고 배열하는 방법과 **`ggplot2`** 차트의 요소를 용도 변경하여 더 미학적으로 즐거운 제목을 만드는 방법을 배웁니다.

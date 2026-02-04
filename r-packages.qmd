@@ -39,17 +39,17 @@ library(sysfonts)
 #| file: R/source_caption.R
 ```
 
-# R packages: using images for custom facet labels {#sec-r-pkgs}
+# R 패키지: 사용자 지정 패면 레이블에 이미지 사용하기 {#sec-r-pkgs}
 
-In this chapter, we'll learn about how to collect data on which packages and functions are used in R code, replacing the underlying data in a plot that's already been made, and how to use images as category labels.
+이 장에서는 R 코드에서 어떤 패키지와 함수가 사용되었는지에 대한 데이터를 수집하는 방법, 이미 만들어진 플롯의 기본 데이터를 교체하는 방법, 이미지를 범주 레이블로 사용하는 방법에 대해 알아봅니다.
 
-By the end of this chapter, you'll be able to:
+이 장을 마치면 다음을 수행할 수 있습니다:
 
-* analyse the contents of a GitHub repository to see which R functions and packages are used;
-* build area plots that accurately portray missing data; and
-* use HTML tags to replace the default facet labels with images in a programmatic way using automatic positioning.
+* GitHub 저장소의 내용을 분석하여 어떤 R 함수와 패키지가 사용되었는지 확인합니다;
+* 누락된 데이터를 정확하게 묘사하는 영역 플롯을 작성합니다;
+* 자동 위치 지정을 사용하는 프로그래밍 방식으로 HTML 태그를 사용하여 기본 패면 레이블을 이미지로 대체합니다.
 
-We begin by loading the packages required in this chapter.
+이 장에 필요한 패키지를 로드하는 것으로 시작합니다.
 
 ```{r}
 #| label: r-pkgs-pkgs-req
@@ -69,20 +69,20 @@ library(sysfonts)
 library(tidyr)
 ```
 
-This chapter introduces two new packages:
+이 장에서는 두 가지 새로운 패키지를 소개합니다:
 
-* **`forcats`**: a package which makes it much easier to work with factors (categorical variables), which we'll be using to reorder categories.
-* **`funspotr`**: for analyzing R code, which we'll be using to gather some data for visualizing.
+* **`forcats`**: 요인(범주형 변수) 작업을 훨씬 쉽게 만들어주는 패키지로, 범주를 재정렬하는 데 사용할 것입니다.
+* **`funspotr`**: R 코드를 분석하기 위한 것으로, 시각화를 위한 데이터를 수집하는 데 사용할 것입니다.
 
 \index{forcats} \index{funspotr}
 
-## Data
+## 데이터
 
-In July 2024, TidyTuesday [@tidytuesday] featured some examples of using the **`funspotr`** package [@funspotr] as datasets, suggested by [Bryan Shalloway](https://github.com/brshallo). The **`funspotr`** package was designed to help identify which R functions and packages are used in files and projects. Let's try to identify which R functions and packages have been used in this GitHub repository of TidyTuesday visualizations: {{< monolink "https://github.com/nrennie/tidytuesday" "github.com/nrennie/tidytuesday" >}}. 
+2024년 7월, TidyTuesday [@tidytuesday]는 [Bryan Shalloway](https://github.com/brshallo)가 제안한 데이터셋으로 **`funspotr`** 패키지 [@funspotr]를 사용하는 몇 가지 예제를 다루었습니다. **`funspotr`** 패키지는 파일 및 프로젝트에서 사용되는 R 함수와 패키지를 식별하는 데 도움이 되도록 설계되었습니다. TidyTuesday 시각화의 GitHub 저장소에서 어떤 R 함수와 패키지가 사용되었는지 확인해 봅시다: {{< monolink "https://github.com/nrennie/tidytuesday" "github.com/nrennie/tidytuesday" >}}. 
 
-Let's start by getting a list of all the files that exist in the GitHub repository. We can use the `list_files_github_repo()` function from **`funspotr`** to get this list of files - specifying which GitHub repository we want the list for (in the form of `"username/repository"`), and which branch of the repository we want to look at. The `list_files_github_repo()` function returns a data frame with two columns: `relative_paths` (file path relative to the root of the git repository) and `absolute_paths` (URL of each file). \index{funspotr!list\_files\_github\_repo}
+GitHub 저장소에 있는 모든 파일 목록을 가져오는 것으로 시작해 봅시다. **`funspotr`**의 `list_files_github_repo()` 함수를 사용하여 이 파일 목록을 얻을 수 있습니다. 목록을 원하는 GitHub 저장소(`"username/repository"` 형식)와 보고자 하는 저장소의 브랜치를 지정합니다. `list_files_github_repo()` 함수는 두 개의 열이 있는 데이터 프레임을 반환합니다: `relative_paths`(git 저장소 루트에 상대적인 파일 경로) 및 `absolute_paths`(각 파일의 URL). \index{funspotr!list\_files\_github\_repo}
 
-All of the files in this repository are named and organised based on dates in the following structure: `yyyy/yyyy-mm-dd/yyyymmdd.R` [@streamline]. Since the code to extract used functions takes a while to run, let's filter this list of files to only include files dated `2023`. We can use `str_detect()` from **`stringr`** to find any values in the `relative_paths` column that contain `"2023"` and then `filter()` from **`dplyr`** to keep only those rows.  \index{stringr!str\_detect} \index{dplyr!filter}
+이 저장소의 모든 파일은 날짜를 기준으로 다음 구조로 명명되고 구성됩니다: `yyyy/yyyy-mm-dd/yyyymmdd.R` [@streamline]. 사용된 함수를 추출하는 코드는 실행하는 데 시간이 걸리므로 파일 목록을 필터링하여 `2023`년 날짜의 파일만 포함하도록 합시다. **`stringr`**의 `str_detect()`를 사용하여 `"2023"`을 포함하는 `relative_paths` 열의 값을 찾은 다음 **`dplyr`**의 `filter()`를 사용하여 해당 행만 유지할 수 있습니다.  \index{stringr!str\_detect} \index{dplyr!filter}
 
 ```{r}
 #| label: r-pkgs-load-data-1
@@ -97,7 +97,7 @@ files_to_check <- list_files_github_repo(
   )
 ```
 
-We then pass the `files_to_check` data frame into `spot_funs_files()` from **`funspotr`** to get the list of functions and packages uses in each file. Since we want to look at total package use, we set `show_each_use = TRUE` to make sure that individual rows are returned each time a function is used (rather than just once for an entire file). \index{funspotr!spot\_funs\_files}
+그런 다음 `files_to_check` 데이터 프레임을 **`funspotr`**의 `spot_funs_files()`로 전달하여 각 파일에서 사용되는 함수 및 패키지 목록을 가져옵니다. 전체 패키지 사용량을 살펴보기를 원하므로 `show_each_use = TRUE`로 설정하여 함수가 사용될 때마다 개별 행이 반환되도록 합니다(전체 파일에 대해 한 번만 반환되는 것이 아니라). \index{funspotr!spot\_funs\_files}
 
 ```{r}
 #| label: r-pkgs-load-data-2
@@ -109,7 +109,7 @@ r_funs <- files_to_check |>
   )
 ```
 
-We then use the `unnest_results()` function from **`funspotr`** to get a row in the data for each use of a function. Since the code above takes a while to run, it's also important that we save the data in a format that means we can use it later (rather than having to re-download it). We'll save it as a CSV file using `write.csv()`, choosing an appropriate file name and removing the row names. \index{funspotr!unnest\_results} \index{utils!write.csv}
+그런 다음 **`funspotr`**의 `unnest_results()` 함수를 사용하여 함수 사용에 대한 데이터 행을 얻습니다. 위의 코드는 실행하는 데 시간이 걸리므로 나중에 사용할 수 있는 형식으로 데이터를 저장하는 것도 중요합니다(다시 다운로드할 필요 없이). `write.csv()`를 사용하여 CSV 파일로 저장하고 적절한 파일 이름을 선택하고 행 이름을 제거합니다. \index{funspotr!unnest\_results} \index{utils!write.csv}
 
 ```{r}
 #| label: r-pkgs-load-data-3
@@ -120,7 +120,7 @@ r_pkgs <- rfuns |>
 write.csv(r_pkgs, "data/r_pkgs.csv", row.names = FALSE)
 ```
 
-We can then read the CSV back in using `read_csv()` from **`readr`** (or `read.csv()` if you prefer!) \index{readr!read\_csv}
+그런 다음 **`readr`**의 `read_csv()`(또는 선호하는 경우 `read.csv()`!)를 사용하여 CSV를 다시 읽을 수 있습니다. \index{readr!read\_csv}
 
 ```{r}
 #| label: r-pkgs-load-data-csv
@@ -130,45 +130,45 @@ r_pkgs <- read_csv("data/r_pkgs.csv")
 
 ::: {.content-visible when-format="html"}
 
-The contents of the `nrennie/tidytuesday` GitHub repository have likely expanded since this chapter was written. You can download the version of the CSV file used in this chapter [here](data/r_pkgs.csv).
+`nrennie/tidytuesday` GitHub 저장소의 내용은 이 챕터가 작성된 이후 확장되었을 가능성이 큽니다. 이 챕터에서 사용된 CSV 파일 버전은 [여기](data/r_pkgs.csv)에서 다운로드할 수 있습니다.
 
 :::
 
 ::: {.content-visible when-format="pdf"}
 
-The contents of the `nrennie/tidytuesday` GitHub repository have likely expanded since this chapter was written. You can download the version of the CSV file used in this chapter from the online version of the book.
+`nrennie/tidytuesday` GitHub 저장소의 내용은 이 챕터가 작성된 이후 확장되었을 가능성이 큽니다. 이 챕터에서 사용된 CSV 파일 버전은 책의 온라인 버전에서 다운로드할 수 있습니다.
 
 :::
 
-The `r_pkgs` data has `r nrow(r_pkgs)` rows and `r ncol(r_pkgs)` columns. The `funs` column contains names of each function used, and `pkgs` has the name of the package that function comes from. The remaining two columns are the `relative_paths` and `absolute_paths` columns that identify which file the function was found in. Let's have a quick look at the data using `head()`: \index{utils!head}
+`r_pkgs` 데이터에는 `r nrow(r_pkgs)`개의 행과 `r ncol(r_pkgs)`개의 열이 있습니다. `funs` 열에는 사용된 각 함수의 이름이 포함되어 있고 `pkgs`에는 해당 함수가 속한 패키지의 이름이 있습니다. 나머지 두 열은 함수가 발견된 파일을 식별하는 `relative_paths` 및 `absolute_paths` 열입니다. `head()`를 사용하여 데이터를 간단히 살펴보겠습니다: \index{utils!head}
 
 ```{r}
 #| label: r-pkgs-head
 head(r_pkgs)
 ```
 
-## Exploratory work
+## 탐색적 작업
 
-The obvious question to start with here is: which packages are used most often?
+여기서 시작하기에 가장 확실한 질문은 다음과 같습니다: 가장 자주 사용되는 패키지는 무엇입니까?
 
-### Data exploration
+### 데이터 탐색
 
-Let's start by counting the number of package used with the `table()` function, and using `sort()` to arrange packages from least to most used. \index{base!table} \index{base!sort}
+`table()` 함수를 사용하여 사용된 패키지 수를 계산하고 `sort()`를 사용하여 패키지를 가장 적게 사용된 것부터 가장 많이 사용된 것까지 정렬하는 것으로 시작해 봅시다. \index{base!table} \index{base!sort}
 
-We can then pass this into the `barplot()` function to obtain an ordered bar chart of package use, setting `horiz = TRUE` to make a horizontal bar chart. We can see that `ggplot` comes out on top, closely followed by `base`! 
+그런 다음 이것을 `barplot()` 함수에 전달하여 패키지 사용에 대한 정렬된 막대 차트를 얻고 `horiz = TRUE`로 설정하여 가로 막대 차트를 만들 수 있습니다. `ggplot`이 1위를 차지하고 `base`가 그 뒤를 바짝 쫓고 있음을 알 수 있습니다!
 
 ::: {#tip-r-pkgs-showtext .callout-tip}
 
-## Base R or **`tidyverse`**?
+## 기본 R 또는 **`tidyverse`**?
 
-As an aside, this highlights that combining base R and **`tidyverse`** packages can be incredibly effective since they each have different strengths. There's no need to choose a side on the base R versus **`tidyverse`** argument - use both!
+여담으로, 이것은 기본 R과 **`tidyverse`** 패키지를 결합하면 각각 다른 장점이 있기 때문에 매우 효과적일 수 있음을 강조합니다. 기본 R 대 **`tidyverse`** 논쟁에서 편을 선택할 필요가 없습니다 - 둘 다 사용하세요!
 
 :::
 
 ```{r, echo=-1}
 #| label: fig-r-pkgs-barplot
-#| fig-cap: "Ordered bar chart showing the number of times each package was used in 2023. The ggplot2 package is used most."
-#| fig-alt: "Ordered bar chart showing the number of times each package was used in 2023. The ggplot2 package is used most."
+#| fig-cap: "2023년에 각 패키지가 사용된 횟수를 보여주는 정렬된 막대 차트. ggplot2 패키지가 가장 많이 사용됩니다."
+#| fig-alt: "2023년에 각 패키지가 사용된 횟수를 보여주는 정렬된 막대 차트. ggplot2 패키지가 가장 많이 사용됩니다."
 #| fig-asp: 1
 par(mar = c(3.1, 4.1, 1.1, 2.1), cex.axis = 0.5, cex.names = 0.5)
 barplot(
@@ -178,7 +178,7 @@ barplot(
 )
 ```
 
-One thing that you may have noticed is that, for some reason, in the data the package is listed as `"ggplot"` rather than `"ggplot2"`. So let's fix that using `mutate()` and the `if_else()` function from **`dplyr`**. We can overwrite the existing `pkgs` column, where (i) if the value is currently `"ggplot"`, we replace it with `"ggplot2"`; (ii) otherwise, we leave the existing value in the `pkgs` column. \index{dplyr!mutate} \index{dplyr!if\_else}
+어떤 이유로 데이터에서 패키지가 `"ggplot2"`가 아니라 `"ggplot"`으로 나열되어 있다는 것을 알아차렸을 수도 있습니다. 따라서 **`dplyr`**의 `mutate()`와 `if_else()` 함수를 사용하여 수정해 봅시다. 기존 `pkgs` 열을 덮어쓸 수 있습니다. 여기서 (i) 값이 현재 `"ggplot"`이면 `"ggplot2"`로 대체합니다; (ii) 그렇지 않으면 `pkgs` 열의 기존 값을 유지합니다. \index{dplyr!mutate} \index{dplyr!if\_else}
 
 ```{r}
 #| label: r-pkgs-pkgs
@@ -192,29 +192,29 @@ r_pkgs <- r_pkgs |>
   )
 ```
 
-### Exploratory sketches
+### 탐색적 스케치
 
-There are currently `r length(unique(r_pkgs$pkgs))` packages listed in the data, many of them with one or two uses. That's quite a lot of categories to visualize at once, so let's narrow it down to only the [core **`tidyverse`**](https://www.tidyverse.org/packages/#core-tidyverse) packages [@tidyverse]. We could visualise a simple bar chart (or variation of a bar chart) showing how often each core **`tidyverse`** package was used. But due to the structure of the file names, we also have information about *when* each package was used. So we could visualize usage over time, for each package. 
+현재 데이터에 `r length(unique(r_pkgs$pkgs))`개의 패키지가 나열되어 있으며, 그 중 다수는 한두 번 사용되었습니다. 한 번에 시각화하기에는 꽤 많은 범주이므로 [핵심 **`tidyverse`**](https://www.tidyverse.org/packages/#core-tidyverse) 패키지 [@tidyverse]로 좁혀 보겠습니다. 각 핵심 **`tidyverse`** 패키지가 얼마나 자주 사용되었는지 보여주는 간단한 막대 차트(또는 막대 차트의 변형)를 시각화할 수 있습니다. 그러나 파일 이름 구조 덕분에 각 패키지가 *언제* 사용되었는지에 대한 정보도 있습니다. 따라서 각 패키지에 대해 시간 경과에 따른 사용량을 시각화할 수 있습니다.
 
-For each package, we could create an area (or line) chart showing usage over time using facets as we did in @sec-museums. This time, the categories don't really have a natural order, so instead we'll order the facets from most to least used. It might look something like @fig-packages-sketch-1.
+각 패키지에 대해 @sec-museums 에서 했던 것처럼 패면을 사용하여 시간 경과에 따른 사용량을 보여주는 영역(또는 선) 차트를 만들 수 있습니다. 이번에는 범주에 자연스러운 순서가 없으므로 대신 패면을 가장 많이 사용된 것부터 가장 적게 사용된 것 순으로 정렬합니다. @fig-packages-sketch-1 과 비슷하게 보일 것입니다.
 
-![Initial sketch of a faceted area charts showing packages use over time.](images/sketch-packages-1.png){#fig-packages-sketch-1 fig-align="center" fig-alt="Initial sketch of a faceted area charts showing packages use over time."}
+![시간 경과에 따른 패키지 사용량을 보여주는 패면 영역 차트의 초기 스케치.](images/sketch-packages-1.png){#fig-packages-sketch-1 fig-align="center" fig-alt="시간 경과에 따른 패키지 사용량을 보여주는 패면 영역 차트의 초기 스케치."}
 
-One of the most incredible things about the R community, is our adoration of hex stickers - package logos in the shape of a hexagon. All of the core **`tidyverse`** packages have their own hex sticker. Rather than simply using the package name as the facet label in our plot, we could replace the labels with images of hex stickers, as shown in @fig-packages-sketch-2.
+R 커뮤니티의 가장 놀라운 점 중 하나는 육각형 모양의 패키지 로고인 헥스 스티커(hex stickers)에 대한 우리의 사랑입니다. 모든 핵심 **`tidyverse`** 패키지에는 고유한 헥스 스티커가 있습니다. 플롯에서 패키지 이름을 패면 레이블로 사용하는 대신 @fig-packages-sketch-2 와 같이 레이블을 헥스 스티커 이미지로 바꿀 수 있습니다.
 
-![Initial sketch of a faceted area charts showing packages use over time, with hex stickers instead of text labels.](images/sketch-packages-2.png){#fig-packages-sketch-2 fig-align="center" fig-alt="Initial sketch of a faceted area charts showing packages use over time, with hex stickers instead of text labels."}
+![텍스트 레이블 대신 헥스 스티커를 사용하여 시간 경과에 따른 패키지 사용량을 보여주는 패면 영역 차트의 초기 스케치.](images/sketch-packages-2.png){#fig-packages-sketch-2 fig-align="center" fig-alt="텍스트 레이블 대신 헥스 스티커를 사용하여 시간 경과에 따른 패키지 사용량을 보여주는 패면 영역 차트의 초기 스케치."}
 
-## Preparing a plot
+## 플롯 준비하기
 
-To prepare an initial draft of the plot in @fig-packages-sketch-1, we need to wrangle the following information from the data:
+@fig-packages-sketch-1 의 플롯 초안을 준비하려면 데이터에서 다음 정보를 랭글링해야 합니다:
 
-* The date each package use relates to (currently embedded in a file name);
-* The number of package uses per day for each core **`tidyverse`** package; and 
-* Which package was used the most often?
+* 각 패키지 사용과 관련된 날짜(현재 파일 이름에 포함되어 있음);
+* 각 핵심 **`tidyverse`** 패키지에 대한 일일 패키지 사용 횟수; 그리고
+* 어떤 패키지가 가장 자주 사용되었습니까?
 
-### Data wrangling
+### 데이터 랭글링
 
-Since we're going to focus on the core **`tidyverse`** packages, let's start by making a vector of the package names:
+핵심 **`tidyverse`** 패키지에 초점을 맞출 것이므로 패키지 이름 벡터를 만드는 것으로 시작해 봅시다:
 
 ```{r}
 #| label: r-pkgs-core
@@ -224,11 +224,11 @@ core_tidyverse <- c(
 )
 ```
 
-We can then use this vector to `filter()` the data and keep only rows where the `pkgs` column has a value in the `core_tidyverse` vector. \index{dplyr!filter} 
+그런 다음 이 벡터를 사용하여 데이터를 `filter()`하고 `pkgs` 열에 `core_tidyverse` 벡터의 값이 있는 행만 유지할 수 있습니다. \index{dplyr!filter} 
 
-The `relative_paths` are currently of the form `"yyyy/yyyy-mm-dd/yyyymmdd.R"`, and we want to extract the date from this file path. There are multiple ways of doing this - the easiest way is to extract the part of the file path that is between the two `/`. Here, we can make use of `separate_wider_delim()` from **`tidyr`**. This function allows you to separate a character string in one column, into multiple columns based on some delimiter. In this case, the delimiter will be `/`. By default, this will create three new columns for each section of the string: `yyyy`, `yyyy-mm-dd`, and `yyyymmdd.R`. We only want to keep the middle one, so we can use the trick of setting the names of columns we don't want to keep to `NA`. Instead, we'll create only one new column called `date`. \index{tidyr!separate\_wider\_delim} 
+`relative_paths`는 현재 `"yyyy/yyyy-mm-dd/yyyymmdd.R"` 형식이므로 이 파일 경로에서 날짜를 추출하려고 합니다. 이를 수행하는 방법에는 여러 가지가 있습니다. 가장 쉬운 방법은 두 `/` 사이의 파일 경로 부분을 추출하는 것입니다. 여기서는 **`tidyr`**의 `separate_wider_delim()`을 사용할 수 있습니다. 이 함수를 사용하면 구분 기호를 기반으로 한 열의 문자열을 여러 열로 분리할 수 있습니다. 이 경우 구분 기호는 `/`가 됩니다. 기본적으로 문자열의 각 섹션에 대해 `yyyy`, `yyyy-mm-dd`, `yyyymmdd.R`이라는 세 개의 새 열이 생성됩니다. 중간 것만 유지하고 싶으므로 유지하고 싶지 않은 열의 이름을 `NA`로 설정하는 트릭을 사용할 수 있습니다. 대신 `date`라는 하나의 새 열만 만듭니다. \index{tidyr!separate\_wider\_delim} 
 
-We then convert the `date` which is currently still a character string into a date object using `mutate()` and the `ymd()` function from **`lubridate`** (since the dates are specified in **y**ear, **m**onth, **d**ay format). Finally, we count how many observations there are of each package, per date. \index{dplyr!mutate} \index{dplyr!count} \index{lubridate!ymd}
+그런 다음 **`lubridate`**의 `ymd()` 함수와 `mutate()`를 사용하여 현재 여전히 문자열인 `date`를 날짜 개체로 변환합니다(날짜가 **y**ear, **m**onth, **d**ay 형식으로 지정되어 있기 때문입니다). 마지막으로 날짜별로 각 패키지의 관측값 수를 계산합니다. \index{dplyr!mutate} \index{dplyr!count} \index{lubridate!ymd}
 
 ```{r}
 #| label: r-pkgs-date
@@ -245,9 +245,9 @@ r_pkgs_date <- r_pkgs |>
 
 ::: {#tip-packages-stringr .callout-tip}
 
-## Alternative approach using **`stringr`**
+## **`stringr`**을 사용하는 다른 접근 방식
 
-Instead of using `separate_wider_delim()`, you could use functions from the **`stringr`** package [@stringr], which is designed for processing character strings. For example: \index{stringr}
+`separate_wider_delim()`을 사용하는 대신 문자열 처리를 위해 설계된 **`stringr`** 패키지 [@stringr]의 함수를 사용할 수 있습니다. 예를 들어: \index{stringr}
 
 ```{r}
 #| label: r-pkgs-stringr
@@ -261,19 +261,19 @@ r_pkgs |>
   ))
 ```
 
-Here, we create a new `date` column using `mutate()` which consists of the part of the string in between the two `/`, extracted using `str_extract()` from **`stringr`**. The `pattern` is a *regular expression* (often shortened to *regex*) which is a sequence of characters that defines a search pattern. \index{stringr!str\_extract} \index{dplyr!mutate}
+여기서 **`stringr`**의 `str_extract()`를 사용하여 추출한 두 `/` 사이의 문자열 부분으로 구성된 새 `date` 열을 `mutate()`를 사용하여 만듭니다. `pattern`은 검색 패턴을 정의하는 문자 시퀀스인 *정규 표현식* (종종 *regex*로 줄여짐)입니다. \index{stringr!str\_extract} \index{dplyr!mutate}
 
-This pattern breaks down as:
+이 패턴은 다음과 같이 분해됩니까:
 
-* `(?<=/)`: look behind for a `/`
-* `[^/]+`: match one or more characters that are not `/`
-* `(?=/)`: look ahead for a `/`
+* `(?<=/)`: `/` 뒤를 봅니다 (look behind)
+* `[^/]+`: `/`가 아닌 하나 이상의 문자와 일치합니다
+* `(?=/)`: `/` 앞을 봅니다 (look ahead)
 
 :::
 
-We want the facets in our plot to be ordered from most to least used package, so let's start by converting the `pkgs` column to a factor and set the levels equal to the vector of core **`tidyverse`** package names. This ensures that all core packages are included in the factor levels even if they do not appear in the data. If you look closely, you'll notice that `"tibble"` is missing. It's missing because it's never been used directly - that's not that surprising, since it's often used in the background of the other **`tidyverse`** packages. Sometimes, it's important to visualise zeroes, so it's important that `tibble` is still represented in the data. \index{base!factor}
+플롯의 패면이 가장 많이 사용된 패키지부터 가장 적게 사용된 패키지 순으로 정렬되기를 원하므로 `pkgs` 열을 요인으로 변환하고 수준을 핵심 **`tidyverse`** 패키지 이름 벡터와 동일하게 설정하는 것으로 시작해 봅시다. 이렇게 하면 데이터에 나타나지 않더라도 모든 핵심 패키지가 요인 수준에 포함됩니다. 자세히 살펴보면 `"tibble"`이 누락되었음을 알 수 있습니다. 직접 사용된 적이 없기 때문에 누락되었습니다 - 다른 **`tidyverse`** 패키지의 백그라운드에서 자주 사용되기 때문에 놀라운 일은 아닙니다. 때로는 0을 시각화하는 것이 중요하므로 데이터에 `tibble`이 여전히 표시되는 것이 중요합니다. \index{base!factor}
 
-We can then use `fct_reorder()` from the **`forcats`** package [@forcats] to sort the `pkgs` column based on the sum of values in the `n` column. We set `.desc` to `TRUE` to sort in descending order, and set `.default` to `-Inf` to place any unused factor levels at the end i.e. where they would appear if they had a count of 0.  \index{forcats!fct\_reorder}
+그런 다음 **`forcats`** 패키지 [@forcats]의 `fct_reorder()`를 사용하여 `n` 열의 값 합계를 기준으로 `pkgs` 열을 정렬할 수 있습니다. `.desc`를 `TRUE`로 설정하여 내림차순으로 정렬하고 `.default`를 `-Inf`로 설정하여 사용되지 않은 요인 수준을 끝에 배치합니다(즉, 개수가 0일 때 나타나는 위치). \index{forcats!fct\_reorder}
 
 ```{r}
 #| label: r-pkgs-orders
@@ -287,18 +287,18 @@ plot_data <- r_pkgs_date |>
   )
 ```
 
-Now we're ready to create a first draft of @fig-packages-sketch-1!  
+이제 @fig-packages-sketch-1 의 초안을 만들 준비가 되었습니다!  
 
-### The first plot
+### 첫 번째 플롯
 
-We start our plot by passing `plot_data` into `ggplot()` to use this data as the base for all elements in the plot. We then add `geom_area()` to create the geometry for the area chart, specifying the aesthetic mapping using `aes()` again. We put the `date` on the x-axis, `n` on the y-axis. and set the fill color of the area chart based on the category in `pkgs`. This is very similar to the initial plots created in @sec-museums. \index{ggplot2!ggplot} \index{ggplot2!geom\_area} \index{ggplot2!aes} 
+`plot_data`를 `ggplot()`에 전달하여 이 데이터를 플롯의 모든 요소에 대한 기반으로 사용하여 플롯을 시작합니다. 그런 다음 `geom_area()`를 추가하여 영역 차트의 기하학적 구조를 만들고 다시 `aes()`를 사용하여 미적 매핑을 지정합니다. x축에 `date`, y축에 `n`을 넣습니다. 그리고 `pkgs`의 범주에 따라 영역 차트의 채우기 색상을 설정합니다. 이것은 @sec-museums 에서 만든 초기 플롯과 매우 유사합니다. \index{ggplot2!ggplot} \index{ggplot2!geom\_area} \index{ggplot2!aes} 
 
-We then add `facet_wrap()` to create small multiple plots, split by `pkgs`. We want our facet plots all in one line rather than arranged as a grid, so we set `nrow = 1` inside `facet_wrap()`. Although `"tibble"` is a level in our `pkgs` factor column, no observations of that factor level exist. To make sure it still appears as an (empty) facet, we set `drop = FALSE`. Otherwise, only 7 faceted plots would be shown. \index{ggplot2!facet\_wrap}
+그런 다음 `pkgs`로 나누어진 작은 다중 플롯을 만들기 위해 `facet_wrap()`을 추가합니다. 패면 플롯을 그리드로 배열하는 것보다 한 줄에 모두 배치하고 싶으므로 `facet_wrap()` 내에서 `nrow = 1`로 설정합니다. `"tibble"`은 `pkgs` 요인 열의 수준이지만 해당 요인 수준의 관측값은 존재하지 않습니다. 여전히 (빈) 패면으로 나타나도록 하려면 `drop = FALSE`로 설정합니다. 그렇지 않으면 7개의 패면 플롯만 표시됩니다. \index{ggplot2!facet\_wrap}
 
 ```{r}
 #| label: fig-r-pkgs-base-plot-1
-#| fig-cap: "Faceted area charts showing package use over time for each of the 8 core `tidyverse` packages, with facets ordered from most to least use. The ordering doesn't quite look correct."
-#| fig-alt: "Faceted area charts showing package use over time for each of the 8 core `tidyverse` packages, with facets ordered from most to least use. The ordering doesn't quite look correct."
+#| fig-cap: "가장 많이 사용된 것부터 가장 적게 사용된 것 순으로 정렬된 패면으로 8개의 핵심 `tidyverse` 패키지 각각에 대한 시간 경과에 따른 패키지 사용량을 보여주는 패면 영역 차트. 순서가 정확해 보이지 않습니다."
+#| fig-alt: "가장 많이 사용된 것부터 가장 적게 사용된 것 순으로 정렬된 패면으로 8개의 핵심 `tidyverse` 패키지 각각에 대한 시간 경과에 따른 패키지 사용량을 보여주는 패면 영역 차트. 순서가 정확해 보이지 않습니다."
 #| warning: true
 basic_plot <- ggplot(plot_data) +
   geom_area(
@@ -312,40 +312,40 @@ basic_plot <- ggplot(plot_data) +
 basic_plot
 ```
 
-You might notice two things here:
+여기서 두 가지를 알아차렸을 것입니다:
 
-* alongside the plot, a (slightly confusing) warning message is returned;
-* the ordering of the plot doesn't look quite right.
+* 플롯과 함께 (약간 혼란스러운) 경고 메시지가 반환됩니다;
+* 플롯의 순서가 정확해 보이지 않습니다.
 
-You might also notice the large spike in the **`ggplot2`** facet which shows 141 uses of the **`ggplot2`** package in a single script and wonder if this is an error. It's not an error - it was actually used that many times!
+또한 단일 스크립트에서 **`ggplot2`** 패키지를 141번이나 사용한 것을 보여주는 **`ggplot2`** 패면의 큰 스파이크를 보고 이것이 오류인지 궁금해할 수도 있습니다. 오류가 아닙니다 - 실제로 그만큼 많이 사용되었습니다!
 
-Let's start by thinking about the second one of these issues and see if we can figure out what's happening. We've specified that the facets should be ordered from most to least used in total. But the area for the **`stringr`** package looks much larger than the area for the **`readr`** package - even though it should be smaller. It also looks as though there are no values in the **`forcats`** facet - but we know this isn't true for **`forcats`**, only for **`tibble`**. Why is this happening?
+이 두 가지 문제 중 두 번째 문제부터 생각하고 무슨 일이 일어나고 있는지 파악해 봅시다. 패면이 전체적으로 가장 많이 사용된 것부터 가장 적게 사용된 것 순으로 정렬되어야 한다고 지정했습니다. 그러나 **`stringr`** 패키지의 영역은 **`readr`** 패키지의 영역보다 훨씬 커 보입니다 - 실제로 더 작아야 하는데도 말이죠. 또한 **`forcats`** 패면에 값이 없는 것처럼 보입니다 - 하지만 우리는 이것이 **`forcats`**에 해당하지 않고 **`tibble`**에만 해당한다는 것을 알고 있습니다. 왜 이런 일이 발생하는 것일까요?
 
-The problem is that 0 is not included in the data. The areas are being drawn between only the strictly positive values, never going back down to 0. For packages that are used a lot but only in a few scripts, this makes their area larger than packages that are used once or twice in many scripts.
+문제는 데이터에 0이 포함되어 있지 않다는 것입니다. 영역은 엄격하게 양수 값 사이에서만 그려지며 0으로 내려가지 않습니다. 소수의 스크립트에서만 많이 사용되는 패키지의 경우 많은 스크립트에서 한두 번 사용되는 패키지보다 영역이 더 커집니다.
 
-In our data set, if a package isn't used in a script, there is no entry in the data. This makes sense since there are tens of thousands of packages and it would be much more difficult and time consuming to list every package that isn't used, rather than just those that are. But in our case, these missing, unobserved values aren't really missing values - they are 0 values. 
+데이터 세트에서 스크립트에서 패키지가 사용되지 않으면 데이터에 항목이 없습니다. 수만 개의 패키지가 있고 사용된 패키지만 나열하는 것보다 사용되지 않은 모든 패키지를 나열하는 것이 훨씬 더 어렵고 시간이 많이 걸리기 때문에 이는 당연합니다. 그러나의 경우 이러한 누락된, 관찰되지 않은 값은 실제로 누락된 값이 아닙니다 - 0 값입니다.
 
-The warning message returned from the plot is also trying to tell us about this problem (the warning just isn't very clear!)
+플롯에서 반환된 경고 메시지도 이 문제에 대해 알려주려고 합니다 (경고가 별로 명확하지 않을 뿐입니다!)
 
 ::: {#tip-packages-area .callout-tip}
 
-## Don't ignore the warning signs!
+## 경고 신호를 무시하지 마십시오!
 
-This *is it a zero or is it missing?* question has highlighted a few important aspects of plotting charts and data processing: \index{missing data}
+이 *0입니까 아니면 누락입니까?* 질문은 차트 플로팅 및 데이터 처리의 몇 가지 중요한 측면을 강조했습니다: \index{missing data}
 
-* Don't simply ignore warning messages if you don't understand them. It might be tempting to ignore the warning message because you ended up with a plot that looks kind of like what you expected, and the warning message isn't very clear about what's wrong. But here, the warning was telling us that something was wrong with our assumptions about the data.
+* 이해하지 못한다고 해서 경고 메시지를 단순히 무시하지 마십시오. 예상한 것과 비슷한 플롯이 나왔고 경고 메시지가 무엇이 잘못되었는지 명확하지 않기 때문에 경고 메시지를 무시하고 싶을 수도 있습니다. 하지만 여기서 경고는 데이터에 대한 우리의 가정에 문제가 있음을 알려주었습니다.
 
-* Ordering your data (sensibly) can help you to spot issues. If the facets hadn't been ordered, it would have been harder to recognize that some areas were overestimated, and some were underestimated.
+* 데이터를 (합리적으로) 정렬하면 문제를 발견하는 데 도움이 될 수 있습니다. 패면이 정렬되지 않았다면 일부 영역이 과대평가되고 일부는 과소평가되었음을 인식하기 더 어려웠을 것입니다.
 
-* Sometimes missing values are explicitly represented as `NA` values (or something else), and other times missing values are simply rows that do not exist in the data. We often think about missing values more when we see them as `NA` values. But just because you have no `NA` values in your data, doesn't mean that you don't have any missing values.
+* 때때로 누락된 값은 명시적으로 `NA` 값(또는 다른 것)으로 표시되고, 다른 경우에는 누락된 값이 단순히 데이터에 존재하지 않는 행입니다. 우리는 종종 `NA` 값으로 볼 때 누락된 값에 대해 더 많이 생각합니다. 하지만 데이터에 `NA` 값이 없다고 해서 누락된 값이 없다는 의미는 아닙니다.
 
-* As discussed in @sec-bees, when you have missing values (whether explicit or implicit), it's important to think about why they are missing and whether they are really missing. Does a missing values mean 0? Or does it mean it's actually missing? Or does it mean something else entirely? It's important to understand the process of data collection to answer this question correctly.
+* @sec-bees 에서 논의한 바와 같이 누락된 값(명시적이든 암시적이든)이 있을 때 *왜* 누락되었는지, *정말로* 누락되었는지 생각하는 것이 중요합니다. 누락된 값은 0을 의미합니까? 아니면 실제로 누락되었음을 의미합니까? 아니면 완전히 다른 것을 의미합니까? 이 질문에 올바르게 대답하려면 데이터 수집 과정을 이해하는 것이 중요합니다.
 
 :::
 
-Let's go ahead and add in zeros where they should be. We know that the `date` and `pkgs` columns are complete: there are no missing values in the `date` column and we've already addressed the issue with the missing `"tibble"` values. We need to make sure that every possible combination of `date` and `pkgs` exists in the data: any that do not already exist should be added and given a value of `0` in the `n` column.
+이제 0이 있어야 할 위치에 0을 추가해 봅시다. `date` 및 `pkgs` 열이 완전하다는 것을 알고 있습니다: `date` 열에는 누락된 값이 없으며 누락된 `"tibble"` 값 문제도 이미 해결했습니다. 데이터에 `date`와 `pkgs`의 가능한 모든 조합이 존재하는지 확인해야 합니다: 아직 존재하지 않는 조합은 추가하고 `n` 열에 `0` 값을 부여해야 합니다.
 
-We can use the `complete()` function from **`tidyr`** to *complete* the data. We pass in the `date` and `pkgs` columns to say which combinations of columns we need to make sure exist. By default, missing combinations are represented by `NA`, but we can override the `fill` argument to use `0` instead. \index{tidyr!complete}
+**`tidyr`**의 `complete()` 함수를 사용하여 데이터를 *완성*할 수 있습니다. `date` 및 `pkgs` 열을 전달하여 어떤 열 조합이 존재하는지 확인해야 한다고 말합니다. 기본적으로 누락된 조합은 `NA`로 표시되지만 `fill` 인수를 재정의하여 `0`을 대신 사용할 수 있습니다. \index{tidyr!complete}
 
 ```{r}
 #| label: r-pkgs-new-data
@@ -356,36 +356,36 @@ new_plot_data <- plot_data |>
   )
 ```
 
-Let's take a quick look at our updated data using `head()` to make sure this has worked: \index{utils!head}
+`head()`를 사용하여 업데이트된 데이터를 간단히 살펴보고 작동했는지 확인합시다: \index{utils!head}
 
 ```{r}
 #| label: r-pkgs-head-new
 head(new_plot_data, n = 8)
 ```
 
-We can see that there are now quite a few `0` values included in the `n` column. Notice that `"tibble"` is now explicitly included as well, with `0` in the `n` column for all observations. This is because, by default, `complete()` uses all levels of the factor even if they aren't observed in the data.
+이제 `n` 열에 꽤 많은 `0` 값이 포함된 것을 볼 수 있습니다. `"tibble"`도 모든 관측값에 대해 `n` 열에 `0`이 있는 상태로 명시적으로 포함되어 있음을 알 수 있습니다. 이는 기본적으로 `complete()`가 데이터에서 관찰되지 않더라도 요인의 모든 수준을 사용하기 때문입니다.
 
-Now we need to update the data that is used in our `basic_plot`. We *could* simply edit (or copy and paste) the code from above and substitute `plot_data` for `new_plot_data`. But we can alternatively use the `%+%` operator.
+이제 `basic_plot`에 사용되는 데이터를 업데이트해야 합니다. 위의 코드를 편집(또는 복사하여 붙여넣기)하고 `plot_data`를 `new_plot_data`로 대체할 *수도* 있습니다. 하지만 대안으로 `%+%` 연산자를 사용할 수 있습니다.
 
-The `%+%` operator allows you to replace the current default data frame on an existing plot. We start with our existing `basic_plot`, and then use `%+%` to set `new_plot_data` as the data used in the plot.
+`%+%` 연산자를 사용하면 기존 플롯의 현재 기본 데이터 프레임을 교체할 수 있습니다. 기존 `basic_plot`으로 시작한 다음 `%+%`를 사용하여 `new_plot_data`를 플롯에 사용되는 데이터로 설정합니다.
 
 ```{r}
 #| label: fig-r-pkgs-base-plot-2
-#| fig-cap: "Faceted area charts showing package use over time for each of the 8 core `tidyverse` packages, with facets ordered from most to least use. The ordering now looks correct."
-#| fig-alt: "Faceted area charts showing package use over time for each of the 8 core `tidyverse` packages, with facets ordered from most to least use. The ordering now looks correct."
+#| fig-cap: "가장 많이 사용된 것부터 가장 적게 사용된 것 순으로 정렬된 패면으로 8개의 핵심 `tidyverse` 패키지 각각에 대한 시간 경과에 따른 패키지 사용량을 보여주는 패면 영역 차트. 이제 순서가 정확해 보입니다."
+#| fig-alt: "가장 많이 사용된 것부터 가장 적게 사용된 것 순으로 정렬된 패면으로 8개의 핵심 `tidyverse` 패키지 각각에 대한 시간 경과에 따른 패키지 사용량을 보여주는 패면 영역 차트. 이제 순서가 정확해 보입니다."
 basic_plot <- basic_plot %+% new_plot_data
 basic_plot
 ```
 
-Notice that the warning message has now disappeared.
+이제 경고 메시지가 사라졌음을 알 수 있습니다.
 
-## Advanced styling
+## 고급 스타일링
 
-Now that we have a first draft of the plot, it's time to work on polishing it. We'll make some adjustments to the colors, fonts, text, scales, and themes - before we move on to editing the facets labels to create a visualization like @fig-packages-sketch-2.
+이제 플롯의 초안이 완성되었으므로 다듬을 차례입니다. 색상, 글꼴, 텍스트, 스케일 및 테마를 약간 조정한 다음 패면 레이블을 편집하여 @fig-packages-sketch-2 와 같은 시각화를 만드는 단계로 넘어갑니다.
 
-### Colors
+### 색상
 
-Let's go for a dark theme for our plot this time. We'll choose a dark gray for the background color, and white for the text to ensure sufficient contrast. \index{color}
+이번에는 플롯에 어두운 테마를 사용해 봅시다. 배경색으로 어두운 회색을 선택하고 충분한 대비를 위해 텍스트에는 흰색을 선택하겠습니다. \index{color}
 
 ```{r}
 #| label: r-pkgs-cols-1
@@ -393,9 +393,9 @@ bg_col <- "#3A3B3C"
 text_col <- "white"
 ```
 
-Let's also define a color palette that we'll use for the fill color of the area charts. As we did in @sec-turbines, we'll use one of the palettes in **`rcartocolor`** [@rcartocolor]. Again, similar to @sec-turbines, to avoid the gray color, we ask for one more color than we need and then throw away the gray color. We have 8 categories in our plot, so we ask for 9 colors using the `carto_pal()` function and then extract only the first 8. We'll use the `"Bold"` palette here. \index{rcartocolor!carto\_pal}
+영역 차트의 채우기 색상으로 사용할 색상 팔레트도 정의해 봅시다. @sec-turbines 에서 했던 것처럼 **`rcartocolor`** [@rcartocolor]의 팔레트 중 하나를 사용합니다. 다시 @sec-turbines 와 유사하게 회색을 피하기 위해 필요한 것보다 한 가지 더 많은 색상을 요청한 다음 회색을 버립니다. 플롯에 8개의 범주가 있으므로 `carto_pal()` 함수를 사용하여 9개의 색상을 요청하고 처음 8개만 추출합니다. 여기서는 `"Bold"` 팔레트를 사용합니다. \index{rcartocolor!carto\_pal}
 
-To keep a more consistent color theme in the plot, we define our highlight color variable, `highlight_col`, to be the first color in our chosen color palette.
+플롯에서 더 일관된 색상 테마를 유지하기 위해 강조 색상 변수 `highlight_col`을 선택한 색상 팔레트의 첫 번째 색상으로 정의합니다.
 
 ```{r}
 #| label: r-pkgs-cols-2
@@ -405,12 +405,12 @@ col_palette <- carto_pal(
 highlight_col <- col_palette[1]
 ```
 
-We can then pass this `col_palette` vector into `scale_fill_manual()` function to apply the colors to our plot: \index{ggplot2!scale\_fill\_manual}
+그런 다음 이 `col_palette` 벡터를 `scale_fill_manual()` 함수에 전달하여 플롯에 색상을 적용할 수 있습니다: \index{ggplot2!scale\_fill\_manual}
 
 ```{r}
 #| label: fig-r-pkgs-col-plot
-#| fig-cap: "Faceted area charts showing package use over time for each of the 8 core `tidyverse` packages. Each area chart is colored using a different color from the `rcartocolor` package."
-#| fig-alt: "Faceted area charts showing package use over time for each of the 8 core `tidyverse` packages. Each area chart is colored using a different color from the `rcartocolor` package."
+#| fig-cap: "8개의 핵심 `tidyverse` 패키지 각각에 대한 시간 경과에 따른 패키지 사용량을 보여주는 패면 영역 차트. 각 영역 차트는 `rcartocolor` 패키지의 다른 색상을 사용하여 색칠되어 있습니다."
+#| fig-alt: "8개의 핵심 `tidyverse` 패키지 각각에 대한 시간 경과에 따른 패키지 사용량을 보여주는 패면 영역 차트. 각 영역 차트는 `rcartocolor` 패키지의 다른 색상을 사용하여 색칠되어 있습니다."
 col_plot <- basic_plot +
   scale_fill_manual(
     values = col_palette
@@ -418,11 +418,11 @@ col_plot <- basic_plot +
 col_plot
 ```
 
-### Text and fonts
+### 텍스트와 글꼴
 
-Similar to @sec-programming, since code is the subject of the visualization, we might want to choose a typeface that's consistent with that theme. Here we'll use *Source Code Pro*, a monospace typeface originally designed specifically for coding environments. It's loaded into R using `font_add_google()` from **`sysfonts`**.
+@sec-programming 에서와 마찬가지로 코드가 시각화의 주제이므로 해당 테마와 일치하는 서체를 선택할 수 있습니다. 여기서는 코딩 환경을 위해 특별히 설계된 고정폭 서체인 *Source Code Pro*를 사용하겠습니다. **`sysfonts`**의 `font_add_google()`을 사용하여 R에 로드됩니다.
 
-In this chapter, we'll use the same typeface for the title and body text so we only need to define one variable, `body_font`. \index{sysfonts!font\_add\_google} \index{showtext!showtext\_auto} \index{showtext!showtext\_opts}
+이 장에서는 제목과 본문 텍스트에 동일한 서체를 사용할 것이므로 하나의 변수 `body_font`만 정의하면 됩니다. \index{sysfonts!font\_add\_google} \index{showtext!showtext\_auto} \index{showtext!showtext\_opts}
 
 ```{r}
 #| label: r-pkgs-fonts
@@ -435,7 +435,7 @@ showtext_opts(dpi = 300)
 body_font <- "source"
 ```
 
-As we've done in previous chapters, we'll use the `social_caption()` function we defined in @sec-cats to create a caption containing Font Awesome icons with social media handles: \index{social\_caption}
+이전 장에서 했던 것처럼 @sec-cats 에서 정의한 `social_caption()` 함수를 사용하여 소셜 미디어 핸들과 Font Awesome 아이콘이 포함된 캡션을 만듭니다: \index{social\_caption}
 
 ```{r}
 #| label: r-pkgs-social
@@ -446,12 +446,12 @@ social <- social_caption(
 )
 ```
 
-The subtitle includes a quote from the [`tidyverse` website](https://www.tidyverse.org/), so we'll format it in italics using `*`. Package names are formatted in bold with `**`. We also use the `source_caption()` function we defined in @sec-turbines to create a caption with information about the data source, combined with the social icons to attribute the graphic. \index{source\_caption}
+부제목에는 [`tidyverse` 웹사이트](https://www.tidyverse.org/)의 인용문이 포함되어 있으므로 `*`를 사용하여 기울임꼴로 형식을 지정합니다. 패키지 이름은 `**`로 굵게 서식이 지정됩니다. 또한 @sec-turbines 에서 정의한 `source_caption()` 함수를 사용하여 데이터 소스에 대한 정보가 포함된 캡션을 만들고 소셜 아이콘과 결합하여 그래픽을 속성 지정합니다. \index{source\_caption}
 
 ```{r}
 #| label: r-pkgs-text-1
-title <- "How many times did I use **tidyverse** packages for TidyTuesday?"
-st <- "The **tidyverse** is a collection of open source R packages that *share an underlying design philosophy, grammar, and data structures*. Of the 8 core **tidyverse** packages, **ggplot2** was my most used package for TidyTuesday visualizations in 2023."
+title <- "TidyTuesday에 **tidyverse** 패키지를 몇 번이나 사용했습니까?"
+st <- "**tidyverse**는 *기본 디자인 철학, 문법 및 데이터 구조를 공유하는* 오픈 소스 R 패키지의 모음입니다. 8개의 핵심 **tidyverse** 패키지 중에서 2023년 TidyTuesday 시각화에 가장 많이 사용된 패키지는 **ggplot2**였습니다."
 source_cap <- source_caption(
   source = "github.com/nrennie/tidytuesday",
   graphic = social,
@@ -459,14 +459,14 @@ source_cap <- source_caption(
 )
 ```
 
-We also join together the subtitle text with the data and graphic source information using `paste0()` (although you could use `glue()` instead). \index{base!paste0}
+또한 `paste0()`을 사용하여 부제목 텍스트를 데이터 및 그래픽 소스 정보와 결합합니다(대신 `glue()`를 사용할 수도 있습니다). \index{base!paste0}
 
 ```{r}
 #| label: r-pkgs-text-2
 cap <- paste0(st, "<br>", source_cap)
 ```
 
-We can then pass this text into the `labs()` function to apply it to our plot. We also set `x = ""` to remove the x-axis text, and define a more informative y-axis title. \index{ggplot2!labs}
+그런 다음 이 텍스트를 `labs()` 함수에 전달하여 플롯에 적용할 수 있습니다. 또한 `x = ""`를 설정하여 x축 텍스트를 제거하고 더 유익한 y축 제목을 정의합니다. \index{ggplot2!labs}
 
 ```{r}
 #| label: r-pkgs-text-plot
@@ -475,34 +475,34 @@ text_plot <- col_plot +
     title = title,
     subtitle = cap,
     x = "",
-    y = "Number of package calls"
+    y = "패키지 호출 횟수"
   )
 ```
 
 ::: {#tip-packages-axis .callout-tip}
 
-## Removing axis titles
+## 축 제목 제거
 
-There are multiple different ways to remove the axis labels. You can set `x = ""` as we've done here, or `x = NULL`. You can also set `axis.text.x = element_blank()` inside `theme()` to remove the text. \index{ggplot2!theme} \index{ggplot2!element\_theme}
+축 레이블을 제거하는 방법에는 여러 가지가 있습니다. 여기서 했던 것처럼 `x = ""`를 설정하거나 `x = NULL`로 설정할 수 있습니다. `theme()` 내부에서 `axis.text.x = element_blank()`를 설정하여 텍스트를 제거할 수도 있습니다. \index{ggplot2!theme} \index{ggplot2!element\_theme}
 
 :::
 
-### Adjusting scales and themes
+### 스케일 및 테마 조정
 
-We can adjust the x- and y- axes labeling to deal with the over-crowding of the labels. By default, labels have been added on each facet, at every three months. Although the data only covers 2023, **`ggplot2`** also extends the x-axis to cover the beginning of 2024. We can adjust the `limits` and `breaks` of the x-axis scale to show only 2023, and have fewer labels. Since the values on the x-axis are dates, we use `scale_x_date()` to make the adjustments. This also means that the values we pass into the `breaks` and `limits` arguments of `scale_x_date()` should be dates, and so we again make use of `ymd()` from **`lubridate`**. We set the x-axis limits to be from January 1 to December 31 of 2023, and add labels on the first of January and July. \index{ggplot2!scale\_x\_date} \index{lubridate!ymd}
+레이블의 과밀화를 처리하기 위해 x축 및 y축 레이블을 조정할 수 있습니다. 기본적으로 레이블은 3개월마다 각 패면에 추가되었습니다. 데이터가 2023년만 다루지만 **`ggplot2`**는 x축을 확장하여 2024년 초까지 포함합니다. x축 스케일의 `limits`와 `breaks`를 조정하여 2023년만 표시하고 레이블을 더 적게 가질 수 있습니다. x축의 값은 날짜이므로 `scale_x_date()`를 사용하여 조정합니다. 이것은 또한 `scale_x_date()`의 `breaks` 및 `limits` 인수에 전달하는 값이 날짜여야 함을 의미하므로 다시 **`lubridate`**의 `ymd()`를 사용합니다. x축 제한을 2023년 1월 1일부터 12월 31일까지로 설정하고 1월 1일과 7월 1일에 레이블을 추가합니다. \index{ggplot2!scale\_x\_date} \index{lubridate!ymd}
 
-For the y-axis, we choose *nice* limits and breaks - setting the limits to between 0 and 150, with breaks every 50. To remove the excess space around the edge of each facet plot, we also set `expand = FALSE` in `coord_cartesian()`. \index{ggplot2!coord\_cartesian} 
+y축의 경우 *좋은* 제한과 중단을 선택합니다 - 제한을 0에서 150 사이로 설정하고 50마다 중단을 둡니다. 각 패면 플롯 가장자리 주위의 여분의 공간을 제거하기 위해 `coord_cartesian()`에서 `expand = FALSE`도 설정합니다. \index{ggplot2!coord\_cartesian} 
 \index{ggplot2!scale\_y\_continuous} 
 
 ```{r}
 #| label: fig-r-pkgs-limits-plot
-#| fig-cap: "Faceted area charts showing package use over time for each of the 8 core `tidyverse` packages. A title and subtitle has been added but runs of the page. However, the x-axis labels no longer overlap."
-#| fig-alt: "Faceted area charts showing package use over time for each of the 8 core `tidyverse` packages. A title and subtitle has been added but runs of the page. However, the x-axis labels no longer overlap."
+#| fig-cap: "8개의 핵심 `tidyverse` 패키지 각각에 대한 시간 경과에 따른 패키지 사용량을 보여주는 패면 영역 차트. 제목과 부제목이 추가되었지만 페이지를 벗어납니다. 그러나 x축 레이블은 더 이상 겹치지 않습니다."
+#| fig-alt: "8개의 핵심 `tidyverse` 패키지 각각에 대한 시간 경과에 따른 패키지 사용량을 보여주는 패면 영역 차트. 제목과 부제목이 추가되었지만 페이지를 벗어납니다. 그러나 x축 레이블은 더 이상 겹치지 않습니다."
 limits_plot <- text_plot +
   scale_x_date(
     limits = ymd(c("20230101", "20231231")),
     breaks = ymd(c("20230101", "20230701")),
-    labels = c("Jan", "Jul")
+    labels = c("1월", "7월")
   ) +
   scale_y_continuous(
     limits = c(0, 150),
@@ -512,11 +512,11 @@ limits_plot <- text_plot +
 limits_plot
 ```
 
-Let's edit the arguments of `theme()` to finalise our plot. There's a fairly large number of adjustments to make, so we'll do them in two stages. \index{ggplot2!theme}
+플롯을 마무리하기 위해 `theme()`의 인수를 편집해 봅시다. 조정해야 할 사항이 꽤 많으므로 두 단계로 나누어 수행합니다. \index{ggplot2!theme}
 
-We'll start by setting the default font family and base font size in the `text` argument through `element_text()`. We also remove the legend and add a little bit of space around the edges of the plot using the `margin()` function. \index{ggplot2!element\_text} \index{ggplot2!margin} \index{grid!unit}
+`element_text()`를 통해 `text` 인수에서 기본 글꼴 모음 및 기본 글꼴 크기를 설정하는 것으로 시작합니다. 또한 범례를 제거하고 `margin()` 함수를 사용하여 플롯 가장자리 주위에 약간의 공간을 추가합니다. \index{ggplot2!element\_text} \index{ggplot2!margin} \index{grid!unit}
 
-We then edit the `plot.background` and `panel.background` to have the background color we defined earlier (as `bg_col`) by using the `fill` and `color` arguments in `element_rect()`. We also do the same for the facet label background which is controlled by the `strip.background` argument. Although we're planning to replace the facet labels with images, for now we'll format them with bold text in our preferred color. The spacing between the facets is controlled by the `panel.spacing` argument. \index{ggplot2!element\_rect} \index{ggplot2!element\_text} \index{ggplot2!unit}
+그런 다음 `element_rect()`의 `fill` 및 `color` 인수를 사용하여 `plot.background` 및 `panel.background`를 이전에 정의한 배경색(`bg_col`)을 갖도록 편집합니다. `strip.background` 인수에 의해 제어되는 패면 레이블 배경에 대해서도 동일한 작업을 수행합니다. 패면 레이블을 이미지로 교체할 계획이지만 지금은 선호하는 색상으로 굵은 텍스트로 형식을 지정합니다. 패면 사이의 간격은 `panel.spacing` 인수에 의해 제어됩니다. \index{ggplot2!element\_rect} \index{ggplot2!element\_text} \index{ggplot2!unit}
 
 ```{r}
 #| label: r-pkgs-theme-plot-1
@@ -544,14 +544,14 @@ init_theme_plot <- limits_plot +
   )
 ```
 
-Our final adjustments include specifying that we're using **`ggtext`** for the title and subtitle to allow the HTML and Markdown text to be processed correctly. We do this by using `element_textbox_simple()` from **`ggtext`** in the `plot.title` and `plot.subtitle` arguments, where we also set the font `color`, left-align it, and add a little padding around the edges. The title text is made slightly larger than normal by using the `rel()` function in size. Setting `plot.title.position = "plot"` means that the title and subtitle text is aligned with the edge of the whole plot, rather than the edge of the first facet plot. This gives a cleaner looker and avoids extra white created due to the width of the y-axis text. \index{ggplot2!rel} \index{ggplot2!theme} \index{ggtext!element\_textbox\_simple}
+최종 조정에는 HTML 및 Markdown 텍스트가 올바르게 처리되도록 제목 및 부제목에 **`ggtext`**를 사용하고 있음을 지정하는 것이 포함됩니다. `plot.title` 및 `plot.subtitle` 인수에서 **`ggtext`**의 `element_textbox_simple()`을 사용하여 수행합니다. 여기서 글꼴 `color`를 설정하고 왼쪽 정렬하고 가장자리 주위에 약간의 패딩을 추가합니다. 제목 텍스트는 `rel()` 함수를 사용하여 일반보다 약간 더 크게 만듭니다. `plot.title.position = "plot"`을 설정하면 제목과 부제목 텍스트가 첫 번째 패묘 플롯의 가장자리가 아니라 전체 플롯의 가장자리와 정렬됨을 의미합니다. 이렇게 하면 더 깔끔해 보이고 y축 텍스트의 너비로 인해 생성되는 여분의 흰색을 피할 수 있습니다. \index{ggplot2!rel} \index{ggplot2!theme} \index{ggtext!element\_textbox\_simple}
 
-We also make sure that the x- and y-axes labels and title are the correct color using `element_text()`. Finally, the grid lines are made thinner and semi-transparent using the `color` and `linewidth` arguments in `element_line()`. The minor grid lines are made a little bit more transparent than the major grid lines. \index{ggplot2!element\_line} 
+또한 `element_text()`를 사용하여 x축 및 y축 레이블과 제목이 올바른 색상인지 확인합니다. 마지막으로 `element_line()`의 `color` 및 `linewidth` 인수를 사용하여 격자선을 더 얇고 반투명하게 만듭니다. 보조 격자선은 주 격자선보다 약간 더 투명하게 만듭니다. \index{ggplot2!element\_line} 
 
 ```{r}
 #| label: fig-r-pkgs-theme-plot-2
-#| fig-cap: "Faceted area charts showing package use over time for each of the 8 core `tidyverse` packages. The plot has a dark background, and white text (which no longer exceeds the plot area)."
-#| fig-alt: "Faceted area charts showing package use over time for each of the 8 core `tidyverse` packages. The plot has a dark background, and white text (which no longer exceeds the plot area)."
+#| fig-cap: "8개의 핵심 `tidyverse` 패키지 각각에 대한 시간 경과에 따른 패키지 사용량을 보여주는 패면 영역 차트. 플롯에는 어두운 배경과 흰색 텍스트(더 이상 플롯 영역을 초과하지 않음)가 있습니다."
+#| fig-alt: "8개의 핵심 `tidyverse` 패키지 각각에 대한 시간 경과에 따른 패키지 사용량을 보여주는 패면 영역 차트. 플롯에는 어두운 배경과 흰색 텍스트(더 이상 플롯 영역을 초과하지 않음)가 있습니다."
 theme_plot <- init_theme_plot +
   theme(
     # title and subtitle text
@@ -590,24 +590,24 @@ theme_plot <- init_theme_plot +
 theme_plot
 ```
 
-This visualization is perfectly fine as it is, but we can still edit the facet labels to use hex stickers instead of text labels, as we proposed in @fig-packages-sketch-2.
+이 시각화는 있는 그대로도 괜찮지만 @fig-packages-sketch-2 에서 제안한 대로 패면 레이블을 텍스트 레이블 대신 헥스 스티커를 사용하도록 편집할 수 있습니다.
 
-### Using images as facet labels
+### 패면 레이블로 이미지 사용하기
 
-As we discussed in @sec-lemurs, packages such as **`cowplot`** [@cowplot], **`egg`** [@egg], **`patchwork`** [@patchwork], and **`ggimage`** [@ggimage] can all be used to plot images. Here, we want to use images for the facet labels, which lie outside of the plot panel. There are several good options for overlaying elements outside of the main plot area. The `inset_element()` function from **`patchwork`** can add elements on top of existing plots (we'll see an example in @sec-time-zones). Similarly,the  `draw_image()` function from **`cowplot`** simplifies the process of combining plots and images. However, to edit the facet labels we don't actually need any additional packages beyond the ones we've already used to make the plot. \index{patchwork!inset\_element} \index{cowplot!draw\_image} \index{facet labels}
+@sec-lemurs 에서 논의했듯이 **`cowplot`** [@cowplot], **`egg`** [@egg], **`patchwork`** [@patchwork] 및 **`ggimage`** [@ggimage]와 같은 패키지는 모두 이미지를 플로팅하는 데 사용할 수 있습니다. 여기서는 플롯 패널 외부에 있는 패면 레이블에 이미지를 사용하려고 합니다. 기본 플롯 영역 외부에 요소를 오버레이하기 위한 몇 가지 좋은 옵션이 있습니다. **`patchwork`**의 `inset_element()` 함수는 기존 플롯 위에 요소를 추가할 수 있습니다(@sec-time-zones 에서 예를 볼 수 있습니다). 마찬가지로 **`cowplot`**의 `draw_image()` 함수는 플롯과 이미지를 결합하는 프로세스를 단순화합니다. 그러나 패면 레이블을 편집하기 위해 플롯을 만드는 데 이미 사용한 패키지 외에 추가 패키지가 실제로 필요하지 않습니다. \index{patchwork!inset\_element} \index{cowplot!draw\_image} \index{facet labels}
 
-We've used the **`ggtext`** package [@ggtext] many times already to add styling through the use of both Markdown and HTML syntax. For example, we added lines breaks using `<br>` and colored text using `<span></span>`. The `<img>` tag is used to add images in HTML. So let's use that in combination with **`ggtext`** to format the facet labels!
+우리는 이미 스타일을 추가하기 위해 **`ggtext`** 패키지 [@ggtext]를 사용하여 Markdown 및 HTML 구문을 여러 번 사용했습니다. 예를 들어 `<br>`을 사용하여 줄 바꿈을 추가하고 `<span></span>`을 사용하여 텍스트 색상을 지정했습니다. HTML에서 이미지를 추가하는 데 `<img>` 태그를 사용합니다. 따라서 **`ggtext`**와 결합하여 패면 레이블의 형식을 지정해 봅시다!
 
-Before we get started, we need to get some images! The hex stickers for many R packages can be found at {{< monolink "https://github.com/rstudio/hex-stickers" "github.com/rstudio/hex-stickers" >}}. For each of the 8 packages included in the plot, we can download the relevant hex sticker and **save it somewhere sensible**. Here, we'll save each image as a PNG file and the name of the file is the same as the name of the package e.g. the hex sticker for **`dplyr`** is saved as `dplyr.png` [@hex_dplyr]. To keep our directories looking clean and tidy, we might choose to save them in a folder. Here, we'll save them in a nested folder: `images/hex/`. This means the (relative) file path for our **`dplyr`** hex sticker is `images/hex/dplyr.png`. This is what we want to pass in as the image source in the `<img>` HTML tag for the **`dplyr`** facet label.
+시작하기 전에 이미지를 가져와야 합니다! 많은 R 패키지의 헥스 스티커는 {{< monolink "https://github.com/rstudio/hex-stickers" "github.com/rstudio/hex-stickers" >}}에서 찾을 수 있습니다. 플롯에 포함된 8개 패키지 각각에 대해 관련 헥스 스티커를 다운로드하고 **합리적인 곳에 저장**할 수 있습니다. 여기서는 각 이미지를 PNG 파일로 저장하고 파일 이름은 패키지 이름과 동일합니다. 예를 들어 **`dplyr`**의 헥스 스티커는 `dplyr.png`로 저장됩니다 [@hex_dplyr]. 디렉토리를 깨끗하고 정돈된 상태로 유지하기 위해 폴더에 저장할 수 있습니다. 여기서는 중첩된 폴더인 `images/hex/`에 저장합니다. 즉, **`dplyr`** 헥스 스티커의 (상대) 파일 경로는 `images/hex/dplyr.png`입니다. 이것이 **`dplyr`** 패면 레이블의 `<img>` HTML 태그에 이미지 소스로 전달하려는 것입니다.
 
-This means we need to make two edits to our data:
+즉, 데이터를 두 가지 수정해야 합니다:
 
-* including `<img>` tags in the `pkgs` column that is used as the faceting variable.
-* including `<img>` tags in the factor levels of the `pkgs` column to keep the correct ordering.
+* 패면 변수로 사용되는 `pkgs` 열에 `<img>` 태그 포함.
+* 올바른 순서를 유지하기 위해 `pkgs` 열의 요인 수준에 `<img>` 태그 포함.
 
-Let's start with the factor levels. Currently, the factor levels are just the package names. Luckily, we've been smart enough to save the images with the package name as the file name. This means we can use `glue()` from the **`glue`** package to stick together the package names with the HTML code.
+요인 수준부터 시작해 봅시다. 현재 요인 수준은 패키지 이름일 뿐입니다. 다행스럽게도 우리는 패키지 이름을 파일 이름으로 하여 이미지를 저장할 만큼 현명했습니다. 즉, **`glue`** 패키지의 `glue()`를 사용하여 패키지 이름과 HTML 코드를 함께 붙일 수 있습니다.
 
-Let's first extract the factor levels of the `pkgs` column, and save it as a variable called `pkgs_levels`. We then append these names to the end of the image file path, to create a new vector for the factor levels: \index{glue!glue}
+먼저 `pkgs` 열의 요인 수준을 추출하여 `pkgs_levels`라는 변수로 저장해 봅시다. 그런 다음 이 이름을 이미지 파일 경로 끝에 추가하여 요인 수준에 대한 새 벡터를 만듭니다: \index{glue!glue}
 
 ```{r}
 #| label: r-pkgs-new-levels-1
@@ -617,7 +617,7 @@ new_levels <- glue(
 )
 ```
 
-We can also control how the images appear within the `<img>` tag (to some extent). For example, we can set the width of the image (this will take a little bit of trial and error!). Unfortunately, the `hjust` and `halign` arguments don't seem to fully center the image within the facet label area. Instead, we can use a slightly *hacky* solution and add some blank space to the left hand side. In HTML, `&nbsp;` can be used to add a (non-breaking) space. Again, a little bit of trial and error is needed to figure out how many spaces we need to add.
+또한 `<img>` 태그 내에서 이미지가 표시되는 방식을 제어할 수도 있습니다(어느 정도까지는). 예를 들어 이미지의 너비를 설정할 수 있습니다(약간의 시행착오가 필요합니다!). 불행히도 `hjust` 및 `halign` 인수는 패면 레이블 영역 내에서 이미지를 완전히 중앙에 배치하는 것 같지 않습니다. 대신 약간 *해킹*적인 솔루션을 사용하여 왼쪽에 공백을 추가할 수 있습니다. HTML에서 `&nbsp;`를 사용하여 (줄 바꿈 없는) 공백을 추가할 수 있습니다. 다시 말하지만, 얼마나 많은 공백을 추가해야 하는지 알아내려면 약간의 시행착오가 필요합니다.
 
 ```{r}
 #| label: r-pkgs-new-levels-2
@@ -626,7 +626,7 @@ new_levels <- glue(
 )
 ```
 
-Now we need to do the same thing to the `pkgs` column. It's important that we overwrite the `pkgs` column here rather than making an entirely new column. This means that we can use the `%+%` operator to update the data and **`ggplot2`** will still be able to find the correct variable to facet by. We again use `glue()` to add the `pkgs` column into HTML `<img>` tags - being very careful to make sure that the new column values match exactly to the factor levels we defined in `new_levels`. This allows us to then apply these factor levels using `mutate()` to make sure the ordering of the packages from most to least used in retained. \index{dplyr!mutate} \index{glue!glue} \index{base!factor}
+이제 `pkgs` 열에 대해서도 같은 작업을 수행해야 합니다. 여기서 완전히 새로운 열을 만드는 대신 `pkgs` 열을 덮어쓰는 것이 중요합니다. 즉, `%+%` 연산자를 사용하여 데이터를 업데이트할 수 있으며 **`ggplot2`**는 여전히 패면을 위한 올바른 변수를 찾을 수 있습니다. 다시 `glue()`를 사용하여 `pkgs` 열을 HTML `<img>` 태그에 추가합니다. 새 열 값이 `new_levels`에서 정의한 요인 수준과 정확히 일치하는지 확인해야 합니다. 이를 통해 `mutate()`를 사용하여 이러한 요인 수준을 적용하여 가장 많이 사용된 것부터 가장 적게 사용된 것 순으로 패키지 순서가 유지되도록 할 수 있습니다. \index{dplyr!mutate} \index{glue!glue} \index{base!factor}
 
 ```{r}
 #| label: r-pkgs-img-data
@@ -639,19 +639,19 @@ plot_img_data <- new_plot_data |>
   )
 ```
 
-As we did earlier, let's update the data to use our new `plot_img_data` using the `%+%` operator:
+이전에 했듯이 `%+%` 연산자를 사용하여 새로운 `plot_img_data`를 사용하도록 데이터를 업데이트해 봅시다:
 
 ```{r}
 #| label: r-pkgs-img-plot
 img_plot <- theme_plot %+% plot_img_data
 ```
 
-We also need to tell **`ggplot2`** that the facet labels are using HTML tags, just as we've done with the caption. We edit the `theme()` function further and update the styling for `strip.text.x`. We again use `element_textbox_simple()` from **`ggtext`**, and set `hjust` and `halign` both to 0.5. \index{ggplot2!theme} \index{ggtext!element\_textbox\_simple}
+또한 캡션에서 했던 것처럼 **`ggplot2`**에 패면 레이블이 HTML 태그를 사용하고 있음을 알려야 합니다. `theme()` 함수를 추가로 편집하고 `strip.text.x`의 스타일을 업데이트합니다. 다시 **`ggtext`**의 `element_textbox_simple()`을 사용하고 `hjust`와 `halign`을 모두 0.5로 설정합니다. \index{ggplot2!theme} \index{ggtext!element\_textbox\_simple}
 
 ```{r}
 #| label: fig-r-pkgs-final-plot
-#| fig-cap: "Faceted area charts showing package use over time for each of the 8 core `tidyverse` packages. Hex stickers have replaced the text labels on the facets."
-#| fig-alt: "Faceted area charts showing package use over time for each of the 8 core `tidyverse` packages. Hex stickers have replaced the text labels on the facets."
+#| fig-cap: "8개의 핵심 `tidyverse` 패키지 각각에 대한 시간 경과에 따른 패키지 사용량을 보여주는 패면 영역 차트. 헥스 스티커가 패면의 텍스트 레이블을 대체했습니다."
+#| fig-alt: "8개의 핵심 `tidyverse` 패키지 각각에 대한 시간 경과에 따른 패키지 사용량을 보여주는 패면 영역 차트. 헥스 스티커가 패면의 텍스트 레이블을 대체했습니다."
 img_plot +
   theme(
     strip.text.x = element_textbox_simple(
@@ -661,7 +661,7 @@ img_plot +
   )
 ```
 
-Lastly, use `ggsave()` to save a copy as a PNG file: \index{ggplot2!ggsave}
+마지막으로 `ggsave()`를 사용하여 복사본을 PNG 파일로 저장합니다: \index{ggplot2!ggsave}
 
 ```{r}
 #| label: r-pkgs-save
@@ -676,9 +676,9 @@ ggsave(
 
 ::: {#tip-packages-axis .callout-tip}
 
-## Facet label images using **`marquee`**
+## **`marquee`**를 사용한 패면 레이블 이미지
 
-You can do a very similar thing using the **`marquee`** package [@marquee] instead of **`ggtext`**. The images can be added to `pkgs` using standard Markdown syntax instead of HTML tags: \index{dplyr!mutate} \index{glue!glue}
+**`ggtext`** 대신 **`marquee`** 패키지 [@marquee]를 사용하여 매우 유사한 작업을 수행할 수 있습니다. 이미지는 HTML 태그 대신 표준 Markdown 구문을 사용하여 `pkgs`에 추가할 수 있습니다: \index{dplyr!mutate} \index{glue!glue}
 
 ```{r}
 #| label: r-pkgs-marquee-1
@@ -690,7 +690,7 @@ plot_img_data <- new_plot_data |>
   )
 ```
 
-Remember that you'd also need to update the factor levels and the data used in the plot. You'd then adjust the theme to use `element_marquee()` to process the Markdown syntax: \index{marquee!element\_marquee} \index{ggplot2!theme}
+요인 수준과 플롯에 사용되는 데이터도 업데이트해야 한다는 것을 기억하십시오. 그런 다음 `element_marquee()`를 사용하여 Markdown 구문을 처리하도록 테마를 조정합니다: \index{marquee!element\_marquee} \index{ggplot2!theme}
 
 ```{r}
 #| label: r-pkgs-marquee-2
@@ -706,27 +706,27 @@ img_plot +
   )
 ```
 
-However, controlling the sizing and placement of the images is (at the time of writing) a little bit more difficult with **`marquee`**.
+그러나 **`marquee`**를 사용하여 이미지의 크기 및 배치를 제어하는 것은 (이 글을 쓰는 시점에서는) 조금 더 어렵습니다.
 
 :::
 
-## Reflection
+## 회고
 
-Overall, this plot is very effective - it clearly shows the differing levels of R package use whilst still being eye-catching. However, there are still a few improvements that can be made. Other than for **`ggplot2`** and **`dplyr`**, it's quite hard to read the values as they are very small compared to the height of the y-axis. This is due to the high usage of **`ggplot2`** on a single occasion. Maybe using a logarithmic transformation of the y-axis would make it easier to see the very small values - although log transformations do have their own downsides in terms of interpretability. 
+전반적으로 이 플롯은 매우 효과적입니다. R 패키지 사용 수준의 차이를 명확하게 보여주면서도 눈길을 끕니다. 그러나 여전히 개선할 수 있는 몇 가지 사항이 있습니다. **`ggplot2`** 및 **`dplyr`**을 제외하고는 y축 높이에 비해 값이 매우 작기 때문에 값을 읽기가 꽤 어렵습니다. 이는 단일 경우에 **`ggplot2`**를 많이 사용했기 때문입니다. y축의 로그 변환을 사용하면 매우 작은 값을 더 쉽게 볼 수 있을 것입니다 - 비록 로그 변환이 해석 가능성 측면에서 단점이 있기는 하지만요.
 
-The use of color could also be improved here. The colors are used to differentiate the different packages, and so don't provide any further information not already given by the facet labels - similar to @sec-museums. A single color for all area plots would provide the same amount of information, but look a little bit less distracting. If we did still want to use different colors, we may consider matching them more closely to the colors in the hex sticker images. For example, the green in the **`stringr`** hex sticker image is quite similar to the green used in the **`dplyr`** area chart - this is currently a little bit distracting. \index{color}
+여기서 색상을 사용하는 것도 개선될 수 있습니다. 색상은 서로 다른 패키지를 구별하는 데 사용되므로 @sec-museums 와 유사하게 패면 레이블에서 이미 제공하지 않는 추가 정보를 제공하지 않습니다. 모든 영역 플롯에 단일 색상을 사용하면 동일한 양의 정보를 제공하지만 약간 덜 산만해 보일 것입니다. 여전히 다른 색상을 사용하고 싶다면 헥스 스티커 이미지의 색상과 더 밀접하게 일치시키는 것을 고려할 수 있습니다. 예를 들어 **`stringr`** 헥스 스티커 이미지의 녹색은 **`dplyr`** 영역 차트에 사용된 녹색과 매우 유사합니다 - 이것은 현재 약간 산만합니다. \index{color}
 
 ::: {.content-visible when-format="html"}
 
-Each plot created during the process of developing the original version of this visualization was captured using **`camcorder`**, and is shown in the gif below. If you'd like to learn more about how **`camcorder`** can be used in the data visualization process, see @sec-camcorder.
+이 시각화의 원래 버전을 개발하는 과정에서 생성된 각 플롯은 **`camcorder`**를 사용하여 캡처되었으며 아래 gif에 표시됩니다. **`camcorder`**가 데이터 시각화 프로세스에서 어떻게 사용될 수 있는지 자세히 알고 싶다면 @sec-camcorder 를 참조하세요.
 
-![](images/r-pkgs.gif){fig-align="center" fig-alt="Gif of the process of building the chart"}
+![](images/r-pkgs.gif){fig-align="center" fig-alt="차트 작성 과정을 보여주는 Gif"}
 
 :::
 
-## Exercises
+## 연습 문제
 
-In July 2024, TidyTuesday used the **`funspotr`** package to look at how [David Robinson has explored TidyTuesday data](https://github.com/dgrtwo/data-screencasts) in his [YouTube screencasts](https://youtube.com/playlist?list=PL19ev-r1GBwkuyiwnxoHTRC8TTqP8OEi8&si=jGBo0bcarEPV6cnn). You can load the data with:
+2024년 7월, TidyTuesday는 **`funspotr`** 패키지를 사용하여 [David Robinson이 TidyTuesday 데이터를 탐색한 방법](https://github.com/dgrtwo/data-screencasts)을 [YouTube 스크린캐스트](https://youtube.com/playlist?list=PL19ev-r1GBwkuyiwnxoHTRC8TTqP8OEi8&si=jGBo0bcarEPV6cnn)에서 살펴보았습니다. 다음을 사용하여 데이터를 로드할 수 있습니다:
 
 ```{r}
 #| label: r-pkgs-ex-data
@@ -737,6 +737,6 @@ tuesdata <- tt_load("2024-07-09")
 drob_funs <- tuesdata$drob_funs
 ```
 
-* Recreate the visualization from this chapter for this new dataset. Are the patterns similar?
+* 이 새로운 데이터 세트에 대해 이 장의 시각화를 다시 만드십시오. 패턴이 비슷합니까?
 
-* Choose a more appropriate color scheme for the area charts.
+* 영역 차트에 더 적절한 색상 구성표를 선택하십시오.

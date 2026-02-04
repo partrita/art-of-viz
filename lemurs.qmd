@@ -36,17 +36,17 @@ library(sysfonts)
 knitr::opts_chunk$set(dev = "ragg_png")
 ```
 
-# Lemurs: manipulating images in R {#sec-lemurs}
+# 여우원숭이: R에서 이미지 조작하기 {#sec-lemurs}
 
-In this chapter, we'll cover how to load and manipulate images in R using the **`magick`** and **`imager`** packages. We'll also look at how to combine images with plots using the **`cowplot`** package.
+이 장에서는 **`magick`**과 **`imager`** 패키지를 사용하여 R에서 이미지를 로드하고 조작하는 방법을 다룹니다. 또한 **`cowplot`** 패키지를 사용하여 이미지와 플롯을 결합하는 방법도 살펴봅니다.
 
-By the end of this chapter, you'll be able to:
+이 장을 마치면 다음을 할 수 있습니다:
 
-* Read images into R, convert between different formats, and perform simple operations like flipping and resizing; 
-* Remove the background from a photograph using algorithms in image processing packages; and 
-* Customize a plot to create space for an image overlay, and position the image programmatically.
+* 이미지를 R로 읽어 들이고 다른 형식으로 변환하며 뒤집기 및 크기 조정과 같은 간단한 작업을 수행합니다;
+* 이미지 처리 패키지의 알고리즘을 사용하여 사진에서 배경을 제거합니다;
+* 이미지 오버레이를 위한 공간을 만들고 프로그래밍 방식으로 이미지를 배치하도록 플롯을 사용자 정의합니다.
 
-We begin by loading the packages required in this chapter.
+이 장에 필요한 패키지를 로드하는 것으로 시작합니다.
 
 ```{r}
 #| label: lemurs-pkgs-req
@@ -63,18 +63,18 @@ library(systemfonts)
 library(tidytuesdayR)
 ```
 
-This chapter introduces four new packages:
+이 장에서는 4가지 새로운 패키지를 소개합니다:
 
-* **`cowplot`**: a package for arranging multiple plots and adding annotations that allows you to have precise control over positioning of different elements. We'll be using **`cowplot`** to add an image as an annotation.
-* **`imager`**: provides an interface to the C++ library CImg which allows you to perform image manipulation in R, particularly pixel-level operations and analysis.
-* **`magick`**: another different image processing package, based on the ImageMagick library, which is good for image editing tasks such as resizing and cropping. 
-* **`systemfonts`**: an alternative way of loading fonts into R that allows you to access and use the fonts installed on your operating system.
+* **`cowplot`**: 여러 플롯을 배열하고 주석을 추가하는 패키지로, 다양한 요소의 위치를 정밀하게 제어할 수 있습니다. 이미지를 주석으로 추가하기 위해 **`cowplot`**을 사용할 것입니다.
+* **`imager`**: R에서 이미지 조작, 특히 픽셀 수준 작업 및 분석을 수행할 수 있는 C++ 라이브러리 CImg에 대한 인터페이스를 제공합니다.
+* **`magick`**: ImageMagick 라이브러리를 기반으로 하는 또 다른 이미지 처리 패키지로, 크기 조정 및 자르기와 같은 이미지 편집 작업에 좋습니다.
+* **`systemfonts`**: 운영 체제에 설치된 글꼴에 액세스하고 사용할 수 있는 R에서 글꼴을 로드하는 또 다른 방법입니다.
 
 \index{cowplot} \index{imager} \index{magick} \index{systemfonts}
 
 ## Data
 
-We're going to be exploring data about lemurs from [Duke Lemur Center](https://lemur.duke.edu/) in this chapter [@lemurs_data]. Duke Lemur Center houses hundreds of lemurs across many different species, and collect data on their lemur residents to better understand the factors that effect lemur health, reproduction, and social interaction. The data was used as a TidyTuesday dataset in August 2021 (after being suggested and cleaned by [Jesse Mostipak](https://github.com/kierisi)), and so can be loaded into R using the `tt_load()` function from **`tidytuesdayR`** as we've done in previous chapters: \index{tidytuesdayR!tt\_load}
+이 장에서는 [Duke Lemur Center](https://lemur.duke.edu/)의 여우원숭이 데이터를 탐색합니다 [@lemurs_data]. Duke Lemur Center는 다양한 종에 걸쳐 수백 마리의 여우원숭이를 수용하고 있으며, 여우원숭이의 건강, 번식 및 사회적 상호 작용에 영향을 미치는 요인을 더 잘 이해하기 위해 여우원숭이 거주자에 대한 데이터를 수집합니다. 이 데이터는 2021년 8월 TidyTuesday 데이터 세트로 사용되었으며 ([Jesse Mostipak](https://github.com/kierisi)이 제안하고 정리한 후), 이전 장에서 했던 것처럼 **`tidytuesdayR`**의 `tt_load()` 함수를 사용하여 R로 로드할 수 있습니다: \index{tidytuesdayR!tt\_load}
 
 ```{r}
 #| label: load-lemurs-data-show
@@ -94,31 +94,31 @@ lemurs <- readr::read_csv("data/lemur_data.csv")
 taxonomy <- readr::read_csv("data/taxonomy.csv")
 ```
 
-The `lemurs` data contains information on individual lemurs, and is the data set we'll mainly focus on in this chapter. The data has `r nrow(lemurs)` rows and `r ncol(lemurs)` columns, making it a reasonably large dataset. The first few rows can be inspected with `head()`:
+`lemurs` 데이터에는 개별 여우원숭이에 대한 정보가 포함되어 있으며 이 장에서 주로 초점을 맞출 데이터 세트입니다. 데이터에는 `r nrow(lemurs)`행과 `r ncol(lemurs)`열이 있어 상당히 큰 데이터 세트입니다. 처음 몇 행은 `head()`로 검사할 수 있습니다:
 
 ```{r}
 #| label: lemurs-head
 head(lemurs)
 ```
 
-The columns give information on the `taxon` code identifying the species of lemur, the name and sex of the lemur, the lemurs parents, whether they are still alive, the lemurs age and weight, and many other variables. Many of the columns give duplicated information since they express the same data in different units e.g. the lemur's age is given in five different columns: in days, weeks, months, decimal months, and years.
+열은 여우원숭이 종을 식별하는 `taxon` 코드, 여우원숭이의 이름과 성별, 부모, 생존 여부, 나이와 체중 및 기타 여러 변수에 대한 정보를 제공합니다. 많은 열은 동일한 데이터를 다른 단위로 표현하기 때문에 중복된 정보를 제공합니다(예: 여우원숭이의 나이는 일, 주, 월, 소수점 월 및 연도의 5가지 다른 열로 제공됨).
 
-Though there are `r nrow(lemurs)` rows of data, this doesn't mean that there are data on `r nrow(lemurs)` lemurs. Each lemur has multiple rows of data associated with it, each corresponding to a date (i.e. different age and associated weight measurements). There are many missing values across the data since not all columns are relevant for all lemurs e.g. if a lemur is still alive, there will be no `age_at_death_y` value. This also means that if we wanted to process the missing data, we'd likely need to start with rule-based approach to decide which values should be *missing* and which ones are unexpectedly missing. 
+`r nrow(lemurs)`행의 데이터가 있다고 해서 `r nrow(lemurs)`마리의 여우원숭이에 대한 데이터가 있는 것은 아닙니다. 각 여우원숭이에는 여러 행의 데이터가 연결되어 있으며 각 행은 날짜(즉, 다른 나이와 관련된 체중 측정)에 해당합니다. 모든 열이 모든 여우원숭이와 관련이 있는 것은 아니므로(예: 여우원숭이가 아직 살아 있는 경우 `age_at_death_y` 값이 없음) 데이터 전체에 누락된 값이 많이 있습니다. 이는 또한 누락된 데이터를 처리하려면 어떤 값이 *누락*되어야 하고 어떤 값이 예상치 못하게 누락되었는지 결정하기 위해 규칙 기반 접근 방식으로 시작해야 함을 의미합니다.
 
-The `taxonomy` data is essentially a look up table for the `taxon` column in the `lemurs` data. For each `taxon` code, the `taxonomy` data provides the Latin name (`latin_name`) for the species, as well as the common name (`common_name`). If desired, the two datasets could be joined using the `taxon` column.
+`taxonomy` 데이터는 본질적으로 `lemurs` 데이터의 `taxon` 열에 대한 조회 테이블입니다. 각 `taxon` 코드에 대해 `taxonomy` 데이터는 종의 라틴어 이름(`latin_name`)과 일반 이름(`common_name`)을 제공합니다. 원하는 경우 `taxon` 열을 사용하여 두 데이터 세트를 결합할 수 있습니다.
 
-## Exploratory work
+## 탐색 작업
 
-Given the size of the data and the diversity of the variables included, there are many aspects of it that we may wish to explore further. We could use the parental information to [construct a family tree of lemurs](https://raw.githubusercontent.com/nrennie/data-viz-projects/refs/heads/main/Lemur%20Family%20Tree/images/lemur-family-tree.png). We could compare the range of weights and ages across different species of lemurs. We could look at the *normal* growth curve for lemurs to identify which ones are outside of a normal weight range for their age. There are almost endless options!
+데이터의 크기와 포함된 변수의 다양성을 감안할 때 우리가 더 탐색하고 싶어 할 수 있는 많은 측면이 있습니다. 부모 정보를 사용하여 [여우원숭이 가계도를 구성](https://raw.githubusercontent.com/nrennie/data-viz-projects/refs/heads/main/Lemur%20Family%20Tree/images/lemur-family-tree.png)할 수 있습니다. 다양한 종의 여우원숭이의 체중과 나이 범위를 비교할 수 있습니다. 여우원숭이의 *정상적인* 성장 곡선을 살펴보고 나이에 비해 정상 체중 범위를 벗어난 여우원숭이를 식별할 수 있습니다. 거의 끝없는 옵션이 있습니다!
 
-### Data exploration
+### 데이터 탐색
 
-Let's focus in on the growth curve idea, and look at the relationship between lemur age and weight. We can use the base R `plot()` function to create @fig-lemurs-scatter, showing the relationship between age in months and weight in grams. As we might expect with a data set containing `r nrow(lemurs)` data points, the scatter plot doesn't clearly show any real pattern as there's too much variability and many of the points overlap. \index{graphics!plot}
+성장 곡선 아이디어에 초점을 맞추고 여우원숭이 나이와 체중 간의 관계를 살펴보겠습니다. 기본 R `plot()` 함수를 사용하여 @fig-lemurs-scatter 를 생성하여 개월 단위의 나이와 그램 단위의 체중 간의 관계를 보여줄 수 있습니다. `r nrow(lemurs)`개의 데이터 포인트가 포함된 데이터 세트에서 예상할 수 있듯이 산점도는 변동성이 너무 크고 많은 포인트가 겹치기 때문에 실제 패턴을 명확하게 보여주지 않습니다. \index{graphics!plot}
 
 ```{r, echo=-1}
 #| label: fig-lemurs-scatter
-#| fig-cap: "Scatter plot showing the relationship between weight and age pf lemurs. There are many data points on the plot, making it difficult to see any pattern."
-#| fig-alt: "Scatter plot showing the relationship between weight and age pf lemurs. There are many data points on the plot, making it difficult to see any pattern."
+#| fig-cap: "체중과 나이 간의 관계를 보여주는 산점도. 플롯에 많은 데이터 포인트가 있어 패턴을 확인하기 어렵습니다."
+#| fig-alt: "체중과 나이 간의 관계를 보여주는 산점도. 플롯에 많은 데이터 포인트가 있어 패턴을 확인하기 어렵습니다."
 par(mar = c(4.1, 4.1, 2.1, 2.1), cex.axis = 0.5, cex.names = 0.5)
 plot(
   x = lemurs$age_at_wt_mo,
@@ -128,12 +128,12 @@ plot(
 )
 ```
 
-We know that there are `r nrow(taxonomy)` species of lemur in the data, and, even if you don't know much about lemurs, you might expect that the weights vary by species. A quick box plot of weights by species using the `boxplot()` function in R confirms this, with @fig-lemurs-boxplot showing that there are big differences in lemur weights between species. \index{graphics!boxplot}
+데이터에 `r nrow(taxonomy)`종의 여우원숭이가 있다는 것을 알고 있으며 여우원숭이에 대해 잘 모르더라도 종마다 체중이 다를 것이라고 예상할 수 있습니다. R의 `boxplot()` 함수를 사용하여 종별 체중을 빠르게 상자 수염 그림으로 그리면 @fig-lemurs-boxplot 에서 볼 수 있듯이 종 간에 여우원숭이 체중에 큰 차이가 있음을 확인할 수 있습니다. \index{graphics!boxplot}
 
 ```{r, echo=-1}
 #| label: fig-lemurs-boxplot
-#| fig-cap: "Horizontal boxplots showing the range of weights observed for each species of lemur recorded in the data showing significant variability between and within species."
-#| fig-alt: "Horizontal boxplots showing the range of weights observed for each species of lemur recorded in the data showing significant variability between and within species."
+#| fig-cap: "데이터에 기록된 각 여우원숭이 종에 대해 관찰된 체중 범위를 보여주는 수평 상자 수염 그림으로, 종 간 및 종 내에서 상당한 변동성을 보여줍니다."
+#| fig-alt: "데이터에 기록된 각 여우원숭이 종에 대해 관찰된 체중 범위를 보여주는 수평 상자 수염 그림으로, 종 간 및 종 내에서 상당한 변동성을 보여줍니다."
 #| fig-asp: 1.2
 par(mar = c(3.1, 3.1, 2.1, 2.1), cex.axis = 0.5, cex.names = 0.5)
 boxplot(
@@ -146,19 +146,19 @@ boxplot(
 )
 ```
 
-### Exploratory sketches
+### 탐색적 스케치
 
-Given the variability in weights between species, we may wish to focus in on a single species. Let's keep the chart reasonably simply and create a scatter plot of how lemur weights change with age - essentially recreating @fig-lemurs-scatter for a single species and working to make it much more professional looking. Since there are many different species of lemur and they are not all easily recognizable just by their common name, we'll add an image of the lemur species in the bottom right corner to add more context to the chart.
+종 간 체중의 변동성을 감안할 때 단일 종에 초점을 맞추고 싶을 수 있습니다. 차트를 합리적으로 단순하게 유지하고 여우원숭이 체중이 나이에 따라 어떻게 변하는지에 대한 산점도를 만들어 보겠습니다. 본질적으로 단일 종에 대해 @fig-lemurs-scatter 를 다시 만들고 훨씬 더 전문적으로 보이도록 작업합니다. 여우원숭이 종은 매우 다양하고 일반 이름만으로는 모두 쉽게 알아볼 수 없으므로 오른쪽 하단에 여우원숭이 종의 이미지를 추가하여 차트에 더 많은 맥락을 추가합니다.
 
-![Initial sketch of a scatter plot showing the relationship between age and weight, with space allocated for an image and lines indiating where title and subtitle text will go.](images/sketch-lemurs.png){#fig-lemurs-sketch fig-align="center" fig-alt="Initial sketch of a scatter plot showing the relationship between age and weight, with space allocated for an image and lines indiating where title and subtitle text will go."}
+![나이와 체중 사이의 관계를 보여주는 산점도의 초기 스케치로, 이미지를 위한 공간이 할당되어 있고 제목과 부제목 텍스트가 들어갈 위치를 나타내는 선이 있습니다.](images/sketch-lemurs.png){#fig-lemurs-sketch fig-align="center" fig-alt="나이와 체중 사이의 관계를 보여주는 산점도의 초기 스케치로, 이미지를 위한 공간이 할당되어 있고 제목과 부제목 텍스트가 들어갈 위치를 나타내는 선이 있습니다."}
 
-## Preparing a plot
+## 플롯 준비하기
 
-The data is already reasonably clean, especially for the simple scatter plot that we're aiming to create based on @fig-lemurs-sketch, so there's a limited amount of data wrangling required.
+데이터는 @fig-lemurs-sketch 에 기반하여 만들고자 하는 간단한 산점도의 경우 이미 상당히 깨끗하므로 필요한 데이터 랭글링의 양은 제한적입니다.
 
-### Data wrangling
+### 데이터 랭글링
 
-We want to subset the data to consider only one species of lemur. Unless you're an expert in lemurs, you probably don't know which taxonomy codes in the `lemurs` data relate to which species of lemur. We could join the `taxonomy` data to the `lemurs` data and then filter the data based on the joined `common_name` column. However, since the future data processing is so minimal, we could just browse through the `taxonomy` data, choose a species of lemur from the `common_name` column, and look up the relevant taxonomy code. 
+우리는 데이터의 일부를 추출하여 한 종의 여우원숭이만 고려하려고 합니다. 여우원숭이 전문가가 아니라면 `lemurs` 데이터의 어떤 분류 코드가 어떤 여우원숭이 종과 관련이 있는지 모를 것입니다. `taxonomy` 데이터를 `lemurs` 데이터에 결합한 다음 결합된 `common_name` 열을 기반으로 데이터를 필터링할 수 있습니다. 그러나 향후 데이터 처리가 매우 적으므로 `taxonomy` 데이터를 탐색하고 `common_name` 열에서 여우원숭이 종을 선택하고 관련 분류 코드를 조회할 수 있습니다. 
 
 ::: {.content-visible when-format="html"}
 
@@ -172,7 +172,7 @@ if (knitr::is_html_output()) {
 
 :::
 
-There are `r nrow(taxonomy)` species of lemurs included in the data, and for the rest of the chapter we'll focus in on *red ruffed lemurs*. Red ruffed lemurs have the taxonomy code `VRUB`. We use the `filter()` function from **`dplyr`** to retain only the rows of data with `"VRUB"` in the `taxon` column: \index{dplyr!filter}
+데이터에는 `r nrow(taxonomy)`종의 여우원숭이가 포함되어 있으며 이 장의 나머지 부분에서는 *붉은 목도리 여우원숭이(red ruffed lemurs)*에 초점을 맞출 것입니다. 붉은 목도리 여우원숭이의 분류 코드는 `VRUB`입니다. **`dplyr`**의 `filter()` 함수를 사용하여 `taxon` 열에 `"VRUB"`가 있는 데이터 행만 유지합니다: \index{dplyr!filter}
 
 ```{r}
 #| label: lemurs-wrangling-1
@@ -180,16 +180,16 @@ vrub_lemurs <- lemurs |>
   filter(taxon == "VRUB")
 ```
 
-This is definitely the easiest data wrangling process in this book, and we're ready to move on to creating the first draft of our plot!
+이것은 확실히 이 책에서 가장 쉬운 데이터 랭글링 과정이며 이제 플롯의 첫 번째 초안을 만들 준비가 되었습니다!
 
-### The first plot
+### 첫 번째 플롯
 
-Starting with the `ggplot()` function, we pass in the subset of our data on red ruffed lemurs, and set the age (`age_at_wt_mo`) as the default variable on the x-axis and with the weight (`weight_g`) on the y-axis. We also use color to differentiate the `sex` of the lemurs. The scatter plot is then created by adding the `geom_point()` layer. \index{ggplot2!ggplot} \index{ggplot2!aes} \index{ggplot2!geom\_point}
+`ggplot()` 함수로 시작하여 붉은 목도리 여우원숭이에 대한 데이터의 일부를 전달하고 x축에 나이(`age_at_wt_mo`)를 기본 변수로 설정하고 y축에 체중(`weight_g`)을 설정합니다. 또한 색상을 사용하여 여우원숭이의 성별(`sex`)을 구분합니다. 그런 다음 `geom_point()` 레이어를 추가하여 산점도를 만듭니다. \index{ggplot2!ggplot} \index{ggplot2!aes} \index{ggplot2!geom\_point}
 
 ```{r}
 #| label: fig-lemurs-base-plot
-#| fig-cap: "Scatter plot of how the weights of red ruffed lemurs change with age, with male lemurs indicated by turquoise circles and females by orange circles. The circles are too large and many of them are overlapping."
-#| fig-alt: "Scatter plot of how the weights of red ruffed lemurs change with age, with male lemurs indicated by turquoise circles and females by orange circles. The circles are too large and many of them are overlapping."
+#| fig-cap: "붉은 목도리 여우원숭이의 체중이 나이에 따라 어떻게 변하는지 보여주는 산점도. 수컷 여우원숭이는 청록색 원으로, 암컷은 주황색 원으로 표시됩니다. 원이 너무 크고 많은 원이 겹쳐 있습니다."
+#| fig-alt: "붉은 목도리 여우원숭이의 체중이 나이에 따라 어떻게 변하는지 보여주는 산점도. 수컷 여우원숭이는 청록색 원으로, 암컷은 주황색 원으로 표시됩니다. 원이 너무 크고 많은 원이 겹쳐 있습니다."
 #| message: false
 basic_plot <- ggplot() +
   geom_point(
@@ -203,12 +203,12 @@ basic_plot <- ggplot() +
 basic_plot
 ```
 
-Even though the data shown in @fig-lemurs-base-plot is a subset of the full data, it still contains `r nrow(vrub_lemurs)` observations. This means that many of the points in @fig-lemurs-base-plot overlap, and it's difficult to see how many points are actually in a specific area. Let's edit the initial plot code. We can make the points slightly smaller by changing the `size` in `geom_point()`. We also make the points semi-transparent by setting `alpha = 0.6`. This is a useful technique when data points can overlap since areas of the chart with many points will appear darker, when the semi-transparent points are layered on top of each other. Since relying on color alone for visually identifying groups of data is not a good approach in terms of accessibility, we also map the `shape` of the points to the `sex` of the lemur. \index{ggplot2!ggplot} \index{ggplot2!aes} \index{ggplot2!geom\_point}
+@fig-lemurs-base-plot 에 표시된 데이터는 전체 데이터의 일부이지만 여전히 `r nrow(vrub_lemurs)`개의 관측값을 포함합니다. 즉, @fig-lemurs-base-plot 의 많은 포인트가 겹치고 특정 영역에 실제로 얼마나 많은 포인트가 있는지 확인하기 어렵습니다. 초기 플롯 코드를 편집해 보겠습니다. `geom_point()`에서 `size`를 변경하여 포인트를 약간 작게 만들 수 있습니다. 또한 `alpha = 0.6`을 설정하여 포인트를 반투명하게 만듭니다. 이는 데이터 포인트가 겹칠 수 있을 때 유용한 기술입니다. 포인트가 많은 차트 영역은 반투명 포인트가 서로 겹쳐질 때 더 어둡게 나타나기 때문입니다. 색상에만 의존하여 데이터 그룹을 시각적으로 식별하는 것은 접근성 측면에서 좋은 접근 방식이 아니므로 포인트의 `shape`도 여우원숭이의 `sex`에 매핑합니다. \index{ggplot2!ggplot} \index{ggplot2!aes} \index{ggplot2!geom\_point}
 
 ```{r}
 #| label: fig-lemurs-base-plot-2
-#| fig-cap: "Scatter plot of how the weights of red ruffed lemurs change with age, with male lemurs indicated by turquoise triangles and females by orange circles. Both shapes are slightly transparent."
-#| fig-alt: "Scatter plot of how the weights of red ruffed lemurs change with age, with male lemurs indicated by turquoise triangles and females by orange circles. Both shapes are slightly transparent."
+#| fig-cap: "붉은 목도리 여우원숭이의 체중이 나이에 따라 어떻게 변하는지 보여주는 산점도. 수컷 여우원숭이는 청록색 삼각형으로, 암컷은 주황색 원으로 표시됩니다. 두 모양 모두 약간 투명합니다."
+#| fig-alt: "붉은 목도리 여우원숭이의 체중이 나이에 따라 어떻게 변하는지 보여주는 산점도. 수컷 여우원숭이는 청록색 삼각형으로, 암컷은 주황색 원으로 표시됩니다. 두 모양 모두 약간 투명합니다."
 #| source-line-numbers: "8,10,11"
 basic_plot <- ggplot() +
   geom_point(
@@ -225,13 +225,13 @@ basic_plot <- ggplot() +
 basic_plot
 ```
 
-## Advanced styling
+## 고급 스타일링
 
-Now it's time to style and edit the plot to make it more aesthetically pleasing, accessible, and informative. 
+이제 플롯을 스타일링하고 편집하여 미적으로 더 즐겁고 접근하기 쉬우며 유익하게 만들 차례입니다.
 
-### Colors
+### 색상
 
-For the plot background and text, we'll choose colors that might be found on a red ruffed lemur such as a light beige (`bg_col`) and warm brown (`text_col`). We also need to select two colors to represent the male and female lemurs. When choosing colors for categories, it's important to choose colors that neither reinforce negative stereotypes nor contradict intuitive color choices. When choosing colors to represent gender or sex, it's very common to see the stereotypical blue for boys, and pink for girls. We don't want to reinforce the negative associations for different genders that these colors can have. Equally, we don't want to make it confusing by choosing the opposite e.g. blue for girls and pink for boys. Instead, we'll choose a purple for female lemurs (`f_col`) and turquoise for male lemurs (`m_col`). This is not an uncommon color combinations for representing gender, and other good options are discussed in Lisa Muth's blog post *An Alternative to Pink & Blue: Colors for Gender Data* [@Muth2018]. \index{color}
+플롯 배경과 텍스트의 경우 밝은 베이지색(`bg_col`) 및 따뜻한 갈색(`text_col`)과 같이 붉은 목도리 여우원숭이에서 찾을 수 있는 색상을 선택합니다. 또한 수컷과 암컷 여우원숭이를 나타낼 두 가지 색상을 선택해야 합니다. 범주의 색상을 선택할 때는 부정적인 고정 관념을 강화하거나 직관적인 색상 선택과 모순되지 않는 색상을 선택하는 것이 중요합니다. 성별이나 성을 나타내는 색상을 선택할 때 남학생은 파란색, 여학생은 분홍색이라는 고정 관념을 보는 것이 매우 일반적입니다. 우리는 이러한 색상이 가질 수 있는 다른 성별에 대한 부정적인 연관성을 강화하고 싶지 않습니다. 마찬가지로 반대를 선택하여 혼란스럽게 만들고 싶지 않습니다(예: 여자는 파란색, 남자는 분홍색). 대신 암컷 여우원숭이(`f_col`)에는 보라색을, 수컷 여우원숭이(`m_col`)에는 청록색을 선택합니다. 이것은 성별을 나타내는 데 드문 색상 조합이 아니며 Lisa Muth의 블로그 게시물 *An Alternative to Pink & Blue: Colors for Gender Data* [@Muth2018]에서 다른 좋은 옵션에 대해 설명합니다. \index{color}
 
 ```{r}
 #| label: lemurs-colors
@@ -241,7 +241,7 @@ f_col <- "#A053A1"
 m_col <- "#21ADA8"
 ```
 
-The colors for male and female lemurs can then be applied to the plot using `scale_color_manual()` where we explicitly map the color variables to the values in the data by naming the vector elements passed into `values`. We could create these color variables as a named vector as we did in @sec-turbines, but since we want the labels to be different than the data values (e.g. `females` instead of `F`) it's a similar amount of work to simply pass them in as variables - especially for only two categories. \index{ggplot2!scale\_color\_manual}
+그런 다음 `values`에 전달된 벡터 요소의 이름을 지정하여 색상 변수를 데이터의 값에 명시적으로 매핑하는 `scale_color_manual()`을 사용하여 수컷 및 암컷 여우원숭이의 색상을 플롯에 적용할 수 있습니다. @sec-turbines 에서 했던 것처럼 이러한 색상 변수를 명명된 벡터로 생성할 수 있지만 레이블이 데이터 값과 다르기를 원하기 때문에(예: `F` 대신 `females`) 단순히 변수로 전달하는 것과 비슷한 작업량입니다 - 특히 두 범주의 경우에요. \index{ggplot2!scale\_color\_manual}
 
 ```{r}
 #| label: lemurs-col-plot
@@ -251,15 +251,15 @@ col_plot <- basic_plot +
   )
 ```
 
-We'll use colored text and icons in the subtitle to distinguish the two categories as we did in @sec-turbines, and so we'll remove the legend by setting `legend.position = "none"` inside the `theme()` function a little bit later. Here, we technically have two legends in one - one for color, and one for shape. If we only wanted to remove one part of the legend e.g. color, we could set `guide = "none"` inside `scale_color_manual()`. This would result in a legend for shape only with the shapes shown in black by default. \index{ggplot2!scale\_color\_manual} \index{ggplot2!theme}
+@sec-turbines 에서처럼 두 범주를 구분하기 위해 부제목에 색상 텍스트와 아이콘을 사용할 것이므로 조금 나중에 `theme()` 함수 내에서 `legend.position = "none"`을 설정하여 범례를 제거할 것입니다. 여기서는 기술적으로 색상에 대한 범례와 모양에 대한 범례의 두 가지 범례가 하나에 있습니다. 범례의 한 부분(예: 색상)만 제거하려면 `scale_color_manual()` 내부에서 `guide = "none"`을 설정할 수 있습니다. 이렇게 하면 기본적으로 검은색으로 표시되는 모양만 있는 범례가 생성됩니다. \index{ggplot2!scale\_color\_manual} \index{ggplot2!theme}
 
-### Working with **`systemfonts`**
+### **`systemfonts`**로 작업하기
 
-Rather than using a traditional legend for color and shape, we're going to include colored text in the subtitle. Here, we're also going to include some Unicode icons in the subtitle to identify how the circles and triangles map to the two categories. Unfortunately the **`showtext`** package, that we've been using to load the Font Awesome icon font and other Google fonts, doesn't always play nicely with Unicode icons. We'll look at an alternative font package: **`systemfonts`** [@systemfonts]. As mentioned in @sec-programming, the **`systemfonts`** package allows you to locate or load font files available on your local system. 
+색상과 모양에 대한 전통적인 범례를 사용하는 대신 부제목에 색상 텍스트를 포함할 것입니다. 여기서는 또한 원과 삼각형이 두 범주에 어떻게 매핑되는지 식별하기 위해 부제목에 일부 유니코 아이콘을 포함할 것입니다. 불행히도 Font Awesome 아이콘 글꼴 및 기타 Google 글꼴을 로드하는 데 사용해 온 **`showtext`** 패키지는 유니코드 아이콘과 항상 잘 작동하는 것은 아닙니다. 대체 글꼴 패키지인 **`systemfonts`** [@systemfonts]를 살펴보겠습니다. @sec-programming 에서 언급했듯이 **`systemfonts`** 패키지를 사용하면 로컬 시스템에서 사용 가능한 글꼴 파일을 찾거나 로드할 수 있습니다.
 
-To register a font using **`systemfonts`**, we use the `register_font()` function. It looks quite similar to the `font_add()` function from **`showtext`** for loading local fonts - see @sec-turbines and @sec-cats to compare them. Let's load the Font Awesome Brand icons using **`systemfonts`** as an alternative approach to the one taken in @sec-cats. \index{systemfonts!register\_font}
+**`systemfonts`**를 사용하여 글꼴을 등록하려면 `register_font()` 함수를 사용합니다. 로컬 글꼴을 로드하기 위한 **`showtext`**의 `font_add()` 함수와 매우 유사해 보입니다 - 비교하려면 @sec-turbines 및 @sec-cats 를 참조하십시오. @sec-cats 에서 취한 접근 방식의 대안으로 **`systemfonts`**를 사용하여 Font Awesome Brand 아이콘을 로드해 보겠습니다. \index{systemfonts!register\_font}
 
-The first argument `name` will be the name that the font is known by in R. You can choose any name you want, but here we'll make sure to use the same name as we did for the `family` argument in @sec-cats, in order for our `social_caption()` function to still work. The `plain` argument is the the path to the font file. 
+첫 번째 인수 `name`은 R에서 글꼴이 알려진 이름입니다. 원하는 이름을 선택할 수 있지만 여기서는 `social_caption()` 함수가 여전히 작동하도록 @sec-cats 의 `family` 인수에 대해 했던 것과 동일한 이름을 사용해야 합니다. `plain` 인수는 글꼴 파일의 경로입니다.
 
 ```{r}
 #| label: lemurs-fa-font
@@ -272,19 +272,19 @@ register_font(
 
 ::: {#tip-lemurs-device .callout-tip}
 
-## Setting a graphics device
+## 그래픽 장치 설정
 
-In R, a graphics device is the system that is used to render visual outputs (including plots). The graphics device used will vary depending on what operating system you are using and what type of output format you want to create e.g. png or pdf. The **`ragg`** package [@ragg] provides graphic devices for R based on the AGG library. \index{graphics device} \index{ragg}
+R에서 그래픽 장치는 시각적 출력(플롯 포함)을 렌더링하는 데 사용되는 시스템입니다. 사용되는 그래픽 장치는 사용 중인 운영 체제와 생성하려는 출력 형식(예: png 또는 pdf)에 따라 달라집니다. **`ragg`** 패키지 [@ragg]는 AGG 라이브러리를 기반으로 R용 그래픽 장치를 제공합니다. \index{graphics device} \index{ragg}
 
-It's recommended to use **`ragg`** for graphics in RStudio because it makes working with fonts easier and provides higher quality images. If you use a different graphics device, the icons or fonts loaded with **`systemfonts`** may not appear correctly. To use **`ragg`** for the graphics devices in RStudio, go to `Tools -> Global Options -> General -> Graphics -> Backend` and select `AGG`.  In R Markdown or Quarto documents, you can add a set up chunk at the top to use ragg which includes `knitr::opts_chunk$set(dev = "ragg_png")`, or your device of choice. \index{RStudio}
+글꼴 작업을 더 쉽게 만들고 고품질 이미지를 제공하기 때문에 RStudio에서 그래픽에 **`ragg`**를 사용하는 것이 좋습니다. 다른 그래픽 장치를 사용하는 경우 **`systemfonts`**로 로드된 아이콘이나 글꼴이 올바르게 나타나지 않을 수 있습니다. RStudio의 그래픽 장치에 **`ragg`**를 사용하려면 `Tools -> Global Options -> General -> Graphics -> Backend`로 이동하여 `AGG`를 선택하십시오. R Markdown 또는 Quarto 문서에서는 `knitr::opts_chunk$set(dev = "ragg_png")` 또는 선택한 장치를 포함하는 설정 청크를 상단에 추가할 수 있습니다. \index{RStudio}
 
 :::
 
-We can also use `register_font()` from **`systemfonts`** to load the fonts we'll use for the title and body text of our plot. The difference here is that if, for example, we want to use fonts from Google Fonts, we first need to download the font files. \index{systemfonts!register\_font}
+또한 **`systemfonts`**의 `register_font()`를 사용하여 플롯의 제목과 본문 텍스트에 사용할 글꼴을 로드할 수 있습니다. 여기서 차이점은 예를 들어 Google Fonts의 글꼴을 사용하려는 경우 먼저 글꼴 파일을 다운로드해야 한다는 것입니다. \index{systemfonts!register\_font}
 
-For the body text, we'll use *Lato*, a sans serif typeface designed by [Łukasz Dziedzic](http://www.latofonts.com/team/). The font files can be downloaded from {{< monolink "https://fonts.google.com/specimen/Lato" "fonts.google.com/specimen/Lato" >}} or {{< monolink "https://www.latofonts.com/lato-free-fonts/" "www.latofonts.com/lato-free-fonts" >}}. For the title, we'll use *Passion One* - a typeface specifically designed for large titles! It can be downloaded from {{< monolink "https://fonts.google.com/specimen/Passion+One" "fonts.google.com/specimen/Passion+One" >}}. When you download these typefaces, you'll see that you don't just download a single file, you actually download multiple files - one for each variation of the font that is available e.g. bold and italic. 
+본문 텍스트의 경우 [Łukasz Dziedzic](http://www.latofonts.com/team/)이 디자인한 산세리프 서체인 *Lato*를 사용합니다. 글꼴 파일은 {{< monolink "https://fonts.google.com/specimen/Lato" "fonts.google.com/specimen/Lato" >}} 또는 {{< monolink "https://www.latofonts.com/lato-free-fonts/" "www.latofonts.com/lato-free-fonts" >}}에서 다운로드할 수 있습니다. 제목의 경우 큰 제목을 위해 특별히 디자인된 서체인 *Passion One*을 사용합니다! {{< monolink "https://fonts.google.com/specimen/Passion+One" "fonts.google.com/specimen/Passion+One" >}}에서 다운로드할 수 있습니다. 이러한 서체를 다운로드하면 단일 파일만 다운로드하는 것이 아니라 실제로 여러 파일을 다운로드하는 것입니다 - 굵게 및 기울임꼴과 같이 사용 가능한 글꼴의 각 변형에 대해 하나씩입니다.
 
-In `register_font()`, you pass these different font files into the relevant argument e.g. passing the font file for the bold version into the `bold` argument. Note that not all typefaces have every style available. Here, *Passion One* isn't available in italic so we simply don't pass anything into the `italic` argument when loading `Passion One`. If you're not going to use a particular font style (for example, if you know you won't write any text in bold when using Lato font) you don't need to load this style in with `register_font()`. However, it can be useful to have it available, just in case you change your mind!
+`register_font()`에서는 굵은 버전의 글꼴 파일을 `bold` 인수에 전달하는 것과 같이 이러한 다른 글꼴 파일을 관련 인수에 전달합니다. 모든 서체에 모든 스타일을 사용할 수 있는 것은 아닙니다. 여기서 *Passion One*은 기울임꼴을 사용할 수 없으므로 `Passion One`을 로드할 때 `italic` 인수에 아무것도 전달하지 않습니다. 특정 글꼴 스타일을 사용하지 않을 경우(예: Lato 글꼴을 사용할 때 텍스트를 굵게 쓰지 않을 것임을 알고 있는 경우) `register_font()`로 이 스타일을 로드할 필요가 없습니다. 그러나 마음이 바뀔 경우를 대비하여 사용할 수 있도록 하는 것이 유용할 수 있습니다!
 
 ```{r}
 #| label: lemurs-fonts
@@ -302,32 +302,30 @@ register_font(
 )
 ```
 
-We then define variables with the name of the title and body typefaces:
-
 ```{r}
 #| label: lemurs-fonts-2
 body_font <- "Lato"
 title_font <- "Passion One"
 ```
 
-An alternative to using `register_font()` is to install the font on your system, by right clicking on the downloaded font file and selecting *Install*. Then **`ragg`** should be able to find the font automatically. However, there may be reasons why you can't or don't want to prefer install a font system wide. Using `register_font()` in a script also leaves a record of how the fonts were installed, rather than relying on other processes happening outside of R.
+`register_font()`를 사용하는 대안은 다운로드한 글꼴 파일을 마우스 오른쪽 버튼으로 클릭하고 *설치(Install)*를 선택하여 시스템에 글꼴을 설치하는 것입니다. 그러면 **`ragg`**가 글꼴을 자동으로 찾을 수 있어야 합니다. 그러나 시스템 전체에 글꼴을 설치할 수 없거나 선호하지 않는 이유가 있을 수 있습니다. 스크립트에서 `register_font()`를 사용하면 R 외부에서 발생하는 다른 프로세스에 의존하는 대신 글꼴이 설치된 방법에 대한 기록도 남습니다.
 
-### Adding text
+### 텍스트 추가
 
-The title for the plot can be defined as a simple character string, which asks the reader a question and encourages them to engage with the plot. To write the subtitle text we'll use the `glue()` function from **`glue`** to do two things: \index{glue!glue}
+플롯의 제목은 독자에게 질문을 던지고 플롯에 참여하도록 유도하는 간단한 문자열로 정의할 수 있습니다. 부제목 텍스트를 작성하기 위해 **`glue`**의 `glue()` 함수를 사용하여 두 가지 작업을 수행합니다: \index{glue!glue}
 
-* Add colored text in the subtitle, as we did in @sec-cats. 
-* Create data-driven text, as we did in @sec-programming.
+* @sec-cats 에서 했던 것처럼 부제목에 색상 텍스트를 추가합니다.
+* @sec-programming 에서 했던 것처럼 데이터 기반 텍스트를 만듭니다.
 
-We'll also use Unicode characters (for triangles and circles) in the subtitle to substitute the shape legend. Though the Unicode characters are not exactly identical to the shapes plotted on our chart, in the way that the colors are, the shapes are similar enough for this approach to work. The `&#x25B2;` string adds a black triangle, and the `&#x25CF` string adds a black circle. Though these define *black* shapes, they will appear in the color we desire. Here, *black* triangle really just means *filled in* triangle (with *white* triangle meaning *outline only* triangle). \index{glue!glue} \index{Unicode}
+또한 모양 범례를 대체하기 위해 부제목에 유니코드 문자(삼각형 및 원)를 사용할 것입니다. 유니코드 문자가 색상 방식처럼 차트에 그려진 모양과 정확히 동일하지는 않지만 모양은 이 방식이 작동하기에 충분히 비슷합니다. `&#x25B2;` 문자열은 검은색 삼각형을 추가하고 `&#x25CF` 문자열은 검은색 원을 추가합니다. 이들이 *검은색* 모양을 정의하지만 원하는 색상으로 나타납니다. 여기서 *검은색* 삼각형은 실제로는 *채워진* 삼각형을 의미합니다(*흰색* 삼각형은 *윤곽선만 있는* 삼각형을 의미함). \index{glue!glue} \index{Unicode}
 
 ```{r}
 #| label: lemurs-text
-title <- "How much does a red ruffed lemur weigh?"
-subtitle <- glue("At Duke Lemur Center, red ruffed lemurs live to an average of {round(mean(vrub_lemurs$age_at_death_y, na.rm = TRUE), 1)} years, and mature at about 2 years old. Although it may appear that, once fully-grown, <span style='color:{f_col}'>females &#x25CF;</span> tend to weigh more than <span style='color:{m_col}'>males &#x25B2;</span>, this chart does not account for pregnancy.")
+title <- "붉은 목도리 여우원숭이의 무게는 얼마일까요??"
+subtitle <- glue("Duke Lemur Center에서 붉은 목도리 여우원숭이는 평균 {round(mean(vrub_lemurs$age_at_death_y, na.rm = TRUE), 1)}세까지 살고 약 2세에 성숙합니다. 완전히 자라면 <span style='color:{f_col}'>암컷 &#x25CF;</span>이 <span style='color:{m_col}'>수컷 &#x25B2;</span>보다 더 무거운 경향이 있는 것처럼 보일 수 있지만, 이 차트는 임신을 고려하지 않은 것입니다.")
 ```
 
-We'll use the `social_caption()` function defined in @sec-cats, to create a caption that includes Font Awesome icons for social media (using the colors we defined earlier). We then use the social media caption in the `source_caption()` function from @sec-turbines, and also pass in Duke Lemur Center and the data publication as the source of the data. \index{social\_caption} \index{source\_caption}
+@sec-cats 에서 정의한 `social_caption()` 함수를 사용하여 소셜 미디어용 Font Awesome 아이콘(앞서 정의한 색상 사용)이 포함된 캡션을 만듭니다. 그런 다음 @sec-turbines 의 `source_caption()` 함수에서 소셜 미디어 캡션을 사용하고 Duke Lemur Center와 데이터 출판물을 데이터 소스로 전달합니다. \index{social\_caption} \index{source\_caption}
 
 ```{r}
 #| label: lemurs-social
@@ -343,12 +341,12 @@ cap <- source_caption(
 )
 ```
 
-The title, subtitle, and caption text can then be added to the plot using the `labs()` function, along with x- and y- axis labels showing the variables and units they are recorded in. \index{ggplot2!labs}
+제목, 부제목 및 캡션 텍스트는 변수와 기록된 단위를 표시하는 x 및 y 축 레이블과 함께 `labs()` 함수를 사용하여 플롯에 추가할 수 있습니다. \index{ggplot2!labs}
 
 ```{r}
 #| label: fig-lemurs-labels
-#| fig-cap: "Scatter plot of how the weights of red ruffed lemurs change with age, with male lemurs indicated by turquoise triangles and females by purple circles. The subtitle text runs off the page, and the caption is incorrectly formatted as raw HTML text."
-#| fig-alt: "Scatter plot of how the weights of red ruffed lemurs change with age, with male lemurs indicated by turquoise triangles and females by purple circles. The subtitle text runs off the page, and the caption is incorrectly formatted as raw HTML text."
+#| fig-cap: "붉은 목도리 여우원숭이의 체중이 나이에 따라 어떻게 변하는지 보여주는 산점도. 수컷 여우원숭이는 청록색 삼각형으로, 암컷은 보라색 원으로 표시됩니다. 부제목 텍스트가 페이지를 벗어나고 캡션이 원시 HTML 텍스트로 잘못 서식이 지정되어 있습니다."
+#| fig-alt: "붉은 목도리 여우원숭이의 체중이 나이에 따라 어떻게 변하는지 보여주는 산점도. 수컷 여우원숭이는 청록색 삼각형으로, 암컷은 보라색 원으로 표시됩니다. 부제목 텍스트가 페이지를 벗어나고 캡션이 원시 HTML 텍스트로 잘못 서식이 지정되어 있습니다."
 text_plot <- col_plot +
   labs(
     title = title,
@@ -359,18 +357,18 @@ text_plot <- col_plot +
 text_plot
 ```
 
-### Adjusting themes
+### 테마 조정
 
-Now we need to add some final styling to implement the background and text colors, as well as making sure the raw HTML code is processed correctly. 
+이제 배경 및 텍스트 색상을 구현하고 원시 HTML 코드가 올바르게 처리되도록 몇 가지 최종 스타일링을 추가해야 합니다.
 
-We start with `theme_minimal()` as a base, which keeps the grid lines and axes but removes the gray background and dark axis ticks. We also set the base font size as size `6` and use our previously defined `body_font` variable as the base font family. We can then make a few further adjustments using `theme()`, where we remove the legend by setting `legend.position = "none"`, add a margin around the edge of the plot, and apply the selected background color using `element_rect()`. \index{ggplot2!theme\_minimal} \index{ggplot2!theme}  \index{ggplot2!element\_rect}
+그리드 선과 축은 유지하지만 회색 배경과 어두운 축 눈금은 제거하는 `theme_minimal()`을 기본으로 시작합니다. 또한 기본 글꼴 크기를 크기 `6`으로 설정하고 이전에 정의한 `body_font` 변수를 기본 글꼴 패밀리로 사용합니다. 그런 다음 `theme()`을 사용하여 몇 가지 추가 조정을 할 수 있습니다. 여기서 `legend.position = "none"`을 설정하여 범례를 제거하고 플롯 가장자리 주위에 여백을 추가하고 `element_rect()`를 사용하여 선택한 배경색을 적용합니다. \index{ggplot2!theme\_minimal} \index{ggplot2!theme}  \index{ggplot2!element\_rect}
 
-Setting `plot.title.position` and `plot.caption.position` to `"plot"` aligns the title, subtitle, and caption with outside of the entire plot rather than the panel with the scatter plot - giving a cleaner, more balanced look. The title text is further adjusted with `element_text()` to use the `title_font` family, increase it in size, change the color, and add a little bit more space at the bottom of it. As described in @sec-programming and @sec-cats, we use `element_textbox_simple()` from **`ggtext`** for the plot subtitle and caption to force the long text to wrap onto multiple lines, and to correctly process the HTML code in the caption. \index{ggtext!element\_textbox\_simple} \index{ggplot2!element\_text} 
+`plot.title.position` 및 `plot.caption.position`을 `"plot"`으로 설정하면 제목, 부제목 및 캡션이 산점도가 있는 패널이 아닌 전체 플롯의 외부와 정렬되어 더 깔끔하고 균형 잡힌 모양을 제공합니다. 제목 텍스트는 `element_text()`로 추가 조정되어 `title_font` 패밀리를 사용하고 크기를 키우고 색상을 변경하고 하단에 약간의 공간을 더 추가합니다. @sec-programming 및 @sec-cats 에서 설명한 대로 플롯 부제목 및 캡션에 **`ggtext`**의 `element_textbox_simple()`을 사용하여 긴 텍스트를 여러 줄로 강제로 줄 바꿈하고 캡션의 HTML 코드를 올바르게 처리합니다. \index{ggtext!element\_textbox\_simple} \index{ggplot2!element\_text} 
 
 ```{r}
 #| label: fig-lemurs-style-1
-#| fig-cap: "Scatter plot of how the weights of red ruffed lemurs change with age, with the plot now having a beige background, subtitle text correctly wrapped, and attribution of data and graphic in the caption."
-#| fig-alt: "Scatter plot of how the weights of red ruffed lemurs change with age, with the plot now having a beige background, subtitle text correctly wrapped, and attribution of data and graphic in the caption."
+#| fig-cap: "붉은 목도리 여우원숭이의 체중이 나이에 따라 어떻게 변하는지 보여주는 산점도. 이제 플롯에 베이지색 배경이 있고 부제목 텍스트가 올바르게 줄 바꿈되었으며 캡션에 데이터 및 그래픽의 속성이 있습니다."
+#| fig-alt: "붉은 목도리 여우원숭이의 체중이 나이에 따라 어떻게 변하는지 보여주는 산점도. 이제 플롯에 베이지색 배경이 있고 부제목 텍스트가 올바르게 줄 바꿈되었으며 캡션에 데이터 및 그래픽의 속성이 있습니다."
 theme_plot <- text_plot +
   theme_minimal(base_size = 6, base_family = body_font) +
   theme(
@@ -401,32 +399,32 @@ theme_plot <- text_plot +
 theme_plot
 ```
 
-We're going to add the image to the right hand side of the plot. The approach we're taking requires us to make some blank space. Perhaps the simplest approach is to increase the size of the margin on the right hand side of the plot using the `plot.margin` argument in `theme()`: \index{ggplot2!theme} \index{ggplot2!margin}
+플롯의 오른쪽에 이미지를 추가할 것입니다. 우리가 취하는 접근 방식은 빈 공간을 만들어야 합니다. 아마도 가장 간단한 방법은 `theme()`의 `plot.margin` 인수를 사용하여 플롯 오른쪽의 여백 크기를 늘리는 것입니다: \index{ggplot2!theme} \index{ggplot2!margin}
 
 ```{r}
 #| label: fig-lemurs-margin-1
-#| fig-cap: "Scatter plot of how the weights of red ruffed lemurs change with age, with additional space left blank on the right hand side of the plot and subtitle text."
-#| fig-alt: "Scatter plot of how the weights of red ruffed lemurs change with age, with additional space left blank on the right hand side of the plot and subtitle text."
+#| fig-cap: "붉은 목도리 여우원숭이의 체중이 나이에 따라 어떻게 변하는지 보여주는 산점도. 플롯과 부제목 텍스트의 오른쪽에 추가 공간이 비어 있습니다."
+#| fig-alt: "붉은 목도리 여우원숭이의 체중이 나이에 따라 어떻게 변하는지 보여주는 산점도. 플롯과 부제목 텍스트의 오른쪽에 추가 공간이 비어 있습니다."
 theme_plot +
   theme(
     plot.margin = margin(5, 90, 5, 5)
   )
 ```
 
-However, as you can see in @fig-lemurs-margin-1, this approach results in the title and subtitle text also being squashed to the left hand side of the plot as it doesn't extend into the margin. This may be desirable for some plots, but it doesn't work well here. Another approach is to use the `expand` argument in `scale_x_continuous()` to increase the amount of space at the right hand side of the x-axis. However, since this extends the axis, this results in grid lines being included in the additional space. We *could* play around with the breaks and axis text to remove the unwanted components, but there's an easier (slightly *hacky*) solution: add and edit a secondary y-axis. \index{secondary axes}
+그러나 @fig-lemurs-margin-1 에서 볼 수 있듯이 이 접근 방식은 제목과 부제목 텍스트도 여백으로 확장되지 않기 때문에 플롯의 왼쪽으로 찌그러지는 결과를 낳습니다. 이것은 일부 플롯에는 바람직할 수 있지만 여기서는 잘 작동하지 않습니다. 또 다른 접근 방식은 `scale_x_continuous()`의 `expand` 인수를 사용하여 x축 오른쪽의 공간을 늘리는 것입니다. 그러나 이렇게 하면 축이 확장되므로 그리드 선이 추가 공간에 포함됩니다. 휴식과 축 텍스트를 조작하여 원치 않는 구성 요소를 제거 *할 수도* 있지만 더 쉬운(약간 *해킹적인*) 해결책이 있습니다. 보조 y축을 추가하고 편집하는 것입니다. \index{secondary axes}
 
-Secondary axes are almost always a poor choice of chart due to the fact that the choice of transformation for the secondary axis is entirely arbitrary but can hugely impact how the plot is interpreted. However, we're not actually going to use the secondary axis to present data, we're only going to use it to manipulate the layout of the plot background. To add some additional margin space on the right hand side, without squashing the title or adding grid lines in the margin, we can: \index{ggplot2!scale\_y\_continuous} \index{ggplot2!margin} \index{ggplot2!dup\_axis} \index{ggplot2!sec\_axis} \index{ggplot2!element\_text} 
+보조 축은 보조 축에 대한 변환 선택이 전적으로 임의적이지만 플롯이 해석되는 방식에 큰 영향을 미칠 수 있다는 사실 때문에 거의 항상 차트의 나쁜 선택입니다. 그러나 우리는 실제로 데이터를 표시하기 위해 보조 축을 사용하는 것이 아니라 플롯 배경의 레이아웃을 조작하기 위해서만 사용할 것입니다. 제목을 찌그러뜨리거나 여백에 그리드 선을 추가하지 않고 오른쪽에 추가 여백 공간을 추가하려면 다음을 수행할 수 있습니다: \index{ggplot2!scale\_y\_continuous} \index{ggplot2!margin} \index{ggplot2!dup\_axis} \index{ggplot2!sec\_axis} \index{ggplot2!element\_text}
 
-* Duplicate the y-axis to create a secondary y-axis on the right hand side by setting `sec.axis = dup_axis()` inside `scale_y_continuous()`. The `sec_axis()` function could be used instead of `dup_axis()`, but there's no need to transform the axis in any way.
-* Add lots of margin space to the secondary axis labels by expand the right margin using `margin = margin(r = 150)` for the `axis.text.y.right` argument of `theme()`. 
-* Then hide the secondary axis labels by making them the same color as the background through also setting `color = bg_col` for `axis.text.y.right`.
+* `scale_y_continuous()` 내부에서 `sec.axis = dup_axis()`를 설정하여 y축을 복제하여 오른쪽에 보조 y축을 만듭니다. `dup_axis()` 대신 `sec_axis()` 함수를 사용할 수 있지만 축을 어떤 방식으로든 변환할 필요가 없습니다.
+* `theme()`의 `axis.text.y.right` 인수에 대해 `margin = margin(r = 150)`을 사용하여 오른쪽 여백을 확장하여 보조 축 레이블에 많은 여백 공간을 추가합니다.
+* 그런 다음 `axis.text.y.right`에 대해 `color = bg_col`을 설정하여 보조 축 레이블을 배경과 같은색으로 만들어 숨깁니다.
 
-We also remove the title by setting `axis.title.y.right` to `element_blank()`. \index{ggplot2!element\_blank}
+또한 `axis.title.y.right`를 `element_blank()`로 설정하여 제목을 제거합니다. \index{ggplot2!element\_blank}
 
 ```{r}
 #| label: fig-lemurs-margin-2
-#| fig-cap: "Scatter plot of how the weights of red ruffed lemurs change with age, with additional space left blank on the right hand side though the subtitle text spans the full plot width."
-#| fig-alt: "Scatter plot of how the weights of red ruffed lemurs change with age, with additional space left blank on the right hand side though the subtitle text spans the full plot width."
+#| fig-cap: "붉은 목도리 여우원숭이의 체중이 나이에 따라 어떻게 변하는지 보여주는 산점도. 부제목 텍스트가 전체 플롯 너비에 걸쳐 있지만 오른쪽에 추가 공간이 비어 있습니다."
+#| fig-alt: "붉은 목도리 여우원숭이의 체중이 나이에 따라 어떻게 변하는지 보여주는 산점도. 부제목 텍스트가 전체 플롯 너비에 걸쳐 있지만 오른쪽에 추가 공간이 비어 있습니다."
 styled_plot <- theme_plot +
   scale_y_continuous(sec.axis = dup_axis()) +
   theme(
@@ -439,48 +437,48 @@ styled_plot <- theme_plot +
 styled_plot
 ```
 
-We now have an appropriate space to place an image.
+이제 이미지를 배치할 적절한 공간이 생겼습니다.
 
-## Working with images 
+## 이미지 작업
 
-Though you might not often find instructions in data visualization books about working with images, there are many reasons why you may wish to overlay an image on top of a plot. Perhaps you need to add your company logo in the corner for more consistent branding. Or perhaps you're just looking for a way to make your plot more eye catching! \index{image} 
+데이터 시각화 책에서 이미지를 사용하는 방법에 대한 지침을 자주 찾을 수는 없지만 이미지 오버레이를 플롯 위에 추가하고 싶을 수 있는 데에는 여러 가지 이유가 있습니다. 아마도 더 일관된 브랜딩을 위해 모서리에 회사 로고를 추가해야 할 수도 있습니다. 아니면 플롯을 더 눈에 띄게 만드는 방법을 찾고 있을 수도 있습니다! \index{image}
 
-### Manipulating images with **`magick`** and **`imager`**
+### **`magick`** 및 **`imager`**를 사용한 이미지 조작
 
-The **`magick`** package [@magick] provides bindings to the ImageMagick image processing library, which allows you to manipulate images through rotating, scaling, cropping, or blurring them (to name just a few!). It supports multiple different image formats including PNG, JPG, and PDF. \index{ImageMagick} \index{magick}
+**`magick`** 패키지 [@magick]는 ImageMagick 이미지 처리 라이브러리에 대한 바인딩을 제공하며, 이를 통해 회전, 크기 조정, 자르기 또는 흐림(몇 가지만 예를 들면!)을 통해 이미지를 조작할 수 있습니다. PNG, JPG 및 PDF를 포함한 여러 가지 다양한 이미지 형식을 지원합니다. \index{ImageMagick} \index{magick}
 
-The **`magick`** package is not the only R package that enables you to process and manipulate images. A popular alternative is the **`imager`** package [@imager] which is based on CImg, a C++ library by David Tschumperlé. Both packages have their strengths, and it’s easy to use both at the same time via the `cimg2magick()` and `magick2cimg()` conversion functions in **`imager`**. There are some operations that are easier in **`imager`**, and some that are easier in **`magick`**. In this chapter, we’re going to use both packages together to demonstrate how easy it is. \index{imager} \index{imager!cimg2magick} \index{imager!magick2cimg}
+**`magick`** 패키지는 이미지를 처리하고 조작할 수 있는 유일한 R 패키지가 아닙니다. 인기 있는 대안은 David Tschumperlé의 C++ 라이브러리인 CImg를 기반으로 하는 **`imager`** 패키지 [@imager]입니다. 두 패키지 모두 장단점이 있으며 **`imager`**의 `cimg2magick()` 및 `magick2cimg()` 변환 함수를 통해 두 패키지를 동시에 사용하기 쉽습니다. **`imager`**에서 더 쉬운 작업이 있고 **`magick`**에서 더 쉬운 작업이 있습니다. 이 장에서는 두 가지 패키지를 함께 사용하여 얼마나 쉬운지 보여드리겠습니다. \index{imager} \index{imager!cimg2magick} \index{imager!magick2cimg}
 
 ::: {#tip-lemurs-unsplash .callout-tip}
 
-## Finding images for reuse
+## 재사용할 이미지 찾기
 
-When you're adding a logo to your plot, it's (reasonably) easy to know which image to use and where to find it. If you don't already have the image you want to overlay, you also need to know how and where to find it. 
+플롯에 로고를 추가할 때 사용할 이미지와 찾을 위치를 아는 것은 (합리적으로) 쉽습니다. 오버레이하려는 이미지가 아직 없다면 찾는 방법과 위치도 알아야 합니다.
 
-If you add images to plots that you don't own, make sure you have permission to re-use the image and check that the license file allows you to. Sites such as Unsplash ({{< monolink "https://unsplash.com/" "unsplash.com" >}}), Wikimedia Commons ({{< monolink "https://commons.wikimedia.org/" "commons.wikimedia.org" >}}), or Pixabay ({{< monolink "https://pixabay.com/" "pixabay.com" >}}) can be good places to find images that are free to re-use.
+소유하지 않은 이미지를 플롯에 추가하는 경우 이미지를 재사용할 수 있는 권한이 있는지 확인하고 라이선스 파일이 허용하는지 확인하십시오. Unsplash ({{< monolink "https://unsplash.com/" "unsplash.com" >}}), Wikimedia Commons ({{< monolink "https://commons.wikimedia.org/" "commons.wikimedia.org" >}}) 또는 Pixabay ({{< monolink "https://pixabay.com/" "pixabay.com" >}})와 같은 사이트는 무료로 재사용할 수 있는 이미지를 찾기에 좋은 곳입니다.
 
 :::
 
-For this visualization, we're going to use a photograph of a red ruffed lemur from [Unsplash](https://unsplash.com/photos/red-and-white-rodent-h5xrh3CNT-k) taken by [Jax](https://unsplash.com/@lysrix) [@img_jax].
+이 시각화를 위해 [Jax](https://unsplash.com/@lysrix)가 찍은 [Unsplash](https://unsplash.com/photos/red-and-white-rodent-h5xrh3CNT-k)의 붉은 목도리 여우원숭이 사진을 사용할 것입니다 [@img_jax].
 
-We're going to start with the **`imager`** package and use it to read the image into R with the `load.image()` function. If you were using **`magick`** to start with, you would use the `image_read()` function instead. \index{imager!load.image} \index{magick!image\_read}
+**`imager`** 패키지로 시작하여 `load.image()` 함수를 사용하여 이미지를 R로 읽어들입니다. **`magick`**을 시작으로 사용했다면 대신 `image_read()` 함수를 사용했을 것입니다. \index{imager!load.image} \index{magick!image\_read}
 
 ```{r, echo=-1}
 #| label: fig-lemurs-imager-read
-#| fig-cap: "Image of a red ruffed lemur shown with plot axes which indicate the size of the image in pixels."
-#| fig-alt: "Image of a red ruffed lemur shown with plot axes which indicate the size of the image in pixels."
+#| fig-cap: "픽셀 단위의 이미지 크기를 나타내는 플롯 축과 함께 표시된 붉은 목도리 여우원숭이의 이미지."
+#| fig-alt: "픽셀 단위의 이미지 크기를 나타내는 플롯 축과 함께 표시된 붉은 목도리 여우원숭이의 이미지."
 par(mar = c(3.1, 4.1, 2.1, 2.1))
 lemur_img <- load.image("images/lemur.jpg")
 plot(lemur_img)
 ```
 
-You can view the image to check it's been loaded correctly by running `plot(lemur_img)`, and you'll see that it's plotted on a traditional base R graphics grid, with the axes indicating the number of pixels. Don't worry about how to deal with this background grid - we'll deal with that a little bit later!
+`plot(lemur_img)`를 실행하여 이미지가 올바르게 로드되었는지 확인할 수 있습니다. 축이 픽셀 수를 나타내는 전통적인 기본 R 그래픽 그리드에 플로팅된 것을 볼 수 있습니다. 이 배경 그리드를 처리하는 방법에 대해서는 걱정하지 마십시오. 잠시 후에 처리하겠습니다!
 
-Though this is a fun image of a lemur, overlaying it on top of the plot in its raw format isn't going to be the most aesthetically pleasing. The background of the image would be quite clear against the plot. It would be better if the image was simply of the lemur itself with a transparent background. There are many online tools and desktop software available that could remove the background for you, but we can also do this in R!
+여우원숭이의 재미있는 이미지이지만 원시 형식으로 플롯 위에 오버레이하는 것은 미적으로 가장 즐겁지 않을 것입니다. 이미지의 배경은 플롯에 대해 매우 명확할 것입니다. 이미지가 투명한 배경을 가진 여우원숭이 자체의 이미지라면 더 좋을 것입니다. 배경을 제거할 수 있는 많은 온라인 도구와 데스크톱 소프트웨어가 있지만 R에서도 이 작업을 수행할 수 있습니다!
 
-Let's start by cropping out as much of the background as possible. In **`imager`**, the `Xc()` and `Yc()` functions return pixel coordinates for an image, for x- and y- coordinates, respectively. Subsetting or updating the pixel value of an image based on pixel coordinates essentially works the same way as subsetting or updating a matrix value in R. \index{imager!Xc} \index{imager!Yc}
+가능한 한 많은 배경을 잘라내는 것으로 시작하겠습니다. **`imager`**에서 `Xc()` 및 `Yc()` 함수는 각각 x 및 y 좌표에 대한 이미지의 픽셀 좌표를 반환합니다. 픽셀 좌표를 기반으로 이미지의 픽셀 값을 하위 설정하거나 업데이트하는 것은 본질적으로 R에서 행렬 값을 하위 설정하거나 업데이트하는 것과 같은 방식으로 작동합니다. \index{imager!Xc} \index{imager!Yc}
 
-Running `Xc(lemur_img) <= 200` creates a pixel matrix where all values with an x-coordinate less than or equal to 200 are `TRUE`, and is otherwise `FALSE`. Setting these values to `0` turns those pixels to the color black. We can do something similar to remove sections where the x-coordinate is less than 275 and the y-coordinate is greater than 320. It takes a little bit of trial and error to get these boundaries correct, but you can use the plot axis as a guide. Be careful with the y-axis - it goes the opposite direction of most plots! \index{imager!Xc}
+`Xc(lemur_img) <= 200`을 실행하면 x 좌표가 200 이하인 모든 값이 `TRUE`이고 그렇지 않으면 `FALSE`인 픽셀 행렬이 생성됩니다. 이 값을 `0`으로 설정하면 해당 픽셀이 검은색으로 바뀝니다. x 좌표가 275 미만이고 y 좌표가 320보다 큰 섹션을 제거하기 위해 비슷한 작업을 수행할 수 있습니다. 이러한 경계를 올바르게 설정하려면 약간의 시행착오가 필요하지만 플롯 축을 가이드로 사용할 수 있습니다. y축에 주의하십시오 - 대부분의 플롯과 반대 방향으로 이동합니다! \index{imager!Xc}
 
 ```{r}
 #| label: lemurs-imager-crop
@@ -491,14 +489,14 @@ px <- Xc(lemur_img) <= 275 &
 lemur_img[px] <- 0
 ```
 
-Now we need to remove the rest of the background. Luckily, there is quite a lot of contrast between the part of the image we want to keep (the lemur) and the part that we don't (the background). The `px.flood()` function from **`imager`** allows you to select pixels that are similar to some initial pixel. This means we can select a pixel from the lemur, and then use the `px.flood()` function to select all pixels that are similar to it. The `x` and `y` arguments are used to specify the coordinates of the initial pixel to start with. The `sigma` argument specifies how different we want to allow the pixels to be with lower indicating very similar, and higher values of `sigma` allowing more different values to be selected. \index{imager!px.flood}
+이제 나머지 배경을 제거해야 합니다. 다행히도 유지하려는 이미지 부분(여우원숭이)과 그렇지 않은 부분(배경) 사이에 꽤 많은 대비가 있습니다. **`imager`**의 `px.flood()` 함수를 사용하면 초기 픽셀과 유사한 픽셀을 선택할 수 있습니다. 즉, 여우원숭이에서 픽셀을 선택한 다음 `px.flood()` 함수를 사용하여 여우원숭이와 유사한 모든 픽셀을 선택할 수 있습니다. `x` 및 `y` 인수는 시작할 초기 픽셀의 좌표를 지정하는 데 사용됩니다. `sigma` 인수는 픽셀이 얼마나 다를 수 있는지 지정하며, 낮은 값은 매우 유사함을 나타내고 높은 `sigma` 값은 더 다른 값이 선택될 수 있도록 합니다. \index{imager!px.flood}
 
-It takes a little bit of trial and error to choose the best values for these arguments, and we can visually inspect performance by plotting the boundary lines of the pixels that are considered similar. Passing in the output from `px.flood()` into `highlight()` from **`imager`** draws a red outline around the *similar* pixels. \index{imager!highlight}
+이러한 인수에 가장 적합한 값을 선택하려면 약간의 시행착오가 필요하며 유사한 것으로 간주되는 픽셀의 경계선을 플로팅하여 성능을 시각적으로 검사할 수 있습니다. `px.flood()`의 출력을 **`imager`**의 `highlight()`로 전달하면 *유사한* 픽셀 주위에 빨간색 윤곽선이 그려집니다. \index{imager!highlight}
 
 ```{r, echo=-1}
 #| label: fig-lemurs-img-outline
-#| fig-cap: "Image of a red ruffed lemur with a red line indicating the boundary between the main part of the image and the background."
-#| fig-alt: "Image of a red ruffed lemur with a red line indicating the boundary between the main part of the image and the background."
+#| fig-cap: "이미지의 주요 부분과 배경 사이의 경계를 나타내는 빨간색 선이 있는 붉은 목도리 여우원숭이의 이미지."
+#| fig-alt: "이미지의 주요 부분과 배경 사이의 경계를 나타내는 빨간색 선이 있는 붉은 목도리 여우원숭이의 이미지."
 #| fig-show: hold
 par(mar = c(3.1, 4.1, 2.1, 2.1))
 detect_outline <- px.flood(
@@ -511,7 +509,7 @@ plot(lemur_img)
 highlight(detect_outline)
 ```
 
-You can see in @fig-lemurs-img-outline that the lemur's white collar has been classified as part of the background. We can edit the `x`, `y`, and `sigma` arguments to select this part of the image separately:
+@fig-lemurs-img-outline 에서 여우원숭이의 흰색 깃(collar)이 배경의 일부로 분류된 것을 볼 수 있습니다. `x`, `y` 및 `sigma` 인수를 편집하여 이미지의 이 부분을 별도로 선택할 수 있습니다.
 
 ```{r}
 #| label: lemurs-img-outline-2
@@ -523,32 +521,32 @@ detect_outline_2 <- px.flood(
 )
 ```
 
-To make it easier to create a transparent background, we turn the non-similar parts of the image i.e. the areas outside of the selected pixel sets, to black. As we did when cropping the image, we do this by setting the pixel values to `0` i.e. no color. 
+투명 배경을 더 쉽게 만들기 위해 이미지의 유사하지 않은 부분, 즉 선택한 픽셀 세트 외부의 영역을 검은색으로 바꿉니다. 이미지를 자를 때와 마찬가지로 픽셀 값을 `0`으로 설정하여 색상이 없도록 합니다.
 
 ```{r}
 #| label: lemurs-img-outline-3
 lemur_img[detect_outline & !detect_outline_2] <- 0
 ```
 
-We now want to turn the sections of the image that are pure black into transparent sections. The easiest way to do this is through the `image_transparent()` function from **`magick`**. However, our `lemur_img` image is currently of a format designed to work with **`imager`**, and won't work out of the box with **`magick`**. Luckily, the `cimg2magick()` function in the **`imager`** package converts it to a format that is compatible with **`magick`**. For some reason, the `cimg2magick()` also causes the image to be flipped horizontally. We can turn it back to the correct orientation using the `image_flop()` function in **`magick`**. \index{imager!cimg2magick} \index{magick!image\_flop} 
+이제 순수한 검은색인 이미지 섹션을 투명한 섹션으로 바꾸고 싶습니다. 이를 수행하는 가장 쉬운 방법은 **`magick`**의 `image_transparent()` 함수를 사용하는 것입니다. 그러나 `lemur_img` 이미지는 현재 **`imager`**와 함께 작동하도록 설계된 형식이며 **`magick`**과 즉시 작동하지 않습니다. 다행히 **`imager`** 패키지의 `cimg2magick()` 함수는 **`magick`**과 호환되는 형식으로 변환합니다. 어떤 이유로 `cimg2magick()`은 이미지가 수평으로 뒤집히게 합니다. **`magick`**의 `image_flop()` 함수를 사용하여 올바른 방향으로 되돌릴 수 있습니다. \index{imager!cimg2magick} \index{magick!image\_flop} 
 
-Note that since the image is always the first argument of the `image_*()` functions in **`magick`** (and the output remains of the same class) we can use a piped workflow here, just as we do with **`tidyverse`** functions when working with data. Finally, we use the `image_transparent()` function in **`magick`** to turn all pixels that are currently `"black"` transparent. \index{magick!image\_transparent}
+이미지는 항상 **`magick`**의 `image_*()` 함수의 첫 번째 인수이므로(출력은 동일한 클래스로 유지됨) 데이터로 작업할 때 **`tidyverse`** 함수를 사용하는 것처럼 여기에서 파이프 워크플로를 사용할 수 있습니다. 마지막으로 **`magick`**의 `image_transparent()` 함수를 사용하여 현재 `"black"`인 모든 픽셀을 투명하게 만듭니다. \index{magick!image\_transparent}
 
 ```{r}
 #| label: fig-lemurs-img-rmbg
-#| fig-cap: "Image of a red ruffed lemur with the background removed, as well as a small portion of the lemur's collar."
-#| fig-alt: "Image of a red ruffed lemur with the background removed, as well as a small portion of the lemur's collar."
+#| fig-cap: "배경이 제거된 붉은 목도리 여우원숭이의 이미지와 여우원숭이 깃의 작은 부분."
+#| fig-alt: "배경이 제거된 붉은 목도리 여우원숭이의 이미지와 여우원숭이 깃의 작은 부분."
 lemur_nobg <- cimg2magick(lemur_img) |>
   image_flop() |>
   image_transparent("black")
 lemur_nobg
 ```
 
-When you print the image with **`magick`**, it returns the image itself to the plot window, but also returns output to the console with information about the image dimensions, format, and file size. You can see that the process of turning the background transparent is not perfect, as the white *collar* of the lemur has still been partially removed. It's also a process that requires a lot of trial and error to find the right combination of argument values. 
+**`magick`**으로 이미지를 인쇄하면 이미지를 플롯 창으로 반환할 뿐만 아니라 이미지 크기, 형식 및 파일 크기에 대한 정보가 포함된 콘솔 출력도 반환합니다. 여우원숭이의 흰색 *깃*이 여전히 부분적으로 제거되었기 때문에 배경을 투명하게 만드는 과정이 완벽하지 않다는 것을 알 수 있습니다. 또한 올바른 인수 값 조합을 찾기 위해 많은 시행착오가 필요한 과정이기도 합니다.
 
-### Adding images to plots with **`cowplot`**
+### **`cowplot`**을 사용하여 플롯에 이미지 추가
 
-Before we go ahead with adding the image to the scatter plot, let's first update the caption to add an attribution for the image, in addition to the attributions for the data and graphic. We can use `paste0()` to join together the output from the `source_caption()` function we were already using for the caption, with some additional styled text. You'll see that this new text is similar to the text described in @sec-turbines, with `<br>` adding a new and `**` used to style the word `Image` in bold text. We can then override the existing caption in the `labs()` function. \index{base!paste0} \index{source\_caption}  \index{ggplot2!labs}
+산점도에 이미지를 추가하기 전에 먼저 캡션을 업데이트하여 데이터 및 그래픽에 대한 속성 외에 이미지에 대한 속성을 추가해 보겠습니다. `paste0()`를 사용하여 캡션에 이미 사용 중이던 `source_caption()` 함수의 출력과 스타일이 지정된 추가 텍스트를 결합할 수 있습니다. 이 새 텍스트는 @sec-turbines 에서 설명한 텍스트와 유사하며 `<br>`은 줄 바꿈을 추가하고 `**`는 굵은 텍스트로 `Image`라는 단어의 스타일을 지정하는 데 사용됩니다. 그런 다음 `labs()` 함수에서 기존 캡션을 덮어쓸 수 있습니다. \index{base!paste0} \index{source\_caption}  \index{ggplot2!labs}
 
 ```{r}
 #| label: lemurs-social-new
@@ -564,22 +562,22 @@ styled_plot <- styled_plot +
   labs(caption = cap)
 ```
 
-The **`cowplot`** package [@cowplot] extends **`ggplot2`** and allows you to arrange, align, and combine multiple plots into a single visual. In this chapter, we're more interested in the **`cowplot`** functionality for adding annotations and customization - including images. \index{cowplot}
+**`cowplot`** 패키지 [@cowplot]는 **`ggplot2`**를 확장하고 여러 플롯을 하나의 시각적 요소로 배열, 정렬 및 결합할 수 있도록 합니다. 이 장에서는 이미지 포함을 포함하여 주석 및 사용자 정의를 위한 **`cowplot`** 기능에 더 관심이 있습니다. \index{cowplot}
 
 ::: {#tip-lemurs-arrange .callout-tip}
 
-## R packages for combining plots and images
+## 플롯과 이미지를 결합하기 위한 R 패키지
 
-There are several other R packages available for arranging different elements together e.g. combining multiple plots or adding images to plots. The most common for arranging charts is the **`patchwork`** package [@patchwork] which we'll use in @sec-time-zones and @sec-house. The **`egg`** package [@egg] is another popular alternative, with the `geom_custom()` function being especially useful for adding images. The **`ggimage`** package [@ggimage] can also be used to add images to charts, and is great when you are mapping columns of your data to properties of the images e.g. file paths or image coordinates. \index{egg} \index{patchwork} \index{ggimage}
+여러 플롯을 결합하거나 플롯에 이미지를 추가하는 등 다양한 요소를 배열하는 데 사용할 수 있는 다른 R 패키지가 있습니다. 차트를 배열하는 데 가장 일반적인 것은 **`patchwork`** 패키지 [@patchwork]이며 @sec-time-zones 및 @sec-house 에서 사용할 것입니다. **`egg`** 패키지 [@egg]는 또 다른 인기 있는 대안이며 `geom_custom()` 함수는 이미지를 추가하는 데 특히 유용합니다. **`ggimage`** 패키지 [@ggimage]도 차트에 이미지를 추가하는 데 사용할 수 있으며, 데이터 열을 파일 경로 또는 이미지 좌표와 같은 이미지 속성에 매핑할 때 좋습니다. \index{egg} \index{patchwork} \index{ggimage}
 
 :::
 
-With **`cowplot`**, we start by using the `ggdraw()` function which sets up a layer on top of our **`ggplot2`** `styled_plot` object to allow us to draw on top of it. The `draw_image()` function is then used to add the `lemur_nobg` image on top. By default, the layer on top of the plot has coordinates running from 0 to 1, with `(0, 0)` being the lower left corner of the plot and `(1, 1)` the top right. Since we want to position the image in the bottom right hand corner, we set `hjust` and `halign` to `1`, to align the right hand side of the image with an `x` value of `1`. Setting `vjust` and `valign` to `0` aligns the bottom of the image with the to the `y`- value of `0`. The `width` defines how big the image is - some trial and error results in a choice of `0.4` for the image width. \index{cowplot!ggdraw} \index{cowplot!draw\_image} 
+**`cowplot`**을 사용하면 `ggdraw()` 함수를 사용하여 **`ggplot2`** `styled_plot` 객체 위에 레이어를 설정하여 그 위에 그릴 수 있도록 합니다. 그런 다음 `draw_image()` 함수를 사용하여 `lemur_nobg` 이미지를 맨 위에 추가합니다. 기본적으로 플롯 위의 레이어는 0에서 1까지의 좌표를 가지며 `(0, 0)`은 플롯의 왼쪽 하단 모서리이고 `(1, 1)`은 오른쪽 상단입니다. 이미지를 오른쪽 하단 모서리에 배치하고 싶으므로 `hjust` 및 `halign`을 `1`로 설정하여 이미지의 오른쪽을 `x` 값 `1`과 정렬합니다. `vjust` 및 `valign`을 `0`으로 설정하면 이미지의 하단을 `y` 값 `0`과 정렬합니다. `width`는 이미지의 크기를 정의합니다 - 약간의 시행착오 끝에 이미지 너비로 `0.4`를 선택했습니다. \index{cowplot!ggdraw} \index{cowplot!draw\_image} 
 
 ```{r}
 #| label: fig-lemurs-img-plot
-#| fig-cap: "Scatter plot of how the weights of red ruffed lemurs change with age, with an image of a red ruffed lemur overlaid in the bottom right corner."
-#| fig-alt: "Scatter plot of how the weights of red ruffed lemurs change with age, with an image of a red ruffed lemur overlaid in the bottom right corner."
+#| fig-cap: "붉은 목도리 여우원숭이의 체중이 나이에 따라 어떻게 변하는지 보여주는 산점도. 오른쪽 하단 모서리에 붉은 목도리 여우원숭이의 이미지가 오버레이되어 있습니다."
+#| fig-alt: "붉은 목도리 여우원숭이의 체중이 나이에 따라 어떻게 변하는지 보여주는 산점도. 오른쪽 하단 모서리에 붉은 목도리 여우원숭이의 이미지가 오버레이되어 있습니다."
 #| warning: false
 final_plot <- ggdraw(styled_plot) +
   draw_image(
@@ -592,7 +590,7 @@ final_plot <- ggdraw(styled_plot) +
 final_plot
 ```
 
-Finally, we save the image using `ggsave()`: \index{ggplot2!ggsave}
+마지막으로 `ggsave()`를 사용하여 이미지를 저장합니다: \index{ggplot2!ggsave}
 
 ```{r}
 #| label: lemurs-save
@@ -606,19 +604,19 @@ ggsave(
 )
 ```
 
-When you add the image using **`cowplot`**, you may see some warnings returned in the console about some of the custom fonts not being found. However, as long as the fonts are appearing correctly on the chart, you can ignore these warnings.
+**`cowplot`**을 사용하여 이미지를 추가할 때 콘솔에 사용자 정의 글꼴을 찾을 수 없다는 경고가 반환될 수 있습니다. 그러나 글꼴이 차트에 올바르게 표시되면 이러한 경고를 무시할 수 있습니다.
 
-## Reflection
+## 회고
 
-Despite the complexity of the code behind it, this is a relatively simple plot. And that's where the strengths of this visualization lie - it often takes a lot of work to create a clean and minimal chart. The lemur image adds a fun element to the chart and makes it more eye-catching and interesting without adding any additional complexity to the way the data is presented. The use of shapes in addition to color for distinguishing data for male and female lemurs is another strength as it increases the accessibility of the chart, making it available to a wider audience. 
-However, there are still a few areas where improvements could be made. The obvious one is the background removal of the lemur image. As we noted earlier, some of the lemur's white fur has been incorrectly removed as it's a similar color to the background. 
+그 배후에 있는 코드의 복잡성에도 불구하고 이것은 비교적 간단한 플롯입니다. 그리고 이것이 이 시각화의 장점이 있는 곳입니다 - 깨끗하고 미니멀한 차트를 만드는 데 종종 많은 노력이 필요합니다. 여우원숭이 이미지는 차트에 재미있는 요소를 추가하고 데이터가 표시되는 방식에 추가적인 복잡성을 더하지 않으면서도 더 눈길을 끌고 흥미롭게 만듭니다. 수컷과 암컷 여우원숭이의 데이터를 구분하기 위해 색상 외에 모양을 사용한 것도 차트의 접근성을 높여 더 많은 청중이 이용할 수 있게 하므로 또 다른 장점입니다. 
+그러나 개선할 수 있는 부분이 몇 군데 있습니다. 가장 눈에 띄는 것은 여우원숭이 이미지의 배경 제거입니다. 앞서 언급했듯이 여우원숭이의 흰색 털 일부는 배경과 색상이 비슷하여 잘못 제거되었습니다.
 
-The plot could be further improved by giving more consideration to the choice of axes - both x and y. Depending on what aspect of lemur ages or weights a reader is interested in, a different choice of axis may be more appropriate. For example, if the interest is in adult lemurs, subsetting the data to consider only lemurs above a certain age would work better. If the interest is in looking at when lemurs reaching their adult weight, looking at lemurs below a specific age or performing a transformation of the axis (e.g. logarithmic) would make it easier to see the point at which lemurs stop growing. Similarly, the y-axis uses grams as its units since this is how the weight data is recorded. For young lemurs, measuring on a scale of grams is appropriate. However, the majority of lemurs in the data are adults and so perhaps presenting the data in terms of kilograms might make more sense.
+x축과 y축 모두 축 선택에 더 많은 주의를 기울임으로써 플롯을 더욱 개선할 수 있습니다. 독자가 여우원숭이 나이 또는 체중의 어떤 측면에 관심이 있는지에 따라 다른 축 선택이 더 적절할 수 있습니다. 예를 들어 성인 여우원숭이에 관심이 있는 경우 데이터를 하위 집합화하여 특정 연령 이상의 여우원숭이만 고려하는 것이 더 효과적일 것입니다. 여우원숭이가 성인 체중에 도달하는 시기를 살펴보는 데 관심이 있는 경우 특정 연령 미만의 여우원숭이를 살펴보거나 축을 변환(예: 로그)하면 여우원숭이가 성장을 멈추는 지점을 더 쉽게 확인할 수 있습니다. 마찬가지로 y축은 체중 데이터가 기록되는 방식이므로 그 단위로 그램을 사용합니다. 어린 여우원숭이의 경우 그램 단위로 측정하는 것이 적절합니다. 그러나 데이터에 있는 대부분의 여우원숭이는 성인이므로 킬로그램 단위로 데이터를 표시하는 것이 더 합리적일 수 있습니다.
 
-It's not currently clear from this chart that each individual lemur has multiple weight measurements recorded. This means that the data points shown in the chart are not independent - a common assumption of many statistical models. Overall, this is a fun and easy-to-interpret chart that's quite likely to draw people in to learn more about lemurs. However, if it's a part of an exploratory step before statistical modelling, it may need a little bit more fine-tuning.
+이 차트에서 각 개별 여우원숭이에 대해 여러 체중 측정이 기록되어 있다는 것은 현재 명확하지 않습니다. 즉, 차트에 표시된 데이터 포인트는 독립적이지 않으며 이는 많은 통계 모델의 일반적인 가정입니다. 전반적으로 이것은 사람들이 여우원숭이에 대해 더 많이 배우도록 끌어들일 가능성이 매우 높은 재미있고 해석하기 쉬운 차트입니다. 그러나 통계 모델링 전의 탐색 단계의 일부라면 좀 더 미세조정이 필요할 수 있습니다.
 
-## Exercises
+## 연습 문제
 
-* Choose a different species and recreate this visualization.
+* 다른 종을 선택하고 이 시각화를 다시 만들어 보십시오.
 
-* Based on what you learned in @sec-nobel, can you create a parameterized plot function that takes a species (and optional image path) as arguments?
+* @sec-nobel 에서 배운 내용을 바탕으로 종(및 선택적 이미지 경로)을 인수로 사용하는 매개변수화된 플롯 함수를 만들 수 있습니까?
