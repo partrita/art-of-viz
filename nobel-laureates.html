@@ -1,0 +1,1892 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+<meta charset="UTF-8">
+<meta name="generator" content="quarto-1.8.27">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>8&nbsp; 노벨상 수상자: 텍스트 배치 및 플롯 매개변수화 – The Art of Data Visualization with ggplot2</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./images.html" rel="next">
+<link href="./cats.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-795e9e8eca1e12b12abcb09a27409631.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-68ad1da78fd76636681285468deb74db.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/quarto-contrib/line-highlight-1.0.0/line-highlight.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-1SWN5BH1PZ"></script><script type="text/javascript">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-1SWN5BH1PZ', { 'anonymize_ip': true});
+</script><script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script><script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script><script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+<meta property="og:title" content="8&nbsp; 노벨상 수상자: 텍스트 배치 및 플롯 매개변수화 – The Art of Data Visualization with ggplot2">
+<meta property="og:description" content="">
+<meta property="og:image" content="https://nrennie.rbind.io/art-of-viz/nobel-laureates_files/figure-html/fig-nobel-scatter-1.png">
+<meta property="og:site_name" content="The Art of Data Visualization with ggplot2">
+<meta property="og:image:alt" content="수상자 생년월일 대 수상 연도의 산점도로, 예상되는 증가 추세를 보여줍니다.">
+<meta property="og:image:height" content="1200">
+<meta property="og:image:width" content="1500">
+</head>
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top"><nav class="quarto-secondary-nav"><div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./text.html">아이콘, 글꼴 및 텍스트 활용</a></li><li class="breadcrumb-item"><a href="./nobel-laureates.html"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">노벨상 수상자: 텍스트 배치 및 플롯 매개변수화</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav></header><!-- content --><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">The Art of Data Visualization with ggplot2</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">서문</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./author.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">저자</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">소개</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./common-charts.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">일반적인 차트도 지루할 필요는 없습니다!</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./programming-languages.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">프로그래밍 언어: <strong><code>ggplot2</code></strong>를 이용한 덤벨 차트</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./museums.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">영국 박물관: <strong><code>gghighlight</code></strong>로 선형 차트 강조하기</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./bee-colonies.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">꿀벌 군집 손실:푸아송 디스크 샘플링으로 수량 시각화</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./animal-intakes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">동물 보호소 입소: <strong><code>ggforce</code></strong>를 사용한 게이지 차트 만들기</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./text.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">아이콘, 글꼴 및 텍스트 활용</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./wind-turbines.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">캐나다 풍력 터빈: 와플 차트와 픽토그램</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cats.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">고양이: <strong><code>ggtext</code></strong>를 사용한 데이터 기반 주석</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./nobel-laureates.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">노벨상 수상자: 텍스트 배치 및 플롯 매개변수화</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./images.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">이미지 작업</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./lemurs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">여우원숭이: R에서 이미지 조작하기</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./r-packages.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">R 패키지: 사용자 지정 패면 레이블에 이미지 사용하기</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./spatial.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">공간 데이터 시각화</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./doctors.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">전 세계 의사 분포: <strong><code>ggplot2</code></strong>로 지도 만들기</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./time-zones.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">시간대: <strong><code>sf</code></strong>를 사용한 공간 데이터 및 매핑</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./us-elections.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">미국 하원 선거: <strong><code>geofacet</code></strong>을 이용한 그리드 위의 지리</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./other-tricks.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">기타 팁과 요령</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bibliography</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">부록</span></a>
+  </div>
+</li>
+    </ul>
+</div>
+</nav><div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">Contents</h2>
+   
+  <ul>
+<li><a href="#%EB%8D%B0%EC%9D%B4%ED%84%B0" id="toc-데이터" class="nav-link active" data-scroll-target="#%EB%8D%B0%EC%9D%B4%ED%84%B0"><span class="header-section-number">8.1</span> 데이터</a></li>
+  <li>
+<a href="#%ED%83%90%EC%83%89-%EC%9E%91%EC%97%85" id="toc-탐색-작업" class="nav-link" data-scroll-target="#%ED%83%90%EC%83%89-%EC%9E%91%EC%97%85"><span class="header-section-number">8.2</span> 탐색 작업</a>
+  <ul class="collapse">
+<li><a href="#%EB%8D%B0%EC%9D%B4%ED%84%B0-%ED%83%90%EC%83%89" id="toc-데이터-탐색" class="nav-link" data-scroll-target="#%EB%8D%B0%EC%9D%B4%ED%84%B0-%ED%83%90%EC%83%89"><span class="header-section-number">8.2.1</span> 데이터 탐색</a></li>
+  <li><a href="#%ED%83%90%EC%83%89%EC%A0%81-%EC%8A%A4%EC%BC%80%EC%B9%98" id="toc-탐색적-스케치" class="nav-link" data-scroll-target="#%ED%83%90%EC%83%89%EC%A0%81-%EC%8A%A4%EC%BC%80%EC%B9%98"><span class="header-section-number">8.2.2</span> 탐색적 스케치</a></li>
+  </ul>
+</li>
+  <li>
+<a href="#%ED%94%8C%EB%A1%AF-%EC%A4%80%EB%B9%84%ED%95%98%EA%B8%B0" id="toc-플롯-준비하기" class="nav-link" data-scroll-target="#%ED%94%8C%EB%A1%AF-%EC%A4%80%EB%B9%84%ED%95%98%EA%B8%B0"><span class="header-section-number">8.3</span> 플롯 준비하기</a>
+  <ul class="collapse">
+<li><a href="#%EB%8D%B0%EC%9D%B4%ED%84%B0-%EB%9E%AD%EA%B8%80%EB%A7%81" id="toc-데이터-랭글링" class="nav-link" data-scroll-target="#%EB%8D%B0%EC%9D%B4%ED%84%B0-%EB%9E%AD%EA%B8%80%EB%A7%81"><span class="header-section-number">8.3.1</span> 데이터 랭글링</a></li>
+  <li><a href="#%EC%B2%AB-%EB%B2%88%EC%A7%B8-%ED%94%8C%EB%A1%AF" id="toc-첫-번째-플롯" class="nav-link" data-scroll-target="#%EC%B2%AB-%EB%B2%88%EC%A7%B8-%ED%94%8C%EB%A1%AF"><span class="header-section-number">8.3.2</span> 첫 번째 플롯</a></li>
+  </ul>
+</li>
+  <li>
+<a href="#%EA%B3%A0%EA%B8%89-%EC%8A%A4%ED%83%80%EC%9D%BC%EB%A7%81" id="toc-고급-스타일링" class="nav-link" data-scroll-target="#%EA%B3%A0%EA%B8%89-%EC%8A%A4%ED%83%80%EC%9D%BC%EB%A7%81"><span class="header-section-number">8.4</span> 고급 스타일링</a>
+  <ul class="collapse">
+<li><a href="#%EA%B8%80%EA%BC%B4" id="toc-글꼴" class="nav-link" data-scroll-target="#%EA%B8%80%EA%BC%B4"><span class="header-section-number">8.4.1</span> 글꼴</a></li>
+  <li><a href="#%EC%83%89%EC%83%81" id="toc-색상" class="nav-link" data-scroll-target="#%EC%83%89%EC%83%81"><span class="header-section-number">8.4.2</span> 색상</a></li>
+  <li><a href="#%ED%85%8D%EC%8A%A4%ED%8A%B8-%EC%B6%94%EA%B0%80" id="toc-텍스트-추가" class="nav-link" data-scroll-target="#%ED%85%8D%EC%8A%A4%ED%8A%B8-%EC%B6%94%EA%B0%80"><span class="header-section-number">8.4.3</span> 텍스트 추가</a></li>
+  <li><a href="#%EC%8A%A4%EC%BC%80%EC%9D%BC-%EB%B0%8F-%ED%85%8C%EB%A7%88-%EC%A1%B0%EC%A0%95" id="toc-스케일-및-테마-조정" class="nav-link" data-scroll-target="#%EC%8A%A4%EC%BC%80%EC%9D%BC-%EB%B0%8F-%ED%85%8C%EB%A7%88-%EC%A1%B0%EC%A0%95"><span class="header-section-number">8.4.4</span> 스케일 및 테마 조정</a></li>
+  <li><a href="#%EB%A7%A4%EA%B0%9C%EB%B3%80%EC%88%98%ED%99%94%EB%90%9C-%ED%94%8C%EB%A1%AF" id="toc-매개변수화된-플롯" class="nav-link" data-scroll-target="#%EB%A7%A4%EA%B0%9C%EB%B3%80%EC%88%98%ED%99%94%EB%90%9C-%ED%94%8C%EB%A1%AF"><span class="header-section-number">8.4.5</span> 매개변수화된 플롯</a></li>
+  </ul>
+</li>
+  <li><a href="#%ED%9A%8C%EA%B3%A0" id="toc-회고" class="nav-link" data-scroll-target="#%ED%9A%8C%EA%B3%A0"><span class="header-section-number">8.5</span> 회고</a></li>
+  <li><a href="#%EC%97%B0%EC%8A%B5-%EB%AC%B8%EC%A0%9C" id="toc-연습-문제" class="nav-link" data-scroll-target="#%EC%97%B0%EC%8A%B5-%EB%AC%B8%EC%A0%9C"><span class="header-section-number">8.6</span> 연습 문제</a></li>
+  </ul></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./text.html">아이콘, 글꼴 및 텍스트 활용</a></li><li class="breadcrumb-item"><a href="./nobel-laureates.html"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">노벨상 수상자: 텍스트 배치 및 플롯 매개변수화</span></a></li></ol></nav><div class="quarto-title">
+<h1 class="title"><span id="sec-nobel" class="quarto-section-identifier"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">노벨상 수상자: 텍스트 배치 및 플롯 매개변수화</span></span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header><p>이 장에서는 API를 통해 데이터에 액세스하고, 사용자 정의 텍스트 레이아웃을 만들고, 매개변수화된 플롯 함수를 작성하는 방법을 배웁니다.</p>
+<p>이 장을 마치면 다음을 할 수 있습니다:</p>
+<ul>
+<li>API에서 데이터를 추출하기 위해 R에서 URL을 작성합니다;</li>
+<li>약간의 삼각 함수를 사용하여 <strong><code>ggplot2</code></strong>의 핵심 함수로 새로운 유형의 플롯을 만듭니다; 그리고</li>
+<li>일관된 레이아웃으로 유사한 그래픽을 더 쉽게 생성할 수 있도록 플롯 코드를 매개변수화하여 함수를 만듭니다.</li>
+</ul>
+<p>이 장에 필요한 패키지를 로드하는 것으로 시작합니다.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org">dplyr</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org">ggplot2</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://glue.tidyverse.org/">glue</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://wilkelab.org/ggtext/">ggtext</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://lubridate.tidyverse.org">lubridate</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://readr.tidyverse.org">readr</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/yixuan/showtext">showtext</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/yixuan/sysfonts">sysfonts</a></span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>이전 장에서 이 모든 패키지를 사용했지만, 여기서는 좀 더 복잡한 데이터 랭글링과 플로팅을 수행하는 데 사용할 것입니다!</p>
+<section id="데이터" class="level2" data-number="8.1"><h2 data-number="8.1" class="anchored" data-anchor-id="데이터">
+<span class="header-section-number">8.1</span> 데이터</h2>
+<p>발명가이자 기업가, 사업가인 알프레드 노벨은 유언장에서 자신의 재산을 <em>그 전해에 인류에게 가장 큰 공헌을 한 사람들</em>에게 보상하는 데 사용해야 한다고 명시했습니다. 노벨상은 1901년에 처음 수여되었으며 물리, 화학, 생리·의학, 문학, 평화 및 (1969년부터) 경제학 분야에서 수여됩니다. 이 장에서는 노벨상 수상자, 즉 상을 받은 사람들을 살펴보겠습니다.</p>
+<p>2019년 5월, TidyTuesday 챌린지는 <a href="https://github.com/rfordatascience/tidytuesday/tree/master/data/2019/2019-05-14">노벨상 수상자 및 그들의 출판물에 대한 여러 데이터 세트</a>를 사용했습니다. 해당 데이터 세트에는 2016년까지의 데이터가 포함되어 있습니다. 그 데이터는 이제 약간 구식이므로 API를 사용하여 데이터를 얻고 R로 가져오는 대안적인 방법을 살펴보겠습니다! </p>
+<p>API(응용 프로그래밍 인터페이스)는 본질적으로 다른 소프트웨어 프로그램이 서로 통신할 수 있게 해주는 도구입니다 <span class="citation" data-cites="harmon2024">(<a href="references.html#ref-harmon2024" role="doc-biblioref">Harmon 2024</a>)</span>. 노벨상 API 엔드포인트 <span class="citation" data-cites="nobel_data">(<a href="references.html#ref-nobel_data" role="doc-biblioref">www.nobelprize.org 2024</a>)</span>는 <a href="https://api.nobelprize.org/2.1/laureates">api.nobelprize.org/2.1/laureates</a>에서 액세스할 수 있으며 사용 방법에 대한 지침과 가이드는 <a href="https://www.nobelprize.org/">nobelprize.org</a> 웹사이트의 <a href="https://www.nobelprize.org/organization/developer-zone-2/">www.nobelprize.org/organization/developer-zone-2</a>에서 확인할 수 있으며 <a href="https://www.nobelprize.org/organization/terms-of-use-for-api-nobelprize-org-and-data-nobelprize-org/">사용 약관</a>으로도 연결됩니다.</p>
+<p>이 API는 API 키가 필요하지 않으므로 계정을 등록하거나 인증하는 것에 대해 걱정할 필요가 없습니다. 대신 옵션을 URL로 전달한 다음 해당 URL에서 CSV를 읽기만 하면 됩니다.</p>
+<p>물리학이라는 한 분야의 데이터만 살펴보는 것으로 시작하겠습니다. API에 액세스하는 데 사용할 수 있는 다양한 옵션이 있지만 몇 가지만 지정하면 됩니다:</p>
+<ul>
+<li>
+<strong>limit</strong>: 반환되는 결과의 수입니다. 기본값은 <code>25</code>이지만 물리학 분야의 노벨상 수상자는 25명 이상이므로 더 높은 값을 사용해야 합니다.</li>
+<li>
+<strong>nobelPrizeCategory</strong>: 분야입니다. 값은 분야에 대한 세 글자(소문자) 약어입니다. 물리학의 경우 값은 <code>phy</code>입니다.</li>
+<li>
+<strong>format</strong>: 출력 형식입니다. 옵션은 JSON 또는 CSV이며, R에서 작업하기 더 쉽기 때문에 CSV를 사용합니다.</li>
+</ul>
+<div id="tip-nobel-api" class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip&nbsp;8.1: API 제한 선택
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>한 번에 너무 많은 API 요청을 하지 않고 예의를 갖추는 것이 중요하므로 결과가 20개가 필요한 경우 1,000을 선택하지 마십시오.</p>
+<p>요청 제한이 250개이고 반환된 데이터에 250개의 결과가 포함되어 있다면 실제로 모든 결과가 있는지 확인하는 것이 좋습니다!</p>
+</div>
+</div>
+<p>다음과 같은 형식으로 URL을 구성합니다: 기본 API URL, 엔드포인트, <code>?</code>, 그리고 <code>&amp;</code>로 구분된 쿼리 매개변수 목록. 여기서 기본 URL은 <code>http://api.nobelprize.org/2.1/</code>이고 엔드포인트는 <code>laureates</code>입니다. (1) URL을 하나의 긴 문자열로 작성하거나 (2) 문자열을 별도로 구성하고 여기서 한 것처럼 <code><a href="https://glue.tidyverse.org/reference/glue.html">glue()</a></code>와 함께 붙일 수 있습니다. 여러 개의 약간 다른 API 호출을 하는 경우 기본 URL을 재사용할 수 있으므로 두 번째 접근 방식이 더 적절합니다.</p>
+<p>URL을 구성하고 나면 <strong><code>readr</code></strong>의 <code><a href="https://readr.tidyverse.org/reference/read_delim.html">read_csv()</a></code>(또는 선호하는 경우 기본 R의 <code><a href="https://rdrr.io/r/utils/read.table.html">read.csv()</a></code>)로 전달하고 출력을 변수(<code>nobel_physics</code>)에 저장하기만 하면 됩니다. </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">api_url</span> <span class="op">&lt;-</span> <span class="st">"http://api.nobelprize.org/2.1/laureates"</span></span>
+<span><span class="va">nobel_physics</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html">read_csv</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html">glue</a></span><span class="op">(</span></span>
+<span>    <span class="st">"{api_url}?limit=250&amp;nobelPrizeCategory=phy&amp;format=csv"</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>위 코드를 <code>laureates()</code> 함수로 래핑한 <strong><code>nobel</code></strong> R 패키지 <span class="citation" data-cites="nobel">(<a href="references.html#ref-nobel" role="doc-biblioref">Rennie 2024b</a>)</span>를 사용하여 데이터에 액세스할 수도 있습니다.</p>
+<p>필요하지 않다면 API를 여러 번 쿼리하지 않는 것이 좋습니다. 데이터를 다운로드한 후에는 CSV 파일로 저장하여 동일한 쿼리를 다시 요청하지 않고 나중에 데이터를 사용할 수 있습니다. <code><a href="https://rdrr.io/r/utils/write.table.html">write.csv()</a></code> 옵션을 사용하여 <code>data</code>라는 기존 폴더에 <code>nobel_physics.csv</code>라는 파일로 데이터를 저장할 수 있습니다. 약간 다른 곳에 저장하도록 선택할 수도 있습니다! </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/write.table.html">write.csv</a></span><span class="op">(</span></span>
+<span>  <span class="va">nobel_physics</span>,</span>
+<span>  <span class="st">"data/nobel_physics.csv"</span>,</span>
+<span>  row.names <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>기존 <code>nobel_physics</code> 객체를 계속 사용하거나 <code><a href="https://readr.tidyverse.org/reference/read_delim.html">read_csv()</a></code>를 사용하여 CSV 파일에서 다시 읽어올 수 있습니다. </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">nobel_physics</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html">read_csv</a></span><span class="op">(</span><span class="st">"data/nobel_physics.csv"</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>데이터를 잠깐 살펴보겠습니다.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">nobel_physics</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre data-code-line-numbers=""><code># A tibble: 6 × 13
+     id name         gender birthdate  birthplace deathdate 
+  &lt;dbl&gt; &lt;chr&gt;        &lt;chr&gt;  &lt;date&gt;     &lt;chr&gt;      &lt;date&gt;    
+1   102 Aage N. Bohr male   1922-06-19 Copenhage… 2009-09-08
+2   114 Abdus Salam  male   1926-01-29 Jhang Mag… 1996-11-21
+3   866 Adam G. Rie… male   1969-12-16 Washingto… NA        
+4  1012 Alain Aspect male   1947-06-15 Agen Fran… NA        
+5    11 Albert A. M… male   1852-12-19 Strelno P… 1931-05-09
+6    26 Albert Eins… male   1879-03-14 Ulm Germa… 1955-04-18
+# ℹ 7 more variables: deathplace &lt;chr&gt;, category &lt;chr&gt;,
+#   year &lt;dbl&gt;, share &lt;chr&gt;, overallmotivation &lt;chr&gt;,
+#   motivation &lt;chr&gt;, affiliations &lt;chr&gt;</code></pre>
+</div>
+</div>
+<p>데이터에는 226명의 수상자에 대한 13개 변수의 정보가 포함되어 있습니다. <code>id</code> 열은 노벨상 수상자를 고유하게 식별합니다. <code>name</code>, <code>gender</code>, <code>birthdate</code>, <code>birthplace</code>, <code>deathdate</code>, 및 <code>deathplace</code>는 개별 수상자와 관련된 상당히 설명적인 변수입니다. <code>category</code> 변수는 수상 분야(예: 물리학)를 알려줍니다. 상을 받은 연도는 <code>year</code> 열에 제공됩니다. 노벨상은 여러 사람이 공유할 수 있으며 <code>share</code> 열은 각 개인이 가진 상의 비율을 나타냅니다. 예를 들어 <code>share</code> 값이 <code>"1"</code>이면 단독 수상자임을 나타내고 <code>"1/3"</code>이면 세 명의 수상자 중 한 명임을 나타냅니다.</p>
+<p><code>overallmotivation</code> 및 <code>motivation</code> 열은 개인이 상을 받은 이유에 대한 설명을 제공합니다. <code>overallmotivation</code> 열에는 누락된 값이 많으며 누락되지 않은 값이 있는 경우 <code>motivation</code>에 제공된 것보다 더 일반적인 설명인 것으로 보입니다. 노벨상 수상자의 소속은 <code>affiliations</code> 열에도 나열되어 있습니다.</p>
+</section><section id="탐색-작업" class="level2" data-number="8.2"><h2 data-number="8.2" class="anchored" data-anchor-id="탐색-작업">
+<span class="header-section-number">8.2</span> 탐색 작업</h2>
+<p>인구 통계학적 특성, 수상자의 지리적 프로필이 어떻게 다른지, 또는 수상자의 나이가 시간에 따라 어떻게 변했는지 등 탐색할 수 있는 데이터의 다양한 측면이 있습니다. 데이터를 살펴보고 이것들이 더 탐색해 볼 만한 흥미로운 질문인지 확인해 보겠습니다.</p>
+<section id="데이터-탐색" class="level3" data-number="8.2.1"><h3 data-number="8.2.1" class="anchored" data-anchor-id="데이터-탐색">
+<span class="header-section-number">8.2.1</span> 데이터 탐색</h3>
+<p>생년월일과 수상 연도 간의 관계를 탐색하는 것으로 시작하겠습니다. 시간이 지남에 따라 일찍 태어난 사람들이 일찍 상을 받았을 것이라고 예상할 수 있으며 산점도가 이를 확인해 줍니다:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span></span>
+<span>  x <span class="op">=</span> <span class="va">nobel_physics</span><span class="op">$</span><span class="va">birthdate</span>,</span>
+<span>  y <span class="op">=</span> <span class="va">nobel_physics</span><span class="op">$</span><span class="va">year</span>,</span>
+<span>  xlab <span class="op">=</span> <span class="st">"Birth date"</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="st">"Year of award"</span></span>
+<span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-nobel-scatter" class="quarto-float quarto-figure quarto-figure-center anchored" alt="수상자 생년월일 대 수상 연도의 산점도로, 예상되는 증가 추세를 보여줍니다.">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-nobel-scatter-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="nobel-laureates_files/figure-html/fig-nobel-scatter-1.png" class="img-fluid figure-img" alt="수상자 생년월일 대 수상 연도의 산점도로, 예상되는 증가 추세를 보여줍니다.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-nobel-scatter-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8.1: 수상자 생년월일 대 수상 연도의 산점도로, 예상되는 증가 추세를 보여줍니다.
+</figcaption></figure>
+</div>
+</div>
+</div>
+<p>우리는 이 관계가 시간이 지남에 따라 변하고 있는지 확인하는 데 관심이 있을 수 있습니다. 본질적으로 수상자의 나이가 시간이 지남에 따라 변하고 있습니까? <strong><code>lubridate</code></strong>의 <code><a href="https://lubridate.tidyverse.org/reference/year.html">year()</a></code> 함수를 사용하여 <code>birthdate</code>를 연도로 변환하고 수상 <code>year</code>에서 이를 빼서 대략적인 나이를 얻을 수 있습니다. 그런 다음 수상 연도에 대해 플롯합니다: </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">award_age</span> <span class="op">&lt;-</span> <span class="va">nobel_physics</span><span class="op">$</span><span class="va">year</span> <span class="op">-</span></span>
+<span>  <span class="fu"><a href="https://lubridate.tidyverse.org/reference/year.html">year</a></span><span class="op">(</span><span class="va">nobel_physics</span><span class="op">$</span><span class="va">birthdate</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span></span>
+<span>  x <span class="op">=</span> <span class="va">nobel_physics</span><span class="op">$</span><span class="va">year</span>,</span>
+<span>  y <span class="op">=</span> <span class="va">award_age</span>,</span>
+<span>  xlab <span class="op">=</span> <span class="st">"Year of award"</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="st">"Age of Nobel Laureate"</span></span>
+<span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-nobel-hist" class="quarto-float quarto-figure quarto-figure-center anchored" alt="시간이 지남에 따른 노벨상 수상자의 나이를 보여주는 산점도로, 약간의 증가 추세가 나타납니다.">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-nobel-hist-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="nobel-laureates_files/figure-html/fig-nobel-hist-1.png" class="img-fluid figure-img" alt="시간이 지남에 따른 노벨상 수상자의 나이를 보여주는 산점도로, 약간의 증가 추세가 나타납니다.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-nobel-hist-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8.2: 시간이 지남에 따른 노벨상 수상자의 나이를 보여주는 산점도로, 약간의 증가 추세가 나타납니다.
+</figcaption></figure>
+</div>
+</div>
+</div>
+<p>수상자의 나이가 약간 증가하는 것처럼 보입니다. 더 탐색해 보면 흥미로울 수 있습니다. 하지만 물리학 분야의 노벨상 수상자에 대한 성별 구분도 살펴보겠습니다. <code><a href="https://rdrr.io/r/base/table.html">table()</a></code> 함수를 사용하여 <code>gender</code> 열에서 <code>"male"</code> 및 <code>"female"</code> 값의 수를 계산한 다음 <code><a href="https://rdrr.io/r/graphics/barplot.html">barplot()</a></code>을 사용하여 플롯할 수 있습니다: </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html">barplot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">nobel_physics</span><span class="op">$</span><span class="va">gender</span><span class="op">)</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-nobel-gender-barplot" class="quarto-float quarto-figure quarto-figure-center anchored" alt="물리학 분야의 남성 및 여성 노벨상 수상자 수에 대한 막대 차트로, 남성 수상자 수가 훨씬 더 많음을 보여줍니다.">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-nobel-gender-barplot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="nobel-laureates_files/figure-html/fig-nobel-gender-barplot-1.png" class="img-fluid figure-img" alt="물리학 분야의 남성 및 여성 노벨상 수상자 수에 대한 막대 차트로, 남성 수상자 수가 훨씬 더 많음을 보여줍니다.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-nobel-gender-barplot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8.3: 물리학 분야의 남성 및 여성 노벨상 수상자 수에 대한 막대 차트로, 남성 수상자 수가 훨씬 더 많음을 보여줍니다.
+</figcaption></figure>
+</div>
+</div>
+</div>
+<p>이것은 상당히 큰 차이입니다! 이러한 불균형을 전달하고 강조할 방법을 찾아봅시다.</p>
+</section><section id="탐색적-스케치" class="level3" data-number="8.2.2"><h3 data-number="8.2.2" class="anchored" data-anchor-id="탐색적-스케치">
+<span class="header-section-number">8.2.2</span> 탐색적 스케치</h3>
+<p>시각화를 구성하는 방법을 생각할 때 여러 요소를 고려하는 것이 중요합니다 <span class="citation" data-cites="signif2024a">(<a href="references.html#ref-signif2024a" role="doc-biblioref">Rennie and Krause 2024</a>)</span>:</p>
+<ul>
+<li>어떤 메시지를 전달하려고 합니까?</li>
+<li>누구에게 도달하려고 하며 그들의 배경은 무엇입니까?</li>
+<li>시각화의 목적은 무엇입니까?</li>
+<li>시각화를 구축한 방식이 목적을 뒷받침합니까?</li>
+</ul>
+<p>시각화의 목적이 노벨상 수상자의 성별 불균형을 강조하는 것이라고 가정해 보겠습니다. 네, 남성 및 여성 노벨상 수상자가 얼마나 많은지에 대한 막대 차트는 불균형을 매우 명확하게 보여줍니다. 간단한 메시지입니다. 하지만 눈길을 확 끌지는 않습니다. 독자가 멈춰서 주의를 기울이게 만드는 시각화는 아닙니다. 그리고 데이터를 두 가지 범주로 집계하여 이들이 개체라는 사실을 무시합니다.</p>
+<p>대신 상자 밖에서 생각하여 정보를 매우 비표준적인 방식으로 제시해 봅시다:</p>
+<div id="fig-nobel-sketch" class="quarto-float quarto-figure quarto-figure-center anchored" alt="성별에 따른 텍스트 색상을 사용하여 원 주위에 수직으로 배열된 텍스트의 초기 스케치." data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-nobel-sketch-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/sketch-nobel.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="성별에 따른 텍스트 색상을 사용하여 원 주위에 수직으로 배열된 텍스트의 초기 스케치.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-nobel-sketch-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8.4: 성별에 따른 텍스트 색상을 사용하여 원 주위에 수직으로 배열된 텍스트의 초기 스케치.
+</figcaption></figure>
+</div>
+<p>막대 차트는 남성 및 여성 노벨상 수상자가 얼마나 많은지 표시하는 더 빠르고 효율적인 방법일 것입니다. 모든 단일 노벨상 수상자의 이름에 대한 시각화는 누군가의 주의를 끄는 더 빠르고 효율적인 방법일 수 있습니다. 이 대안적인 시각화는 정보의 정확성을 희생하지 않지만 독자가 정보를 소화하는 데 시간이 조금 더 걸릴 수 있습니다. 그 희생을 감수할 가치가 있는지는 시각화의 목적이 무엇인지에 달려 있습니다.</p>
+</section></section><section id="플롯-준비하기" class="level2" data-number="8.3"><h2 data-number="8.3" class="anchored" data-anchor-id="플롯-준비하기">
+<span class="header-section-number">8.3</span> 플롯 준비하기</h2>
+<p>자, 이제 사용자 정의 시각화를 만들어 봅시다! 관심 있는 수상 분야인 물리학에 대한 변수를 정의하는 것으로 시작합니다. 어차피 API에 물리학 데이터만 요청했으므로 이 첫 단계는 조금 이상해 보일 수 있지만 이 장의 마지막 섹션에 도달하면 더 이해가 될 것입니다!</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">nobel_category</span> <span class="op">&lt;-</span> <span class="st">"Physics"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>우리가 기대하는 데이터만 가지고 있는지 항상 다시 확인하는 것이 좋습니다… </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html">barplot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">nobel_physics</span><span class="op">$</span><span class="va">category</span><span class="op">)</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-nobel-barplot-category" class="quarto-float quarto-figure quarto-figure-center anchored" alt="*물리학* 수상자의 수에 대한 막대 차트(화학 수상자가 깜짝 등장함).">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-nobel-barplot-category-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="nobel-laureates_files/figure-html/fig-nobel-barplot-category-1.png" class="img-fluid figure-img" alt="*물리학* 수상자의 수에 대한 막대 차트(화학 수상자가 깜짝 등장함).">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-nobel-barplot-category-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8.5: <em>물리학</em> 수상자의 수에 대한 막대 차트(화학 수상자가 깜짝 등장함).
+</figcaption></figure>
+</div>
+</div>
+</div>
+<p>…때때로 예상치 못한 것을 발견할 수 있기 때문입니다!</p>
+<p>API에서 물리학 데이터만 요청했음에도 불구하고 데이터에는 화학상과 관련된 항목도 포함되어 있습니다. <a href="https://www.nobelprize.org/organization/developer-zone-2/">API 문서</a>를 읽어보면 그 이유를 설명해 줍니다. 우리가 사용한 API는 노벨상 자체가 아니라 노벨상 수상자와 관련이 있습니다. 즉, 목록에는 물리학 분야에서 상을 받은 모든 수상자가 포함됩니다. 마리 퀴리는 1903년 물리학상, 1911년 화학상 등 두 개의 노벨상을 수상했습니다.</p>
+<section id="데이터-랭글링" class="level3" data-number="8.3.1"><h3 data-number="8.3.1" class="anchored" data-anchor-id="데이터-랭글링">
+<span class="header-section-number">8.3.1</span> 데이터 랭글링</h3>
+<p><strong><code>dplyr</code></strong>의 <code><a href="https://dplyr.tidyverse.org/reference/filter.html">filter()</a></code>를 사용하여 비물리학 항목을 걸러내고 <code>name</code>, <code>gender</code>, 및 <code>year</code>와 같이 플롯에 필요한 열만 선택하는 것으로 시작하겠습니다. 데이터는 현재 <code>name</code>을 기준으로 알파벳순으로 정렬되어 있으므로 <code><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange()</a></code> 함수를 사용하여 연도별로 정렬합니다. </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">physics_data</span> <span class="op">&lt;-</span> <span class="va">nobel_physics</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">category</span> <span class="op">==</span> <span class="va">nobel_category</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">name</span>, <span class="va">gender</span>, <span class="va">year</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange</a></span><span class="op">(</span><span class="va">year</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>이제 텍스트를 원형으로 배치하는 방법을 알아내는 까다로운 부분이 나옵니다. 첫 번째 아이디어는 단순히 텍스트를 한 줄로 플롯한 다음 <strong><code>ggplot2</code></strong>의 <code><a href="https://ggplot2.tidyverse.org/reference/coord_radial.html">coord_polar()</a></code>(또는 <code><a href="https://ggplot2.tidyverse.org/reference/coord_radial.html">coord_radial()</a></code>) 함수를 사용하여 좌표 공간을 변환하는 것일 수 있습니다. 그러나 <code><a href="https://ggplot2.tidyverse.org/reference/coord_radial.html">coord_polar()</a></code>를 사용하면 플롯에 주석과 같은 다른 요소를 배치하기가 정말 어렵습니다. 다른 방법으로 <strong><code>ggplot2</code></strong> 확장 패키지인 <strong><code>geomtextpath</code></strong> <span class="citation" data-cites="geomtextpath">(<a href="references.html#ref-geomtextpath" role="doc-biblioref">Cameron and van den Brand 2024</a>)</span>를 사용할 수 있습니다. 이 패키지를 사용하면 <strong><code>ggplot2</code></strong>에서 곡선을 따라 텍스트를 작성할 수 있습니다. </p>
+<div id="tip-nobel-external" class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip&nbsp;8.2: 왜 R에서 주석을 추가하나요?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>기본 차트를 만들고 <code><a href="https://ggplot2.tidyverse.org/reference/coord_radial.html">coord_polar()</a></code>를 적용한 다음 다른 소프트웨어(예: Inkscape 또는 PowerPoint)로 내보내 텍스트 주석을 추가하면 되는데 왜 처음부터 사용자 정의 레이아웃을 구축하는 데 그렇게 많은 공을 들이고 싶어 하는지 궁금할 수 있습니다. 이것은 확실히 타당한 지적입니다. 한 번만 차트를 만드는 경우 R 외부에서 마무리를 하는 것이 더 빠르고 쉽습니다. 그러나 동일한 차트를 여러 번 만들거나 유사한 차트의 약간 다른 버전을 만드는 경우 수동 작업이 빠르게 늘어날 수 있습니다. R에서 주석을 만드는 것의 장점은 작업을 확장하고 주석 생성을 자동화하기가 더 쉽다는 것입니다.</p>
+</div>
+</div>
+<p>하지만 (단지 재미로) <strong><code>ggplot2</code></strong>만 사용하여 처음부터 플롯을 만들어 봅시다.</p>
+<p>텍스트를 배치할 수 있으려면 다음을 정의해야 합니다:</p>
+<ul>
+<li>텍스트가 끝날 x 및 y 좌표</li>
+<li>텍스트가 위치해야 할 각도</li>
+</ul>
+<p>x 및 y 좌표를 계산하려면 극좌표를 생각해야 합니다. 간단하게 하기 위해 텍스트가 배치되는 원의 중심이 <code>(0, 0)</code>이라고 가정해 보겠습니다. 좌표의 경우 다음을 알아야 함을 의미합니다:</p>
+<ul>
+<li>원의 반지름(<code>r</code>): 텍스트가 <code>(0, 0)</code>에서 얼마나 멀리 떨어져 시작합니까? 이것은 모든 텍스트 레이블에 대해 상수 값입니다.</li>
+<li>호의 각도(<code>theta</code>): 수평축에서 원을 따라 텍스트가 얼마나 멀리 나타나야 합니까? 레이블이 (반)원 주위에 균등하게 간격을 두기를 원하므로 이 값은 각 텍스트 레이블마다 다릅니다.</li>
+</ul>
+<p>반지름에 대한 변수를 정의하는 것으로 시작하겠습니다. 다른 모든 것은 다른 반지름을 중심으로 재조정될 수 있으므로 이 시점에서는 어떤 값을 선택하든 상관없습니다.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fl">5</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="fig-nobel-sketch-theta" class="quarto-float quarto-figure quarto-figure-center anchored" alt="반지름, 각도, x 및 y 좌표에서 텍스트 위치 간의 관계를 보여주는 스케치." data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-nobel-sketch-theta-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/sketch-nobel-theta.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="반지름, 각도, x 및 y 좌표에서 텍스트 위치 간의 관계를 보여주는 스케치.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-nobel-sketch-theta-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8.6: 반지름, 각도, x 및 y 좌표에서 텍스트 위치 간의 관계를 보여주는 스케치.
+</figcaption></figure>
+</div>
+<p>점의 반지름과 각도를 알고 있다고 가정하면 다음 방정식을 사용하여 점의 x 및 y 좌표를 계산할 수 있습니다:</p>
+<p><span class="math display">\[\begin{equation*}
+\begin{split}
+x &amp; = r cos(\theta) \\
+y &amp; = r sin(\theta)
+\end{split}
+\end{equation*}\]</span></p>
+<p><a href="#fig-nobel-sketch" class="quarto-xref">Figure&nbsp;<span>8.4</span></a> 에 표시된 대로 제목을 추가할 공간을 남겨두고 싶으므로 원 전체에 텍스트를 넣고 싶지는 않습니다. <span class="math inline">\(\pi/4\)</span> (시계 페이스의 1과 2 사이)에서 <span class="math inline">\(7\pi/4\)</span> (시계 페이스의 4와 5 사이)까지 간격을 남겨 둡니다. <span class="math inline">\(\pi/4\)</span>에서 시작하여 <span class="math inline">\(7\pi/4\)</span>까지 데이터의 각 관측치에 대해 하나의 값을 갖는 균등하게 이격된 <span class="math inline">\(\theta\)</span> 값 시퀀스를 생성하는 것으로 시작합니다. 이것은 <strong><code>dplyr</code></strong>의 <code><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate()</a></code>를 사용하여 데이터에 새 열로 추가됩니다. 그런 다음 위의 방정식을 사용하여 <code>x</code> 및 <code>y</code> 좌표를 계산하고 다시 데이터에 새 열로 추가합니다. </p>
+<p>텍스트의 각도는 조금 더 까다롭습니다. 텍스트가 원에 수직으로 위치하기를 원합니다. 즉, 텍스트의 각도는 각 이름마다 다릅니다. <code>theta</code> 값을 사용하여 텍스트의 각도를 계산할 수 있습니다.</p>
+<p>나중에 플로팅을 위해 각도 값을 <strong><code>ggplot2</code></strong> 함수에 전달할 때 각도는 라디안이 아닌 도(degree)로 표현되어야 합니다. 예를 들어 수직 텍스트의 경우 <code>angle = pi/2</code> 대신 <code>angle = 90</code>을 전달합니다. 따라서 <span class="math inline">\(2\pi\)</span>로 나누고 360을 곱하여 <code>theta</code>를도로 변환해야 합니다. 텍스트를 (적어도 원의 왼쪽에서는) 올바른 방향으로 만들기 위해 180도를 더합니다. </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">plot_data</span> <span class="op">&lt;-</span> <span class="va">physics_data</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span></span>
+<span>    theta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span></span>
+<span>      from <span class="op">=</span> <span class="va">pi</span> <span class="op">/</span> <span class="fl">4</span>,</span>
+<span>      to <span class="op">=</span> <span class="op">(</span><span class="fl">7</span> <span class="op">/</span> <span class="fl">4</span><span class="op">)</span> <span class="op">*</span> <span class="va">pi</span>,</span>
+<span>      length.out <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">physics_data</span><span class="op">)</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    x <span class="op">=</span> <span class="va">r</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html">cos</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span>,</span>
+<span>    y <span class="op">=</span> <span class="va">r</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html">sin</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span>,</span>
+<span>    angle <span class="op">=</span> <span class="fl">180</span> <span class="op">+</span> <span class="fl">360</span> <span class="op">*</span> <span class="op">(</span><span class="va">theta</span> <span class="op">/</span> <span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">pi</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>데이터를 잠깐 살펴보겠습니다:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">plot_data</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre data-code-line-numbers=""><code># A tibble: 6 × 7
+  name                  gender  year theta     x     y angle
+  &lt;chr&gt;                 &lt;chr&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+1 Wilhelm Conrad Röntg… male    1901 0.785  3.54  3.54  225 
+2 Hendrik A. Lorentz    male    1902 0.806  3.46  3.61  226.
+3 Pieter Zeeman         male    1902 0.827  3.38  3.68  227.
+4 Henri Becquerel       male    1903 0.849  3.31  3.75  229.
+5 Marie Curie           female  1903 0.870  3.23  3.82  230.
+6 Pierre Curie          male    1903 0.891  3.14  3.89  231.</code></pre>
+</div>
+</div>
+<p>이제 <strong><code>ggplot2</code></strong>로 플로팅을 시작할 준비가 되었습니다!</p>
+</section><section id="첫-번째-플롯" class="level3" data-number="8.3.2"><h3 data-number="8.3.2" class="anchored" data-anchor-id="첫-번째-플롯">
+<span class="header-section-number">8.3.2</span> 첫 번째 플롯</h3>
+<p>기본 플롯을 구성하는 것은 상당히 간단합니다. 이미 x 값, y 값, 각도를 정의하는 힘든 작업을 수행했습니다. 플롯은 텍스트 데이터의 시각화이므로 <code><a href="https://ggplot2.tidyverse.org/reference/geom_text.html">geom_text()</a></code>를 사용하여 텍스트를 추가합니다. 우리가 해야 할 일은 <strong><code>ggplot2</code></strong>에 무엇을 어디에 넣을지 알려주는 것뿐입니다! </p>
+<p><code>plot_data</code>를 <code>data</code> 인수에 전달한 다음 <code><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes()</a></code>를 사용하여 미적 매핑을 설정합니다. 매핑은 예상대로입니다: <code>x</code>는 x축에, <code>y</code>는 y축에, <code>label</code>은 <code>name</code> 열에서 오고, 텍스트 <code>angle</code>은 우리가 만든 <code>angle</code> 열에 의해 정의되며, <code>color</code>는 <code>gender</code> 열의 값을 기반으로 합니다. 이 매핑은 <code><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot()</a></code>에 전달하거나 여기서 한 것처럼 <code><a href="https://ggplot2.tidyverse.org/reference/geom_text.html">geom_text()</a></code>에 직접 전달할 수 있습니다. 이 플롯에는 하나의 지오메트리만 사용할 것이므로 차이는 없습니다! </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html">geom_text</a></span><span class="op">(</span></span>
+<span>    data <span class="op">=</span> <span class="va">plot_data</span>,</span>
+<span>    mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span></span>
+<span>      x <span class="op">=</span> <span class="va">x</span>, y <span class="op">=</span> <span class="va">y</span>,</span>
+<span>      label <span class="op">=</span> <span class="va">name</span>,</span>
+<span>      angle <span class="op">=</span> <span class="va">angle</span>,</span>
+<span>      color <span class="op">=</span> <span class="va">gender</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-nobel-base-plot" class="quarto-float quarto-figure quarto-figure-center anchored" alt="반원형으로 배열된 노벨 물리학상 수상자의 이름으로, 색상은 수상자의 성별을 나타냅니다. 텍스트가 너무 커서 레이블이 많이 겹칩니다.">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-nobel-base-plot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="nobel-laureates_files/figure-html/fig-nobel-base-plot-1.png" class="img-fluid figure-img" alt="반원형으로 배열된 노벨 물리학상 수상자의 이름으로, 색상은 수상자의 성별을 나타냅니다. 텍스트가 너무 커서 레이블이 많이 겹칩니다.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-nobel-base-plot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8.7: 반원형으로 배열된 노벨 물리학상 수상자의 이름으로, 색상은 수상자의 성별을 나타냅니다. 텍스트가 너무 커서 레이블이 많이 겹칩니다.
+</figcaption></figure>
+</div>
+</div>
+</div>
+</section></section><section id="고급-스타일링" class="level2" data-number="8.4"><h2 data-number="8.4" class="anchored" data-anchor-id="고급-스타일링">
+<span class="header-section-number">8.4</span> 고급 스타일링</h2>
+<p>언뜻 보기에 이 첫 번째 플롯은 완전히 엉망인 것처럼 보일 수 있지만 약간의 작업만 거치면 곧 <a href="#fig-nobel-sketch" class="quarto-xref">Figure&nbsp;<span>8.4</span></a> 처럼 보이기 시작할 것입니다.</p>
+<section id="글꼴" class="level3" data-number="8.4.1"><h3 data-number="8.4.1" class="anchored" data-anchor-id="글꼴">
+<span class="header-section-number">8.4.1</span> 글꼴</h3>
+<p>시각화를 위한 서체를 선택하는 것으로 시작하겠습니다. 두 가지 서체를 선택할 것입니다:</p>
+<ul>
+<li>
+<code>title_font</code>: 이름에서 알 수 있듯이 제목에 사용될 굵은 서체입니다. 제목에 이상적인 두껍고 굵은 선이 있는 디스플레이 서체인 <em>Passion One</em>을 사용할 것입니다.</li>
+<li>
+<code>body_font</code>: 수상자 이름을 표시하는 텍스트를 포함하여 다른 모든 텍스트 요소에 사용될 간단한 서체입니다. 즉, 텍스트는 꽤 작은 글꼴 크기가 될 것이므로 깨끗하고 간단한 서체를 사용하는 것이 중요합니다. 이전 장에서 사용했던 산세리프 서체인 <em>Ubuntu</em>를 사용할 것입니다.</li>
+</ul>
+<p>두 서체 모두 Google Fonts를 통해 제공되므로 <strong><code>sysfonts</code></strong>의 <code><a href="https://rdrr.io/pkg/sysfonts/man/font_add_google.html">font_add_google()</a></code>을 사용하여 R로 로드합니다. 또한 <code><a href="https://rdrr.io/pkg/showtext/man/showtext_auto.html">showtext_auto()</a></code> 및 <code>showtext_opts(dpi = 300)</code>을 실행하여 <strong><code>showtext</code></strong>를 사용하여 원하는 해상도로 플롯의 텍스트를 렌더링합니다. </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/sysfonts/man/font_add_google.html">font_add_google</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"Passion One"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/sysfonts/man/font_add_google.html">font_add_google</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"Ubuntu"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/showtext/man/showtext_auto.html">showtext_auto</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/showtext/man/showtext_opts.html">showtext_opts</a></span><span class="op">(</span>dpi <span class="op">=</span> <span class="fl">300</span><span class="op">)</span></span>
+<span><span class="va">body_font</span> <span class="op">&lt;-</span> <span class="st">"Ubuntu"</span></span>
+<span><span class="va">title_font</span> <span class="op">&lt;-</span> <span class="st">"Passion One"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>이제 <code>basic_plot</code>을 다시 만들어 보겠습니다. 이번에는 글꼴 <code>family</code>도 <code>body_font</code>로 설정합니다. 또한 <code>hjust = 1</code>을 사용하여 텍스트를 오른쪽 정렬하여 텍스트가 원의 바깥쪽 가장자리 주위에 나타나도록 합니다. 텍스트는 서로 옆에 위치한 이름이 겹치지 않도록 조금 더 작아야 합니다. </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">basic_plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html">geom_text</a></span><span class="op">(</span></span>
+<span>    data <span class="op">=</span> <span class="va">plot_data</span>,</span>
+<span>    mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span></span>
+<span>      x <span class="op">=</span> <span class="va">x</span>, y <span class="op">=</span> <span class="va">y</span>,</span>
+<span>      label <span class="op">=</span> <span class="va">name</span>,</span>
+<span>      angle <span class="op">=</span> <span class="va">angle</span>,</span>
+<span>      color <span class="op">=</span> <span class="va">gender</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    family <span class="op">=</span> <span class="va">body_font</span>,</span>
+<span>    hjust <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>    size <span class="op">=</span> <span class="fl">1</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="va">basic_plot</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-nobel-base-plot-2" class="quarto-float quarto-figure quarto-figure-center anchored" alt="반원형으로 배열된 노벨 물리학상 수상자의 이름으로, 색상은 수상자의 성별을 나타냅니다. 텍스트의 많은 부분이 플롯 영역 외부에 있습니다.">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-nobel-base-plot-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="nobel-laureates_files/figure-html/fig-nobel-base-plot-2-1.png" class="img-fluid figure-img" alt="반원형으로 배열된 노벨 물리학상 수상자의 이름으로, 색상은 수상자의 성별을 나타냅니다. 텍스트의 많은 부분이 플롯 영역 외부에 있습니다.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-nobel-base-plot-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8.8: 반원형으로 배열된 노벨 물리학상 수상자의 이름으로, 색상은 수상자의 성별을 나타냅니다. 텍스트의 많은 부분이 플롯 영역 외부에 있습니다.
+</figcaption></figure>
+</div>
+</div>
+</div>
+</section><section id="색상" class="level3" data-number="8.4.2"><h3 data-number="8.4.2" class="anchored" data-anchor-id="색상">
+<span class="header-section-number">8.4.2</span> 색상</h3>
+<p>이전의 모든 장에서 했던 것 처럼 시각화에서 사용할 색상에 대한 변수를 정의하겠습니다. 여기서는 배경색, 기본색, 보조색을 정의합니다.</p>
+<p>기본색은 여성 수상자뿐만 아니라 제목 및 캡션 텍스트를 강조하는 데 사용됩니다. 보조색은 남성 수상자 이름을 색칠하는 데 사용됩니다. 기본색은 보조색보다 더 굵거나 밝아야 합니다. 즉, 차트의 몇 가지 색상이 눈에 띄고 여성 수상자를 강조하게 됩니다. </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">bg_col</span> <span class="op">&lt;-</span> <span class="st">"gray95"</span></span>
+<span><span class="va">primary_col</span> <span class="op">&lt;-</span> <span class="st">"black"</span></span>
+<span><span class="va">secondary_col</span> <span class="op">&lt;-</span> <span class="st">"gray75"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><code><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html">scale_color_manual()</a></code>을 사용하여 <code>gender</code> 열의 어떤 값에 어떤 색상을 매핑할지 수동으로 지정하여 이름을 표시하는 텍스트에 이러한 색상을 적용할 수 있습니다. </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">col_plot</span> <span class="op">&lt;-</span> <span class="va">basic_plot</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html">scale_color_manual</a></span><span class="op">(</span></span>
+<span>    values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span></span>
+<span>      <span class="st">"male"</span> <span class="op">=</span> <span class="va">secondary_col</span>,</span>
+<span>      <span class="st">"female"</span> <span class="op">=</span> <span class="va">primary_col</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section><section id="텍스트-추가" class="level3" data-number="8.4.3"><h3 data-number="8.4.3" class="anchored" data-anchor-id="텍스트-추가">
+<span class="header-section-number">8.4.3</span> 텍스트 추가</h3>
+<p>플롯 상단에 제목과 부제목을 추가하는 대신 원의 오른쪽 부분에 있는 간격에 추가합니다. <strong><code>ggplot2</code></strong>의 <code><a href="https://ggplot2.tidyverse.org/reference/annotate.html">annotate()</a></code> 함수를 사용하여 텍스트를 추가합니다. <code><a href="https://ggplot2.tidyverse.org/reference/annotate.html">annotate()</a></code>의 경우 주석을 달 지오메트리 유형(이 경우 <code>"text"</code>)을 지정하는 것으로 시작해야 한다는 점을 기억하십시오. </p>
+<p>두 개의 별도 주석을 추가합니다. 하나는 제목(<em>Nobel Prize Laureates</em>)용이고 다른 하나는 수상 분야(<em>Physics</em>)를 나타내는 부제목용입니다. 제목과 부제목은 오른쪽 정렬이어야 하므로 각 주석의 x좌표를 10으로 설정하고 <code>hjust = 1</code>로 설정합니다. 제목은 원의 중심(<code>y = 0</code>)과 수직으로 정렬되고 부제목은 <code>y = -1</code>에서 약간 아래에 있습니다. 글꼴 패밀리는 <code>family</code> 인수를 사용하여 <code>body_font</code> 또는 <code>title_font</code>로 조정되며 텍스트 <code>size</code> 및 <code>color</code>도 조정됩니다.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">annotated_plot</span> <span class="op">&lt;-</span> <span class="va">col_plot</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/annotate.html">annotate</a></span><span class="op">(</span><span class="st">"text"</span>,</span>
+<span>    x <span class="op">=</span> <span class="fl">10</span>, y <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>    label <span class="op">=</span> <span class="st">"Nobel Prize Laureates"</span>,</span>
+<span>    hjust <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>    color <span class="op">=</span> <span class="va">primary_col</span>,</span>
+<span>    family <span class="op">=</span> <span class="va">title_font</span>,</span>
+<span>    size <span class="op">=</span> <span class="fl">7</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/annotate.html">annotate</a></span><span class="op">(</span><span class="st">"text"</span>,</span>
+<span>    x <span class="op">=</span> <span class="fl">10</span>, y <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>,</span>
+<span>    label <span class="op">=</span> <span class="va">nobel_category</span>,</span>
+<span>    hjust <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>    color <span class="op">=</span> <span class="va">primary_col</span>,</span>
+<span>    family <span class="op">=</span> <span class="va">body_font</span>,</span>
+<span>    size <span class="op">=</span> <span class="fl">5</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="va">annotated_plot</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-nobel-annotated" class="quarto-float quarto-figure quarto-figure-center anchored" alt="C자 형태로 배열된 노벨 물리학상 수상자의 이름으로, 여성 수상자는 더 어두운 색상으로 강조 표시됩니다. 텍스트가 플로팅 영역 밖으로 실행되며 수상 분야를 나타내는 주석이 추가되었습니다.">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-nobel-annotated-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="nobel-laureates_files/figure-html/fig-nobel-annotated-1.png" class="img-fluid figure-img" alt="C자 형태로 배열된 노벨 물리학상 수상자의 이름으로, 여성 수상자는 더 어두운 색상으로 강조 표시됩니다. 텍스트가 플로팅 영역 밖으로 실행되며 수상 분야를 나타내는 주석이 추가되었습니다.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-nobel-annotated-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8.9: C자 형태로 배열된 노벨 물리학상 수상자의 이름으로, 여성 수상자는 더 어두운 색상으로 강조 표시됩니다. 텍스트가 플로팅 영역 밖으로 실행되며 수상 분야를 나타내는 주석이 추가되었습니다.
+</figcaption></figure>
+</div>
+</div>
+</div>
+<p>플롯에 캡션을 추가할 수 있는데, 여기에는 (i) 데이터 출처에 대한 설명과 (ii) <a href="cats.html" class="quarto-xref"><span>Chapter 7</span></a> 에서 정의한 <code>social_caption()</code> 함수의 소셜 미디어 링크가 포함됩니다. 아이콘과 텍스트를 모두 같은 색상인 <code>primary_col</code>로 만듭니다. 이를 <a href="wind-turbines.html" class="quarto-xref"><span>Chapter 6</span></a> 에서 정의한 <code>source_caption()</code> 함수에 전달할 수 있습니다. </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">social</span> <span class="op">&lt;-</span> <span class="fu">social_caption</span><span class="op">(</span></span>
+<span>  icon_color <span class="op">=</span> <span class="va">primary_col</span>,</span>
+<span>  font_color <span class="op">=</span> <span class="va">primary_col</span>,</span>
+<span>  font_family <span class="op">=</span> <span class="va">body_font</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">cap</span> <span class="op">&lt;-</span> <span class="fu">source_caption</span><span class="op">(</span></span>
+<span>  source <span class="op">=</span> <span class="st">"The Nobel Foundation"</span>,</span>
+<span>  sep <span class="op">=</span> <span class="st">"&lt;br&gt;"</span>,</span>
+<span>  graphic <span class="op">=</span> <span class="va">social</span></span>
+<span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>그런 다음 <code><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs()</a></code> 함수의 <code>caption</code> 인수를 사용하여 기존 플롯에 이 캡션을 추가합니다: </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">text_plot</span> <span class="op">&lt;-</span> <span class="va">annotated_plot</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span><span class="op">(</span>caption <span class="op">=</span> <span class="va">cap</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section><section id="스케일-및-테마-조정" class="level3" data-number="8.4.4"><h3 data-number="8.4.4" class="anchored" data-anchor-id="스케일-및-테마-조정">
+<span class="header-section-number">8.4.4</span> 스케일 및 테마 조정</h3>
+<p>현재 텍스트는 원형으로 배열되어 있지 않고 타원형을 띠고 있습니다. 원형으로 표시되도록 하려면 <code><a href="https://ggplot2.tidyverse.org/reference/coord_fixed.html">coord_fixed()</a></code>를 사용하여 x축의 한 단위가 y축의 한 단위와 같도록 할 수 있습니다.</p>
+<p>플롯의 제한도 확장해야 합니다. 스케일은 현재 전달한 x 및 y 좌표(원의 안쪽 가장자리에 있는 텍스트)를 기반으로 하므로 텍스트가 페이지 밖으로 나갑니다. <code><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_x_continuous()</a></code> 및 <code><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_y_continuous()</a></code>를 사용하여 제한을 확장하여 이를 수행할 수 있습니다. 추가된 주석을 수용하기 위해 x축의 오른쪽을 조금 더 확장할 수 있습니다. </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">styled_plot</span> <span class="op">&lt;-</span> <span class="va">text_plot</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_x_continuous</a></span><span class="op">(</span>limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">9</span>, <span class="fl">12</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_y_continuous</a></span><span class="op">(</span>limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">7.5</span>, <span class="fl">7.5</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_fixed.html">coord_fixed</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">styled_plot</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-nobel-style-plot-1" class="quarto-float quarto-figure quarto-figure-center anchored" alt="원 주위에 배열된 노벨 물리학상 수상자의 이름으로, 여성 수상자는 더 어두운 색상으로 강조 표시됩니다. 기본 그리드 선이 배경에 남아 있습니다.">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-nobel-style-plot-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="nobel-laureates_files/figure-html/fig-nobel-style-plot-1-1.png" class="img-fluid figure-img" alt="원 주위에 배열된 노벨 물리학상 수상자의 이름으로, 여성 수상자는 더 어두운 색상으로 강조 표시됩니다. 기본 그리드 선이 배경에 남아 있습니다.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-nobel-style-plot-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8.10: 원 주위에 배열된 노벨 물리학상 수상자의 이름으로, 여성 수상자는 더 어두운 색상으로 강조 표시됩니다. 기본 그리드 선이 배경에 남아 있습니다.
+</figcaption></figure>
+</div>
+</div>
+</div>
+<p>이것은 <em>예술적</em> 시각화이므로 산만한 그리드 선과 축 레이블(이 유형의 플롯에는 별로 의미가 없음)을 제거하고 싶습니다. 이전 장(<a href="time-zones.html" class="quarto-xref"><span>Chapter 12</span></a> 와 같은)에서 했던 것처럼 <code><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_void()</a></code>를 사용하여 이러한 배경 테마 요소를 제거합니다. </p>
+<p>다음 <code><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme()</a></code> 요소를 변경하여 몇 가지 추가적인 최종 사용자 정의를 수행할 수 있습니다. </p>
+<ul>
+<li>범례 제거</li>
+<li>
+<code><a href="https://ggplot2.tidyverse.org/reference/element.html">element_rect()</a></code>에 <code>bg_col</code> 변수를 전달하여 배경색 변경</li>
+<li>
+<strong><code>ggtext</code></strong>의 <code><a href="https://wilkelab.org/ggtext/reference/element_textbox.html">element_textbox_simple()</a></code>을 사용하여 캡션에 소셜 미디어 아이콘을 추가하는 HTML 태그 서식 지정</li>
+</ul>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">styled_plot</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_void</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">6</span>, base_family <span class="op">=</span> <span class="va">body_font</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span></span>
+<span>    legend.position <span class="op">=</span> <span class="st">"none"</span>,</span>
+<span>    plot.background <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_rect</a></span><span class="op">(</span></span>
+<span>      fill <span class="op">=</span> <span class="va">bg_col</span>, color <span class="op">=</span> <span class="va">bg_col</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    plot.caption <span class="op">=</span> <span class="fu"><a href="https://wilkelab.org/ggtext/reference/element_textbox.html">element_textbox_simple</a></span><span class="op">(</span></span>
+<span>      color <span class="op">=</span> <span class="va">primary_col</span>,</span>
+<span>      hjust <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>      halign <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>      lineheight <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>      margin <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">margin</a></span><span class="op">(</span>l <span class="op">=</span> <span class="fl">5</span>, b <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-nobel-style-plot-2" class="quarto-float quarto-figure quarto-figure-center anchored" alt="반시계 방향으로 배열된 노벨 물리학상 수상자의 이름으로, 여성 수상자는 더 어두운 색상으로 강조 표시됩니다.">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-nobel-style-plot-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="nobel-laureates_files/figure-html/fig-nobel-style-plot-2-1.png" class="img-fluid figure-img" alt="반시계 방향으로 배열된 노벨 물리학상 수상자의 이름으로, 여성 수상자는 더 어두운 색상으로 강조 표시됩니다.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-nobel-style-plot-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8.11: 반시계 방향으로 배열된 노벨 물리학상 수상자의 이름으로, 여성 수상자는 더 어두운 색상으로 강조 표시됩니다.
+</figcaption></figure>
+</div>
+</div>
+</div>
+<p>이제 노벨 물리학상 수상자를 시각화하는 창의적인 방법이 생겼습니다! 다른 상 분야의 수상자를 비슷한 방식으로 시각화하려면 어떻게 해야 할까요?</p>
+</section><section id="매개변수화된-플롯" class="level3" data-number="8.4.5"><h3 data-number="8.4.5" class="anchored" data-anchor-id="매개변수화된-플롯">
+<span class="header-section-number">8.4.5</span> 매개변수화된 플롯</h3>
+<p>이미 가지고 있는 코드를 복사하여 붙여넣고 모든 곳에서 <code>physics</code>를 <code>peace</code>로 바꾸는 등의 작업을 할 수 있지만, 이것은 하나의 추가 플롯만 만들려는 경우가 아니라면 지속 가능한 접근 방식이 아닙니다. 의학, 경제학, 화학 및 문학에 대한 플롯도 만들고 싶다면요? 복사해서 붙여넣기가 너무 많습니다! 대신 자체 함수를 만드는 것에 대해 생각할 수 있습니다. </p>
+<p>예를 들어 특정 월의 판매 실적 플롯을 만들려는 경우 정말 유용할 수 있습니다. 지난달에 지난달의 판매에 대한 히스토그램을 만들고 싶었다고 가정해 보겠습니다. 이번 달에는 이번 달의 데이터만 사용하여 동일한 히스토그램을 만들고 싶습니다. 기본 데이터(및 아마도 플롯 제목) 외에는 아무것도 변경해서는 안 됩니다. 월을 인수로 받아 데이터를 필터링한 다음 업데이트된 제목으로 플롯하는 함수를 만들 수 있습니다. 매달 플로팅 코드를 다시 작성할 필요 없이 사용자 정의 플롯 함수를 호출하기만 하면 됩니다.</p>
+<p>이 책 전체에서 색상과 서체 선택 항목을 저장하기 위해 변수를 사용해 왔습니다. 이렇게 하면 새로운 색상 구성표를 빠르게 시도하기가 더 쉬워집니다. 하지만 코드를 함수로 변환하기도 더 쉬워집니다. 해당 변수는 함수 인수가 됩니다! </p>
+<p>코드를 함수로 변환할 때 코드가 작동하려면 사용자가 무엇을 알려줘야 하는지 생각해야 합니다. 위의 판매 히스토그램 예에서 사용자는 플롯을 원하는 월을 지정해야 합니다. 노벨상 시각화의 예에서 사용자는 다음을 지정해야 합니다:</p>
+<ul>
+<li>어떤 분야를 플롯하고 싶은지 (우리는 그들의 마음을 읽거나 그들이 어떤 데이터를 가지고 있는지 알 수 없습니다)</li>
+<li>데이터의 이름은 무엇인지 (우리는 그들이 <code>data.frame</code>을 무엇이라고 불렀는지 모릅니다)</li>
+<li>원의 반지름 (주어진 분야에 관측치가 몇 개인지에 따라 이를 변경해야 할 수도 있습니다)</li>
+</ul>
+<div id="tip-nobel-dataframe" class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip&nbsp;8.3: 열이 존재하는지 확인
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>데이터 랭글링 코드는 <code>year</code>, <code>name</code>, <code>gender</code>, 및 <code>category</code>가 입력 <code>data.frame</code>에 존재하는 열이라고 가정합니다. 일관된 형식으로 출력하는 API의 데이터를 작업하고 있으므로 이는 합리적인 가정입니다. 그러나 API는 어느 시점에 바뀔 수도 있습니다. 또는 누군가가 다른 곳에서 소싱한 데이터와 함께 사용하고 싶어할 수도 있습니다. 함수를 더 견고하게 만들기 위해 해당 열이 존재하는지 확인하는 초기 단계를 추가할 수 있습니다!</p>
+</div>
+</div>
+<p>이제 사용자가 지정할 <em>수 있는</em> 인수 추가에 대해서도 생각할 수 있습니다:</p>
+<ul>
+<li>배경색</li>
+<li>기본색</li>
+<li>보조색</li>
+<li>본문 글꼴</li>
+<li>제목 글꼴</li>
+</ul>
+<p>이러한 인수의 경우 기본값을 지정할 수 있습니다. 즉, 사용자가 자신의 색상을 선택하고 싶지 않은 경우 함수가 작동하지만 선택하는 경우 자유롭게 사용자 정의할 수 있습니다. 이러한 매개변수 선택 중 어느 것도 생성된 플롯에 근본적인 차이를 만들지 않습니다(미적으로 얼마나 만족스러운지는 제외).</p>
+<div id="tip-nobel-fonts" class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip&nbsp;8.4: 함수에서 글꼴 사용
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>여기서 기본 제목 서체를 <code>"Passion One"</code>으로 지정했습니다. 본문 서체에도 비슷한 접근 방식이 사용됩니다. 일반적으로 사용자가 함수를 실행할 때 <code>"Passion One"</code> 서체를 설치하거나 로드했다는 보장이 없으므로 이러한 접근 방식은 권장되지 않습니다. 이것은 기본 서체로 나쁜 선택입니다.</p>
+<p>함수 내에 <code><a href="https://rdrr.io/pkg/sysfonts/man/font_add_google.html">font_add_google()</a></code> 코드를 추가할 <em>수도</em> 있지만 이 또한 좋은 해결책은 아닙니다. 함수를 실행할 때마다 글꼴을 다시 설치하고 싶지는 않습니다. 더 나은 옵션은 <code>title_font = "sans"</code>와 같이 통합된 서체 중 하나를 기본값으로 지정하는 것입니다.</p>
+<p>(또는 최소한 기본값으로 사용한 서체를 로드하는 방법에 대한 지침을 추가하십시오!)</p>
+</div>
+</div>
+<p>이제 이 장에서 사용한 모든 코드를 함수 본문에 묶을 수 있습니다:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb27" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">category_plot</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span></span>
+<span>    <span class="va">nobel_category</span>,</span>
+<span>    <span class="va">nobel_data</span>,</span>
+<span>    <span class="va">r</span> <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>    <span class="va">bg_col</span> <span class="op">=</span> <span class="st">"gray95"</span>,</span>
+<span>    <span class="va">primary_col</span> <span class="op">=</span> <span class="st">"black"</span>,</span>
+<span>    <span class="va">secondary_col</span> <span class="op">=</span> <span class="st">"gray70"</span>,</span>
+<span>    <span class="va">body_font</span> <span class="op">=</span> <span class="st">"Ubuntu"</span>,</span>
+<span>    <span class="va">title_font</span> <span class="op">=</span> <span class="st">"Passion One"</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="co"># Data wrangling</span></span>
+<span>  <span class="va">category_data</span> <span class="op">&lt;-</span> <span class="va">nobel_data</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">category</span> <span class="op">==</span> <span class="va">nobel_category</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="va">name</span>, <span class="va">gender</span>, <span class="va">year</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange</a></span><span class="op">(</span><span class="va">year</span><span class="op">)</span></span>
+<span>  <span class="va">plot_data</span> <span class="op">&lt;-</span> <span class="va">category_data</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span></span>
+<span>      theta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span></span>
+<span>        from <span class="op">=</span> <span class="va">pi</span> <span class="op">/</span> <span class="fl">4</span>,</span>
+<span>        to <span class="op">=</span> <span class="op">(</span><span class="fl">7</span> <span class="op">/</span> <span class="fl">4</span><span class="op">)</span> <span class="op">*</span> <span class="va">pi</span>,</span>
+<span>        length.out <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">category_data</span><span class="op">)</span></span>
+<span>      <span class="op">)</span>,</span>
+<span>      x <span class="op">=</span> <span class="va">r</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html">cos</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span>,</span>
+<span>      y <span class="op">=</span> <span class="va">r</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html">sin</a></span><span class="op">(</span><span class="va">theta</span><span class="op">)</span>,</span>
+<span>      angle <span class="op">=</span> <span class="fl">180</span> <span class="op">+</span> <span class="fl">360</span> <span class="op">*</span> <span class="op">(</span><span class="va">theta</span> <span class="op">/</span> <span class="op">(</span><span class="fl">2</span> <span class="op">*</span> <span class="va">pi</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="co"># Text</span></span>
+<span>  <span class="va">social</span> <span class="op">&lt;-</span> <span class="fu">social_caption</span><span class="op">(</span></span>
+<span>    icon_color <span class="op">=</span> <span class="va">primary_col</span>,</span>
+<span>    font_color <span class="op">=</span> <span class="va">primary_col</span>,</span>
+<span>    font_family <span class="op">=</span> <span class="va">body_font</span></span>
+<span>  <span class="op">)</span></span>
+<span>  <span class="va">cap</span> <span class="op">&lt;-</span> <span class="fu">source_caption</span><span class="op">(</span></span>
+<span>    source <span class="op">=</span> <span class="st">"The Nobel Foundation"</span>,</span>
+<span>    sep <span class="op">=</span> <span class="st">"&lt;br&gt;"</span>,</span>
+<span>    graphic <span class="op">=</span> <span class="va">social</span></span>
+<span>  <span class="op">)</span></span>
+<span>  <span class="co"># Plot</span></span>
+<span>  <span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html">geom_text</a></span><span class="op">(</span></span>
+<span>      data <span class="op">=</span> <span class="va">plot_data</span>,</span>
+<span>      mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span></span>
+<span>        x <span class="op">=</span> <span class="va">x</span>, y <span class="op">=</span> <span class="va">y</span>,</span>
+<span>        label <span class="op">=</span> <span class="va">name</span>,</span>
+<span>        angle <span class="op">=</span> <span class="va">angle</span>,</span>
+<span>        color <span class="op">=</span> <span class="va">gender</span></span>
+<span>      <span class="op">)</span>,</span>
+<span>      family <span class="op">=</span> <span class="va">body_font</span>,</span>
+<span>      hjust <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>      size <span class="op">=</span> <span class="fl">1</span></span>
+<span>    <span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html">scale_color_manual</a></span><span class="op">(</span></span>
+<span>      values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span></span>
+<span>        <span class="st">"male"</span> <span class="op">=</span> <span class="va">secondary_col</span>,</span>
+<span>        <span class="st">"female"</span> <span class="op">=</span> <span class="va">primary_col</span></span>
+<span>      <span class="op">)</span></span>
+<span>    <span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/annotate.html">annotate</a></span><span class="op">(</span><span class="st">"text"</span>,</span>
+<span>      x <span class="op">=</span> <span class="fl">10</span>, y <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>      label <span class="op">=</span> <span class="st">"Nobel Prize Laureates"</span>,</span>
+<span>      hjust <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>      color <span class="op">=</span> <span class="va">primary_col</span>,</span>
+<span>      family <span class="op">=</span> <span class="va">title_font</span>,</span>
+<span>      size <span class="op">=</span> <span class="fl">7</span></span>
+<span>    <span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/annotate.html">annotate</a></span><span class="op">(</span><span class="st">"text"</span>,</span>
+<span>      x <span class="op">=</span> <span class="fl">10</span>, y <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>,</span>
+<span>      label <span class="op">=</span> <span class="va">nobel_category</span>,</span>
+<span>      hjust <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>      color <span class="op">=</span> <span class="va">primary_col</span>,</span>
+<span>      family <span class="op">=</span> <span class="va">body_font</span>,</span>
+<span>      size <span class="op">=</span> <span class="fl">5</span></span>
+<span>    <span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span><span class="op">(</span>caption <span class="op">=</span> <span class="va">cap</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_x_continuous</a></span><span class="op">(</span>limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">9</span>, <span class="fl">12</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_y_continuous</a></span><span class="op">(</span>limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">7.5</span>, <span class="fl">7.5</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_fixed.html">coord_fixed</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_void</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">6</span>, base_family <span class="op">=</span> <span class="va">body_font</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span></span>
+<span>      legend.position <span class="op">=</span> <span class="st">"none"</span>,</span>
+<span>      plot.background <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_rect</a></span><span class="op">(</span></span>
+<span>        fill <span class="op">=</span> <span class="va">bg_col</span>, color <span class="op">=</span> <span class="va">bg_col</span></span>
+<span>      <span class="op">)</span>,</span>
+<span>      panel.background <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_rect</a></span><span class="op">(</span></span>
+<span>        fill <span class="op">=</span> <span class="va">bg_col</span>, color <span class="op">=</span> <span class="va">bg_col</span></span>
+<span>      <span class="op">)</span>,</span>
+<span>      plot.caption <span class="op">=</span> <span class="fu"><a href="https://wilkelab.org/ggtext/reference/element_textbox.html">element_textbox_simple</a></span><span class="op">(</span></span>
+<span>        color <span class="op">=</span> <span class="va">primary_col</span>,</span>
+<span>        hjust <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>        halign <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>        lineheight <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>        margin <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">margin</a></span><span class="op">(</span>l <span class="op">=</span> <span class="fl">5</span>, b <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span>      <span class="op">)</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="va">g</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>이제 완전히 다른 데이터 세트로 함수가 작동하는지 테스트해 봅시다! 노벨 평화상 수상자에 대한 데이터를 다운로드하기 위해 노벨상 API를 다시 사용하겠습니다. API URL의 끝을 편집하여 <code>nobelPrizeCategory=pea</code>(<em>peace</em>의 경우 <code>pea</code>)를 사용한 다음 물리학 데이터에 대해 했던 것처럼 기본 R 함수를 사용하여 출력을 CSV 파일로 저장합니다. </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb28" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">nobel_peace</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html">read.csv</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html">glue</a></span><span class="op">(</span></span>
+<span>    <span class="st">"{api_url}?limit=250&amp;nobelPrizeCategory=pea&amp;format=csv"</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/write.table.html">write.csv</a></span><span class="op">(</span></span>
+<span>  <span class="va">nobel_peace</span>,</span>
+<span>  <span class="st">"data/nobel_peace.csv"</span>,</span>
+<span>  row.names <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>다시, 로드된 데이터를 API에서 계속 사용하거나 CSV 파일에서 데이터를 읽어올 수 있습니다: </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb29" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">nobel_peace</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html">read_csv</a></span><span class="op">(</span><span class="st">"data/nobel_peace.csv"</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>그런 다음 새로 다운로드한 <code>nobel_peace</code> 데이터와 함께 <code>"Peace"</code> 범주를 <code>category_plot()</code> 함수에 전달합니다. <code>nobel_peace</code> 데이터에는 <code>nobel_physics</code> 데이터만큼 관측치가 많지 않으므로 반지름(<code>r</code>)을 약간 줄이고 텍스트를 원의 중심에 조금 더 가깝게 시작할 수 있습니다. 또한 시각화를 위해 다른 색상을 선택할 수도 있습니다(하지만 글꼴의 경우 기본값 유지):</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb30" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">peace_plot</span> <span class="op">&lt;-</span> <span class="fu">category_plot</span><span class="op">(</span></span>
+<span>  <span class="st">"Peace"</span>,</span>
+<span>  <span class="va">nobel_peace</span>,</span>
+<span>  r <span class="op">=</span> <span class="fl">4</span>,</span>
+<span>  bg_col <span class="op">=</span> <span class="st">"#FFEDE1"</span>,</span>
+<span>  primary_col <span class="op">=</span> <span class="st">"#8B1E3F"</span>,</span>
+<span>  secondary_col <span class="op">=</span> <span class="st">"#7286A0"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">peace_plot</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-nobel-peace-plot" class="quarto-float quarto-figure quarto-figure-center anchored" alt="반시계 방향으로 배열된 노벨 평화상 수상자의 이름으로, 여성 수상자는 분홍색으로 강조 표시됩니다.">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-nobel-peace-plot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="nobel-laureates_files/figure-html/fig-nobel-peace-plot-1.png" class="img-fluid figure-img" alt="반시계 방향으로 배열된 노벨 평화상 수상자의 이름으로, 여성 수상자는 분홍색으로 강조 표시됩니다.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-nobel-peace-plot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8.12: 반시계 방향으로 배열된 노벨 평화상 수상자의 이름으로, 여성 수상자는 분홍색으로 강조 표시됩니다.
+</figcaption></figure>
+</div>
+</div>
+</div>
+<p>이 차트 버전에서 눈치챘을지도 모르는 것은 세 번째 색상이 나타났다는 것입니다! <code><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html">scale_color_manual()</a></code>에서는 <code>"male"</code> 및 <code>"female"</code> 수상자와 관련된 색상만 지정했습니다. 그러나 노벨 평화상은 개인이 아닌 단체에도 수여될 수 있습니다. (새로 나타난) 회색 텍스트는 <code>nobel_peace</code> 데이터에 나열된 단체와 관련이 있습니다.</p>
+<div id="tip-nobel-extension" class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip&nbsp;8.5: 나만의 <strong><code>ggplot2</code></strong> 확장 만들기
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>핵심 <strong><code>ggplot2</code></strong> 함수로 사용자 정의 차트 유형을 구축한 후에는 자신과 다른 사람들이 더 쉽게 사용할 수 있도록 <strong><code>ggplot2</code></strong> 확장 패키지로 전환하는 것을 고려할 수 있습니다. <em>Everyday ggplot2 extension</em> 웹사이트 <span class="citation" data-cites="Reynolds2025">(<a href="references.html#ref-Reynolds2025" role="doc-biblioref">Reynolds 2025</a>)</span>는 첫 번째(또는 다음) 확장을 구축하기 위한 조언과 튜토리얼을 제공합니다.</p>
+</div>
+</div>
+<p><code><a href="https://ggplot2.tidyverse.org/reference/ggsave.html">ggsave()</a></code>를 사용하여 시각화 사본을 저장할 수 있습니다: </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb31" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsave.html">ggsave</a></span><span class="op">(</span></span>
+<span>  filename <span class="op">=</span> <span class="st">"peace-plot.png"</span>,</span>
+<span>  plot <span class="op">=</span> <span class="va">peace_plot</span>,</span>
+<span>  width <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>  height <span class="op">=</span> <span class="fl">4</span></span>
+<span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="tip-nobel-ggtextcircle" class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip&nbsp;8.6: <strong><code>ggtextcircle</code></strong>을 사용한 원형 텍스트
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong><code>ggtextcircle</code></strong> 패키지 <span class="citation" data-cites="ggtextcircle">(<a href="references.html#ref-ggtextcircle" role="doc-biblioref">Rennie 2024a</a>)</span>는 이 유형의 시각화를 일반적인 방식으로 구현합니다 - 다른 데이터 세트로 비슷한 것을 만들고 싶다면요!</p>
+</div>
+</div>
+</section></section><section id="회고" class="level2" data-number="8.5"><h2 data-number="8.5" class="anchored" data-anchor-id="회고">
+<span class="header-section-number">8.5</span> 회고</h2>
+<p>시각화를 평가할 때 시각화를 구축한 목적을 기억하고 그 목적을 얼마나 잘 달성했는지 평가하는 것이 중요합니다. 이 노벨상 수상자 성별 구분 시각화는 가능한 한 효율적으로 숫자를 전달하는 것을 목표로 하는 표준 플롯이 아닙니다.</p>
+<p>개선하고 싶은 이 시각화의 몇 가지 <em>표준적인</em> 측면이 있습니다:</p>
+<ul>
+<li><p>색상과 이름의 순서가 무엇을 나타내는지 알지 못하면 이해하기 꽤 어려운 시각화입니다. 약간의 시간과 생각을 투자하면 독자는 분홍색 텍스트(평화상 범주 플롯의 경우)가 여성 수상자를 나타낸다는 것을 알아낼 것입니다. 그러나 반시계 방향으로 이름이 정렬되어 여성 수상자의 수가 일반적으로 시간이 지남에 따라 증가하고 있음을 보여주는 것은 파악하기 훨씬 더 어렵습니다. 기존 제목 및 범주 레이블 아래에 시각화를 해석하는 방법을 설명하는 텍스트를 추가하면 관심 있는 독자가 전체 메시지를 얻는 데 도움이 될 것입니다.</p></li>
+<li><p>디자인상 최소한의 시각화입니다. 하지만 그것은 독자에게 전체 이야기를 말해주지 않는다는 것을 의미합니다. 앞서 논의했듯이 노벨상은 여러 개인에게 수여될 수 있습니다. 그러나 이 시각화는 수상자만 보여줄 뿐 다른 사람과 상을 공유했는지 여부는 보여주지 않습니다. 여성 수상자는 남성 수상자보다 상을 공유할 가능성이 더 높거나 낮습니까? 이 시각화에서는 알 수 없습니다.</p></li>
+<li><p>기술적(또는 예술적) 관점에서 대안적인 디자인을 고려할 수도 있습니다. 예를 들어 텍스트를 오른쪽이 아닌 원의 왼쪽이나 아래에 배치하는 것입니다. 원 주위의 텍스트 시작 및 종료 위치를 매개변수화된 함수의 인수로 포함할 수 있습니다.</p></li>
+</ul>
+<p>보다 전통적인 시각화와 비교할 때 단점이 있음에도 불구하고 이 접근 방식은 눈길을 끌고 주의를 끕니다. 때로는 데이터 시각화에 관한 것이 아닙니다. 때로는 예술에 관한 것입니다.</p>
+</section><section id="연습-문제" class="level2" data-number="8.6"><h2 data-number="8.6" class="anchored" data-anchor-id="연습-문제">
+<span class="header-section-number">8.6</span> 연습 문제</h2>
+<ul>
+<li><p><code>"Organisation"</code> 범주에 대한 또 다른 인수를 추가하도록 <code>category_plot()</code>을 편집하십시오. 물리학 데이터와 같이 데이터에 단체가 없는 경우에도 함수가 여전히 작동하는지 확인하십시오.</p></li>
+<li><p>다른 범주(예: 화학)에 대한 데이터를 다운로드하고 <code>category_plot()</code> 함수를 다시 사용하여 해당 범주에 대한 플롯 버전을 만드십시오.</p></li>
+</ul>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list" style="display: none">
+<div id="ref-Anscombe1973" class="csl-entry" role="listitem">
+Anscombe, F. J. 1973. <span>“Graphs in Statistical Analysis.”</span> <em>The American Statistician</em> 27 (1): 17–21. <a href="https://doi.org/10.1080/00031305.1973.10478966">https://doi.org/10.1080/00031305.1973.10478966</a>.
+</div>
+<div id="ref-aphalo2024" class="csl-entry" role="listitem">
+Aphalo, Pedro J. 2024. <em><span class="nocase">Learn R: As a Language</span></em>. Second Edition. CRC Press. <a href="https://www.learnr-book.info/">https://www.learnr-book.info/</a>.
+</div>
+<div id="ref-egg" class="csl-entry" role="listitem">
+Auguie, Baptiste. 2019. <em><span class="nocase">egg: Extensions for ’ggplot2’: Custom Geom, Custom Themes, Plot Alignment, Labelled Panels, Symmetric Scales, and Fixed Panel Size</span></em>. <a href="https://CRAN.R-project.org/package=egg">https://CRAN.R-project.org/package=egg</a>.
+</div>
+<div id="ref-imager" class="csl-entry" role="listitem">
+Barthelme, Simon. 2024. <em><span class="nocase">imager: Image Processing Library Based on ’CImg’</span></em>. <a href="https://CRAN.R-project.org/package=imager">https://CRAN.R-project.org/package=imager</a>.
+</div>
+<div id="ref-vandenBrandv4" class="csl-entry" role="listitem">
+Brand, Teun van den. 2025. <span>“<span class="nocase">ggplot2 4.0.0</span>.”</span> <a href="https://www.tidyverse.org/blog/2025/09/ggplot2-4-0-0/" class="uri">https://www.tidyverse.org/blog/2025/09/ggplot2-4-0-0/</a>.
+</div>
+<div id="ref-bridson2007" class="csl-entry" role="listitem">
+Bridson, Robert. 2007. <span>“Fast Poisson Disk Sampling in Arbitrary Dimensions.”</span> In <em>ACM SIGGRAPH 2007 Sketches</em>. SIGGRAPH ’07. New York, NY, USA: Association for Computing Machinery. <a href="https://doi.org/10.1145/1278780.1278807">https://doi.org/10.1145/1278780.1278807</a>.
+</div>
+<div id="ref-Brown2009" class="csl-entry" role="listitem">
+Brown, Mark J.F., and Paxton, Robert J. 2009. <span>“The Conservation of Bees: A Global Perspective.”</span> <em>Apidologie</em> 40 (3): 410–16. <a href="https://doi.org/10.1051/apido/2009019">https://doi.org/10.1051/apido/2009019</a>.
+</div>
+<div id="ref-geomtextpath" class="csl-entry" role="listitem">
+Cameron, Allan, and Teun van den Brand. 2024. <em><span class="nocase">geomtextpath: Curved Text in ’ggplot2’</span></em>. <a href="https://CRAN.R-project.org/package=geomtextpath">https://CRAN.R-project.org/package=geomtextpath</a>.
+</div>
+<div id="ref-cartocolors" class="csl-entry" role="listitem">
+CARTO. 2016. <em><span>’CARTOColors’ Palettes</span></em>. <a href="https://carto.com/carto-colors/">https://carto.com/carto-colors/</a>.
+</div>
+<div id="ref-extrafont" class="csl-entry" role="listitem">
+Chang, Winston. 2023. <em><span class="nocase">extrafont</span>: Tools for Using Fonts</em>. <a href="https://CRAN.R-project.org/package=extrafont">https://CRAN.R-project.org/package=extrafont</a>.
+</div>
+<div id="ref-dumbbell" class="csl-entry" role="listitem">
+Cheung, Foo. 2021. <em><span class="nocase">dumbbell</span>: Displaying Changes Between Two Points Using Dumbbell Plots</em>. <a href="https://CRAN.R-project.org/package=dumbbell">https://CRAN.R-project.org/package=dumbbell</a>.
+</div>
+<div id="ref-ggannotate" class="csl-entry" role="listitem">
+Cowgill, Matt, and John Helveston. 2021. <em><span class="nocase">ggannotate: Interactively Annotate ggplot2 Plots</span></em>. <a href="https://github.com/MattCowgill/ggannotate">https://github.com/MattCowgill/ggannotate</a>.
+</div>
+<div id="ref-pak" class="csl-entry" role="listitem">
+Csárdi, Gábor, and Jim Hester. 2024. <em><span class="nocase">pak: Another Approach to Package Installation</span></em>. <a href="https://CRAN.R-project.org/package=pak">https://CRAN.R-project.org/package=pak</a>.
+</div>
+<div id="ref-remotes" class="csl-entry" role="listitem">
+Csárdi, Gábor, Jim Hester, Hadley Wickham, Winston Chang, Martin Morgan, and Dan Tenenbaum. 2024. <em><span class="nocase">remotes: R Package Installation from Remote Repositories, Including ’GitHub’</span></em>. <a href="https://CRAN.R-project.org/package=remotes">https://CRAN.R-project.org/package=remotes</a>.
+</div>
+<div id="ref-ggview" class="csl-entry" role="listitem">
+Domin, Iaroslav. 2024. <em><span class="nocase">ggview: ’ggplot2’ Picture Previewer</span></em>. <a href="https://CRAN.R-project.org/package=ggview">https://CRAN.R-project.org/package=ggview</a>.
+</div>
+<div id="ref-tidyplots" class="csl-entry" role="listitem">
+Engler, Jan Broder. 2024. <span>“Tidyplots Empowers Life Scientists with Easy Code-Based Data Visualization.”</span> <em>bioRxiv</em>. <a href="https://doi.org/10.1101/2024.11.08.621836">https://doi.org/10.1101/2024.11.08.621836</a>.
+</div>
+<div id="ref-ggpattern" class="csl-entry" role="listitem">
+FC, Mike, Trevor L. Davis, and ggplot2 authors. 2024. <em><span class="nocase">ggpattern: ’ggplot2’ Pattern Geoms</span></em>. <a href="https://CRAN.R-project.org/package=ggpattern">https://CRAN.R-project.org/package=ggpattern</a>.
+</div>
+<div id="ref-flaticon" class="csl-entry" role="listitem">
+Flaticon.com. 2024. <span>“<span>Wind Power Flaticon</span>.”</span> <a href="https://www.flaticon.com/free-icon/wind-power_5670189" class="uri">https://www.flaticon.com/free-icon/wind-power_5670189</a>.
+</div>
+<div id="ref-fontawesome" class="csl-entry" role="listitem">
+Font Awesome. 2024. <span>“<span>Font Awesome 6</span>.”</span> <a href="https://fontawesome.com/" class="uri">https://fontawesome.com/</a>.
+</div>
+<div id="ref-Hullman2021" class="csl-entry" role="listitem">
+Franconeri, Steven L., Lace M. Padilla, Priti Shah, Jeffrey M. Zacks, and Jessica Hullman. 2021. <span>“The Science of Visual Data Communication: What Works.”</span> <em>Psychological Science in the Public Interest</em> 22 (3): 110–61. <a href="https://doi.org/10.1177/15291006211051956">https://doi.org/10.1177/15291006211051956</a>.
+</div>
+<div id="ref-viridis" class="csl-entry" role="listitem">
+Garnier, Simon, Ross, Noam, Rudis, Robert, Camargo, et al. 2024. <em><span class="nocase">viridis(Lite)</span> - Colorblind-Friendly Color Maps for <span>R</span></em>. <a href="https://doi.org/10.5281/zenodo.4679423">https://doi.org/10.5281/zenodo.4679423</a>.
+</div>
+<div id="ref-ggiraph" class="csl-entry" role="listitem">
+Gohel, David, and Panagiotis Skintzos. 2024. <em><span class="nocase">ggiraph: Make ’ggplot2’ Graphics Interactive</span></em>. <a href="https://CRAN.R-project.org/package=ggiraph">https://CRAN.R-project.org/package=ggiraph</a>.
+</div>
+<div id="ref-GAcharts" class="csl-entry" role="listitem">
+Government Analysis Function. 2021. <span>“Data Visualisation: Colours.”</span> <a href="https://analysisfunction.civilservice.gov.uk/policy-store/data-visualisation-colours-in-charts/" class="uri">https://analysisfunction.civilservice.gov.uk/policy-store/data-visualisation-colours-in-charts/</a>.
+</div>
+<div id="ref-geofacet" class="csl-entry" role="listitem">
+Hafen, Ryan. 2023. <em><span class="nocase">geofacet</span>: <span class="nocase">’ggplot2’</span> Faceting Utilities for Geographical Data</em>. <a href="https://CRAN.R-project.org/package=geofacet">https://CRAN.R-project.org/package=geofacet</a>.
+</div>
+<div id="ref-harmon2024" class="csl-entry" role="listitem">
+Harmon, Jon. 2024. <em><span class="nocase">Web APIs with R</span></em>. <span>CRC Press</span>. <a href="https://wapir.io/">https://wapir.io/</a>.
+</div>
+<div id="ref-lintr" class="csl-entry" role="listitem">
+Hester, Jim, Florent Angly, Russ Hyde, Michael Chirico, Kun Ren, Alexander Rosenstock, and Indrajeet Patil. 2024. <em><span class="nocase">lintr</span>: A ’Linter’ for <span>R</span> Code</em>. <a href="https://CRAN.R-project.org/package=lintr">https://CRAN.R-project.org/package=lintr</a>.
+</div>
+<div id="ref-glue" class="csl-entry" role="listitem">
+Hester, Jim, and Jennifer Bryan. 2024. <em><span class="nocase">glue</span>: Interpreted String Literals</em>. <a href="https://glue.tidyverse.org/">https://glue.tidyverse.org/</a>.
+</div>
+<div id="ref-camcorder" class="csl-entry" role="listitem">
+Hughes, Ellis. 2022a. <em><span class="nocase">camcorder</span>: Record Your Plot History</em>. <a href="https://CRAN.R-project.org/package=camcorder">https://CRAN.R-project.org/package=camcorder</a>.
+</div>
+<div id="ref-tidytuesdayR" class="csl-entry" role="listitem">
+———. 2022b. <em><span class="nocase">tidytuesdayR</span>: Access the Weekly ’TidyTuesday’ Project Dataset</em>. <a href="https://CRAN.R-project.org/package=tidytuesdayR">https://CRAN.R-project.org/package=tidytuesdayR</a>.
+</div>
+<div id="ref-paletteer" class="csl-entry" role="listitem">
+Hvitfeldt, Emil. 2021. <em><span class="nocase">paletteer</span>: Comprehensive Collection of Color Palettes</em>. <a href="https://github.com/EmilHvitfeldt/paletteer">https://github.com/EmilHvitfeldt/paletteer</a>.
+</div>
+<div id="ref-animalshelter" class="csl-entry" role="listitem">
+———. 2025. <em><span class="nocase">animalshelter</span>: Animal Shelter Data</em>. <a href="https://github.com/EmilHvitfeldt/animalshelter">https://github.com/EmilHvitfeldt/animalshelter</a>.
+</div>
+<div id="ref-fontawesomeR" class="csl-entry" role="listitem">
+Iannone, Richard. 2024. <em><span class="nocase">fontawesome: Easily Work with ’Font Awesome’ Icons</span></em>. <a href="https://CRAN.R-project.org/package=fontawesome">https://CRAN.R-project.org/package=fontawesome</a>.
+</div>
+<div id="ref-zones_data" class="csl-entry" role="listitem">
+Internet Assigned Numbers Authority. 2023. <span>“The <span class="nocase">tz</span> Database: Time Zone and Daylight Saving Time Data.”</span> <span>Internet Assigned Numbers Authority</span>. <a href="https://data.iana.org/time-zones/tz-link.html">https://data.iana.org/time-zones/tz-link.html</a>.
+</div>
+<div id="ref-img_jax" class="csl-entry" role="listitem">
+Jax (@lysrix). 2017. <span>“Lemur.”</span> <a href="https://unsplash.com/photos/red-and-white-rodent-h5xrh3CNT-k">https://unsplash.com/photos/red-and-white-rodent-h5xrh3CNT-k</a>.
+</div>
+<div id="ref-kays2020" class="csl-entry" role="listitem">
+Kays, R., R. R. Dunn, A. W. Parsons, B. Mcdonald, T. Perkins, S. A. Powers, L. Shell, et al. 2020. <span>“The Small Home Ranges and Large Local Ecological Impacts of Pet Cats.”</span> <em>Animal Conservation</em> 23 (5): 516–23. <a href="https://doi.org/10.1111/acv.12563">https://doi.org/10.1111/acv.12563</a>.
+</div>
+<div id="ref-r4rest" class="csl-entry" role="listitem">
+Keyes, David. 2024. <em><span class="nocase">R for the Rest of Us: A Statistics-Free Introduction</span></em>. No Starch Press. <a href="https://book.rfortherestofus.com/">https://book.rfortherestofus.com/</a>.
+</div>
+<div id="ref-longbeach_data" class="csl-entry" role="listitem">
+Long Beach Animal Shelter. 2025. <span>“<span>Animal Shelter Data</span>.”</span> City of Long Beach Animal Care Services. <a href="https://data.longbeach.gov/explore/dataset/animal-shelter-intakes-and-outcomes/information/">https://data.longbeach.gov/explore/dataset/animal-shelter-intakes-and-outcomes/information/</a>.
+</div>
+<div id="ref-Vizumap" class="csl-entry" role="listitem">
+Lucchesi, Lydia, and Petra Kuhnert. 2020. <em><span>Vizumap</span>: Visualizing Uncertainty in Spatial Data</em>. <a href="https://github.com/lydialucchesi/Vizumap">https://github.com/lydialucchesi/Vizumap</a>.
+</div>
+<div id="ref-museums_data" class="csl-entry" role="listitem">
+Mapping Museums. 2021. <span>“Mapping Museums Data.”</span> <a href="https://www.mappingmuseums.org">www.mappingmuseums.org</a>.
+</div>
+<div id="ref-rnaturalearth" class="csl-entry" role="listitem">
+Massicotte, Philippe, and Andy South. 2023. <em><span class="nocase">rnaturalearth</span>: World Map Data from Natural Earth</em>. <a href="https://docs.ropensci.org/rnaturalearth/">https://docs.ropensci.org/rnaturalearth/</a>.
+</div>
+<div id="ref-Matejka2017" class="csl-entry" role="listitem">
+Matejka, Justin, and George Fitzmaurice. 2017. <span>“Same Stats, Different Graphs: Generating Datasets with Varied Appearance and Identical Statistics Through Simulated Annealing.”</span> In, 1290–94. <a href="https://doi.org/10.1145/3025453.3025912">https://doi.org/10.1145/3025453.3025912</a>.
+</div>
+<div id="ref-cats_data" class="csl-entry" role="listitem">
+McDonald, J. L., and H. Cole. 2020. <span>“Data from: The Small Home Ranges and Large Local Ecological Impacts of Pet Cats [United Kingdom].”</span> Movebank data repository. <a href="https://doi.org/doi:10.5441/001/1.pf315732">https://doi.org/doi:10.5441/001/1.pf315732</a>.
+</div>
+<div id="ref-colorblindr" class="csl-entry" role="listitem">
+McWhite, Claire D., and Claus O. Wilke. 2024. <em><span class="nocase">colorblindr: Simulate colorblindness in R figures</span></em>. <a href="https://github.com/clauswilke/colorblindr">https://github.com/clauswilke/colorblindr</a>.
+</div>
+<div id="ref-Apiculture" class="csl-entry" role="listitem">
+Mid-Atlantic Apiculture Research and Extension Consortium. 2024. <span>“Seasonal Cycles of Activities in Colonies.”</span> <a href="https://canr.udel.edu/maarec/honey-bee-biology/seasonal-cycles-of-activities-in-colonies/" class="uri">https://canr.udel.edu/maarec/honey-bee-biology/seasonal-cycles-of-activities-in-colonies/</a>.
+</div>
+<div id="ref-poissoned" class="csl-entry" role="listitem">
+mikefc. 2024. <em><span class="nocase">poissoned: Tileable Poisson Disc Sampling</span></em>. <a href="https://github.com/coolbutuseless/poissoned">https://github.com/coolbutuseless/poissoned</a>.
+</div>
+<div id="ref-MetBrewer" class="csl-entry" role="listitem">
+Mills, Blake Robert. 2022. <em><span>MetBrewer</span>: Color Palettes Inspired by Works at the Metropolitan Museum of Art</em>. <a href="https://CRAN.R-project.org/package=MetBrewer">https://CRAN.R-project.org/package=MetBrewer</a>.
+</div>
+<div id="ref-elections_data" class="csl-entry" role="listitem">
+MIT Election Data and Science Lab. 2017. <span>“<span>U.S. House 1976–2022</span>.”</span> Harvard Dataverse. <a href="https://doi.org/10.7910/DVN/IG0UN2">https://doi.org/10.7910/DVN/IG0UN2</a>.
+</div>
+<div id="ref-styler" class="csl-entry" role="listitem">
+Müller, Kirill, and Lorenz Walthert. 2023. <em><span class="nocase">styler</span>: Non-Invasive Pretty Printing of <span>R</span> Code</em>. <a href="https://CRAN.R-project.org/package=styler">https://CRAN.R-project.org/package=styler</a>.
+</div>
+<div id="ref-tibble" class="csl-entry" role="listitem">
+Müller, Kirill, and Hadley Wickham. 2023. <em><span class="nocase">tibble</span>: Simple Data Frames</em>. <a href="https://CRAN.R-project.org/package=tibble">https://CRAN.R-project.org/package=tibble</a>.
+</div>
+<div id="ref-Muth2018" class="csl-entry" role="listitem">
+Muth, Lisa. 2018. <span>“An Alternative to Pink &amp; Blue: Colors for Gender Data.”</span> <a href="https://blog.datawrapper.de/gendercolor/" class="uri">https://blog.datawrapper.de/gendercolor/</a>.
+</div>
+<div id="ref-turbines_data" class="csl-entry" role="listitem">
+Natural Resources Canada. 2021. <span>“Canadian Wind Turbine Database.”</span> Natural Resources Canada (Government of Canada). <a href="https://open.canada.ca/data/en/dataset/79fdad93-9025-49ad-ba16-c26d718cc070">https://open.canada.ca/data/en/dataset/79fdad93-9025-49ad-ba16-c26d718cc070</a>.
+</div>
+<div id="ref-ggbranding" class="csl-entry" role="listitem">
+Noblet, Guillaume. 2025. <em><span class="nocase">ggbranding: Add Personal Branding to ’ggplot2’ Charts</span></em>. <a href="https://github.com/gnoblet/ggbranding">https://github.com/gnoblet/ggbranding</a>.
+</div>
+<div id="ref-rcartocolor" class="csl-entry" role="listitem">
+Nowosad, Jakub. 2018. <em><span>’CARTOColors’ Palettes</span></em>. <a href="https://jakubnowosad.com/rcartocolor/">https://jakubnowosad.com/rcartocolor/</a>.
+</div>
+<div id="ref-magick" class="csl-entry" role="listitem">
+Ooms, Jeroen. 2024. <em><span class="nocase">magick: Advanced Graphics and Image-Processing in R</span></em>. <a href="https://CRAN.R-project.org/package=magick">https://CRAN.R-project.org/package=magick</a>.
+</div>
+<div id="ref-doctors_data" class="csl-entry" role="listitem">
+Our World in Data. 2019. <span>“Medical Doctors Per 1,000 People.”</span> <a href="https://ourworldindata.org/grapher/physicians-per-1000-people">https://ourworldindata.org/grapher/physicians-per-1000-people</a>.
+</div>
+<div id="ref-sf" class="csl-entry" role="listitem">
+Pebesma, Edzer. 2018. <span>“<span class="nocase">Simple Features for R: Standardized Support for Spatial Vector Data</span>.”</span> <em><span>The R Journal</span></em> 10 (1): 439–46. <a href="https://doi.org/10.32614/RJ-2018-009">https://doi.org/10.32614/RJ-2018-009</a>.
+</div>
+<div id="ref-ggforce" class="csl-entry" role="listitem">
+Pedersen, Thomas Lin. 2022. <em><span class="nocase">ggforce</span>: Accelerating <span class="nocase">’ggplot2’</span></em>. <a href="https://CRAN.R-project.org/package=ggforce">https://CRAN.R-project.org/package=ggforce</a>.
+</div>
+<div id="ref-patchwork" class="csl-entry" role="listitem">
+———. 2024. <em><span class="nocase">patchwork</span>: The Composer of Plots</em>. <a href="https://CRAN.R-project.org/package=patchwork">https://CRAN.R-project.org/package=patchwork</a>.
+</div>
+<div id="ref-Pedersen2025" class="csl-entry" role="listitem">
+———. 2025. <span>“<span class="nocase">Fonts in R</span>.”</span> <a href="https://www.tidyverse.org/blog/2025/05/fonts-in-r/" class="uri">https://www.tidyverse.org/blog/2025/05/fonts-in-r/</a>.
+</div>
+<div id="ref-marquee" class="csl-entry" role="listitem">
+Pedersen, Thomas Lin, and Martin Mitáš. 2024. <em><span class="nocase">marquee: Markdown Parser and Renderer for R Graphics</span></em>. <a href="https://CRAN.R-project.org/package=marquee">https://CRAN.R-project.org/package=marquee</a>.
+</div>
+<div id="ref-systemfonts" class="csl-entry" role="listitem">
+Pedersen, Thomas Lin, Jeroen Ooms, and Devon Govett. 2024. <em><span class="nocase">systemfonts: System Native Font Finding</span></em>. <a href="https://CRAN.R-project.org/package=systemfonts">https://CRAN.R-project.org/package=systemfonts</a>.
+</div>
+<div id="ref-ragg" class="csl-entry" role="listitem">
+Pedersen, Thomas Lin, and Maxim Shemanarev. 2023. <em><span class="nocase">ragg</span>: Graphic Devices Based on <span>AGG</span></em>. <a href="https://CRAN.R-project.org/package=ragg">https://CRAN.R-project.org/package=ragg</a>.
+</div>
+<div id="ref-pldb_data" class="csl-entry" role="listitem">
+PLDB contributors. 2022. <span>“<span>PLDB</span>: A Programming Language Database.”</span> <em><span>PLDB</span></em>. <a href="https://pldb.com">https://pldb.com</a>.
+</div>
+<div id="ref-sysfonts" class="csl-entry" role="listitem">
+Qiu, Yixuan. 2022. <em><span class="nocase">sysfonts</span>: Loading Fonts into <span>R</span></em>. <a href="https://CRAN.R-project.org/package=sysfonts">https://CRAN.R-project.org/package=sysfonts</a>.
+</div>
+<div id="ref-showtext" class="csl-entry" role="listitem">
+———. 2023. <em><span class="nocase">showtext</span>: Using Fonts More Easily in <span>R</span> Graphs</em>. <a href="https://CRAN.R-project.org/package=showtext">https://CRAN.R-project.org/package=showtext</a>.
+</div>
+<div id="ref-rproj" class="csl-entry" role="listitem">
+R Core Team. 2024. <em><span>R</span>: A Language and Environment for Statistical Computing</em>. Vienna, Austria: R Foundation for Statistical Computing. <a href="https://www.R-project.org/">https://www.R-project.org/</a>.
+</div>
+<div id="ref-tidytuesday" class="csl-entry" role="listitem">
+R4DS Online Learning Community. 2023. <span>“Tidy Tuesday: A Weekly Social Data Project.”</span> <a href="https://github.com/rfordatascience/tidytuesday">https://github.com/rfordatascience/tidytuesday</a>.
+</div>
+<div id="ref-social_icons" class="csl-entry" role="listitem">
+Rennie, Nicola. 2023a. <span>“Adding Social Media Icons to Charts with <span class="nocase">ggplot2</span>.”</span> <a href="https://nrennie.rbind.io/blog/adding-social-media-icons-ggplot2/">https://nrennie.rbind.io/blog/adding-social-media-icons-ggplot2/</a>.
+</div>
+<div id="ref-template_files" class="csl-entry" role="listitem">
+———. 2023b. <span>“Creating Template Files with <span>R</span>.”</span> <a href="https://nrennie.rbind.io/blog/script-templates-r/">https://nrennie.rbind.io/blog/script-templates-r/</a>.
+</div>
+<div id="ref-streamline" class="csl-entry" role="listitem">
+———. 2023c. <span>“Four Ways to Streamline Your <span>R</span> Workflows.”</span> <a href="https://nrennie.rbind.io/blog/four-ways-streamline-r-workflows/">https://nrennie.rbind.io/blog/four-ways-streamline-r-workflows/</a>.
+</div>
+<div id="ref-ggtextcircle" class="csl-entry" role="listitem">
+———. 2024a. <em><span class="nocase">ggtextcircle: Circular Text in ’ggplot2’</span></em>. <a href="https://github.com/nrennie/ggtextcircle">https://github.com/nrennie/ggtextcircle</a>.
+</div>
+<div id="ref-nobel" class="csl-entry" role="listitem">
+———. 2024b. <em><span class="nocase">nobel: Access data from the Nobel Prize API via R</span></em>. <a href="https://github.com/nrennie/nobel">https://github.com/nrennie/nobel</a>.
+</div>
+<div id="ref-pkgs_data" class="csl-entry" role="listitem">
+———. 2024c. <span>“<span class="nocase">tidytuesday</span>.”</span> <em>GitHub Repository</em>. GitHub. <a href="https://github.com/nrennie/tidytuesday">https://github.com/nrennie/tidytuesday</a>.
+</div>
+<div id="ref-signif2024a" class="csl-entry" role="listitem">
+Rennie, Nicola, and Andreas Krause. 2024. <span>“<span class="nocase">Presenting data the Significance way - Part 1</span>.”</span> <em>Significance</em> 21 (3): 36–39. <a href="https://doi.org/10.1093/jrssig/qmae045">https://doi.org/10.1093/jrssig/qmae045</a>.
+</div>
+<div id="ref-Reynolds2025" class="csl-entry" role="listitem">
+Reynolds, Gina. 2025. <span>“<span class="nocase">Everyday ggplot2 extension</span>.”</span> <a href="https://evamaerey.github.io/everyday_ggplot2_extension/" class="uri">https://evamaerey.github.io/everyday_ggplot2_extension/</a>.
+</div>
+<div id="ref-hex_forcats" class="csl-entry" role="listitem">
+RStudio. 2018a. <span>“<span class="nocase">forcats</span> Hex Sticker.”</span> <a href="https://github.com/rstudio/hex-stickers/blob/main/PNG/forcats.png">https://github.com/rstudio/hex-stickers/blob/main/PNG/forcats.png</a>.
+</div>
+<div id="ref-hex_ggplot2" class="csl-entry" role="listitem">
+———. 2018b. <span>“<span class="nocase">ggplot2</span> Hex Sticker.”</span> <a href="https://github.com/rstudio/hex-stickers/blob/main/PNG/ggplot2.png">https://github.com/rstudio/hex-stickers/blob/main/PNG/ggplot2.png</a>.
+</div>
+<div id="ref-hex_purrr" class="csl-entry" role="listitem">
+———. 2018c. <span>“<span class="nocase">purrr</span> Hex Sticker.”</span> <a href="https://github.com/rstudio/hex-stickers/blob/main/PNG/purrr.png">https://github.com/rstudio/hex-stickers/blob/main/PNG/purrr.png</a>.
+</div>
+<div id="ref-hex_readr" class="csl-entry" role="listitem">
+———. 2018d. <span>“<span class="nocase">readr</span> Hex Sticker.”</span> <a href="https://github.com/rstudio/hex-stickers/blob/main/PNG/readr.png">https://github.com/rstudio/hex-stickers/blob/main/PNG/readr.png</a>.
+</div>
+<div id="ref-hex_tibble" class="csl-entry" role="listitem">
+———. 2018e. <span>“<span class="nocase">tibble</span> Hex Sticker.”</span> <a href="https://github.com/rstudio/hex-stickers/blob/main/PNG/tibble.png">https://github.com/rstudio/hex-stickers/blob/main/PNG/tibble.png</a>.
+</div>
+<div id="ref-hex_dplyr" class="csl-entry" role="listitem">
+———. 2020a. <span>“<span class="nocase">dplyr</span> Hex Sticker.”</span> <a href="https://github.com/rstudio/hex-stickers/blob/main/PNG/dplyr.png">https://github.com/rstudio/hex-stickers/blob/main/PNG/dplyr.png</a>.
+</div>
+<div id="ref-hex_stringr" class="csl-entry" role="listitem">
+———. 2020b. <span>“<span class="nocase">stringr</span> Hex Sticker.”</span> <a href="https://github.com/rstudio/hex-stickers/blob/main/PNG/stringr.png">https://github.com/rstudio/hex-stickers/blob/main/PNG/stringr.png</a>.
+</div>
+<div id="ref-hex_tidyr" class="csl-entry" role="listitem">
+———. 2020c. <span>“<span class="nocase">tidyr</span> Hex Sticker.”</span> <a href="https://github.com/rstudio/hex-stickers/blob/main/PNG/tidyr.png">https://github.com/rstudio/hex-stickers/blob/main/PNG/tidyr.png</a>.
+</div>
+<div id="ref-ggalt" class="csl-entry" role="listitem">
+Rudis, Bob, Ben Bolker, and Jan Schulz. 2017. <em><span class="nocase">ggalt: Extra Coordinate Systems, ’Geoms’, Statistical Transformations, Scales and Fonts for ’ggplot2’</span></em>. <a href="https://CRAN.R-project.org/package=ggalt">https://CRAN.R-project.org/package=ggalt</a>.
+</div>
+<div id="ref-waffle" class="csl-entry" role="listitem">
+Rudis, Bob, and Dave Gandy. 2023. <em><span class="nocase">waffle</span>: Create Waffle Chart Visualizations</em>. <a href="https://CRAN.R-project.org/package=waffle">https://CRAN.R-project.org/package=waffle</a>.
+</div>
+<div id="ref-lattice" class="csl-entry" role="listitem">
+Sarkar, Deepayan. 2008. <em>Lattice: Multivariate Data Visualization with r</em>. New York: Springer. <a href="http://lmdvr.r-forge.r-project.org">http://lmdvr.r-forge.r-project.org</a>.
+</div>
+<div id="ref-openxlsx" class="csl-entry" role="listitem">
+Schauberger, Philipp, and Alexander Walker. 2023. <em><span class="nocase">openxlsx: Read, Write and Edit xlsx Files</span></em>. <a href="https://CRAN.R-project.org/package=openxlsx">https://CRAN.R-project.org/package=openxlsx</a>.
+</div>
+<div id="ref-owidapi" class="csl-entry" role="listitem">
+Scheuch, Christoph. 2025. <em><span class="nocase">owidapi</span>: Access the Our World in Data Chart API</em>. <a href="https://doi.org/10.32614/CRAN.package.owidapi">https://doi.org/10.32614/CRAN.package.owidapi</a>.
+</div>
+<div id="ref-GGally" class="csl-entry" role="listitem">
+Schloerke, Barret, Di Cook, Joseph Larmarange, Francois Briatte, Moritz Marbach, Edwin Thoen, Amos Elberg, and Jason Crowley. 2024. <em><span class="nocase">GGally: Extension to ’ggplot2’</span></em>. <a href="https://CRAN.R-project.org/package=GGally">https://CRAN.R-project.org/package=GGally</a>.
+</div>
+<div id="ref-Schloss" class="csl-entry" role="listitem">
+Schloss, Karen B., Connor C. Gramazio, Allison T. Silverman, Madeline L. Parker, and Audrey S. Wang. 2019. <span>“Mapping Color to Meaning in Colormap Data Visualizations.”</span> <em>IEEE Transactions on Visualization and Computer Graphics</em> 25 (1): 810–19. <a href="https://doi.org/10.1109/TVCG.2018.2865147">https://doi.org/10.1109/TVCG.2018.2865147</a>.
+</div>
+<div id="ref-funspotr" class="csl-entry" role="listitem">
+Shalloway, Bryan. 2023. <em><span class="nocase">funspotr: Spot R Functions &amp; Packages</span></em>. <a href="https://CRAN.R-project.org/package=funspotr">https://CRAN.R-project.org/package=funspotr</a>.
+</div>
+<div id="ref-plotly" class="csl-entry" role="listitem">
+Sievert, Carson. 2020. <em>Interactive Web-Based Data Visualization with r, Plotly, and Shiny</em>. Chapman; Hall/CRC. <a href="https://plotly-r.com">https://plotly-r.com</a>.
+</div>
+<div id="ref-ggrepel" class="csl-entry" role="listitem">
+Slowikowski, Kamil. 2024. <em><span class="nocase">ggrepel: Automatically Position Non-Overlapping Text Labels with ’ggplot2’</span></em>. <a href="https://CRAN.R-project.org/package=ggrepel">https://CRAN.R-project.org/package=ggrepel</a>.
+</div>
+<div id="ref-visdat" class="csl-entry" role="listitem">
+Tierney, Nicholas. 2017. <span>“<span class="nocase">visdat: Visualising Whole Data Frames</span>.”</span> <em>JOSS</em> 2 (16): 355. <a href="https://doi.org/10.21105/joss.00355">https://doi.org/10.21105/joss.00355</a>.
+</div>
+<div id="ref-naniar" class="csl-entry" role="listitem">
+Tierney, Nicholas, and Dianne Cook. 2023. <span>“Expanding Tidy Data Principles to Facilitate Missing Data Exploration, Visualization and Assessment of Imputations.”</span> <em>Journal of Statistical Software</em> 105 (7): 1–31. <a href="https://doi.org/10.18637/jss.v105.i07">https://doi.org/10.18637/jss.v105.i07</a>.
+</div>
+<div id="ref-Tol2021" class="csl-entry" role="listitem">
+Tol, Paul. 2021. <span>“<span class="nocase">Paul Tol’s Notes: Colour schemes and templates</span>.”</span> <a href="https://sronpersonalpages.nl/~pault/" class="uri">https://sronpersonalpages.nl/~pault/</a>.
+</div>
+<div id="ref-UScensuspop" class="csl-entry" role="listitem">
+United States Census Bureau. 2021a. <span>“Historical Population Change Data (1910-2020).”</span> <a href="https://www.census.gov/data/tables/time-series/dec/popchange-data-text.html" class="uri">https://www.census.gov/data/tables/time-series/dec/popchange-data-text.html</a>.
+</div>
+<div id="ref-UScensus" class="csl-entry" role="listitem">
+———. 2021b. <span>“State Area Measurements and Internal Point Coordinates.”</span> <a href="https://www.census.gov/geographies/reference-files/2010/geo/state-area.html" class="uri">https://www.census.gov/geographies/reference-files/2010/geo/state-area.html</a>.
+</div>
+<div id="ref-bees_data" class="csl-entry" role="listitem">
+United States Department of Agriculture: Economics, Statistics and Market Information System. 2022. <span>“Honey Bee Colonies.”</span> <span>USDA Economics, Statistics and Market Information System</span>. <a href="https://usda.library.cornell.edu/concern/publications/rn301137d">https://usda.library.cornell.edu/concern/publications/rn301137d</a>.
+</div>
+<div id="ref-crsuggest" class="csl-entry" role="listitem">
+Walker, Kyle. 2022. <em><span class="nocase">crsuggest: Obtain Suggested Coordinate Reference System Information for Spatial Data</span></em>. <a href="https://CRAN.R-project.org/package=crsuggest">https://CRAN.R-project.org/package=crsuggest</a>.
+</div>
+<div id="ref-Wanzer2021" class="csl-entry" role="listitem">
+Wanzer, Dana Linnell, Tarek Azzam, Natalie D. Jones, and Darrel Skousen. 2021. <span>“The Role of Titles in Enhancing Data Visualization.”</span> <em>Evaluation and Program Planning</em> 84: 101896. <a href="https://doi.org/10.1016/j.evalprogplan.2020.101896">https://doi.org/10.1016/j.evalprogplan.2020.101896</a>.
+</div>
+<div id="ref-ggplot2" class="csl-entry" role="listitem">
+Wickham, Hadley. 2016. <em><span class="nocase">ggplot2</span>: Elegant Graphics for Data Analysis</em>. Springer-Verlag New York. <a href="https://ggplot2.tidyverse.org">https://ggplot2.tidyverse.org</a>.
+</div>
+<div id="ref-forcats" class="csl-entry" role="listitem">
+———. 2023a. <em><span class="nocase">forcats</span>: Tools for Working with Categorical Variables (Factors)</em>. <a href="https://doi.org/10.32614/CRAN.package.forcats">https://doi.org/10.32614/CRAN.package.forcats</a>.
+</div>
+<div id="ref-stringr" class="csl-entry" role="listitem">
+———. 2023b. <em><span class="nocase">stringr: Simple, Consistent Wrappers for Common String Operations</span></em>. <a href="https://CRAN.R-project.org/package=stringr">https://CRAN.R-project.org/package=stringr</a>.
+</div>
+<div id="ref-tidyverse" class="csl-entry" role="listitem">
+Wickham, Hadley, Mara Averick, Jennifer Bryan, Winston Chang, Lucy D’Agostino McGowan, Romain François, Garrett Grolemund, et al. 2019. <span>“Welcome to the <span class="nocase">tidyverse</span>.”</span> <em>Journal of Open Source Software</em> 4 (43): 1686. <a href="https://doi.org/10.21105/joss.01686">https://doi.org/10.21105/joss.01686</a>.
+</div>
+<div id="ref-readxl" class="csl-entry" role="listitem">
+Wickham, Hadley, and Jennifer Bryan. 2023. <em><span class="nocase">readxl: Read Excel Files</span></em>. <a href="https://CRAN.R-project.org/package=readxl">https://CRAN.R-project.org/package=readxl</a>.
+</div>
+<div id="ref-r4ds" class="csl-entry" role="listitem">
+Wickham, Hadley, Mine Çetinkaya-Rundel, and Garrett Grolemund. 2023. <em><span>R</span> for Data Science</em>. Second Edition. O-Reilly. <a href="https://r4ds.hadley.nz">https://r4ds.hadley.nz</a>.
+</div>
+<div id="ref-dplyr" class="csl-entry" role="listitem">
+Wickham, Hadley, Romain François, Lionel Henry, Kirill Müller, and Davis Vaughan. 2023. <em><span class="nocase">dplyr</span>: A Grammar of Data Manipulation</em>. <a href="https://CRAN.R-project.org/package=dplyr">https://CRAN.R-project.org/package=dplyr</a>.
+</div>
+<div id="ref-purrr" class="csl-entry" role="listitem">
+Wickham, Hadley, and Lionel Henry. 2023. <em><span class="nocase">purrr</span>: Functional Programming Tools</em>. <a href="https://CRAN.R-project.org/package=purrr">https://CRAN.R-project.org/package=purrr</a>.
+</div>
+<div id="ref-readr" class="csl-entry" role="listitem">
+Wickham, Hadley, Jim Hester, and Jennifer Bryan. 2024. <em><span class="nocase">readr</span>: Read Rectangular Text Data</em>. <a href="https://CRAN.R-project.org/package=readr">https://CRAN.R-project.org/package=readr</a>.
+</div>
+<div id="ref-scales" class="csl-entry" role="listitem">
+Wickham, Hadley, Thomas Lin Pedersen, and Dana Seidel. 2023. <em><span class="nocase">scales</span>: Scale Functions for Visualization</em>. <a href="https://CRAN.R-project.org/package=scales">https://CRAN.R-project.org/package=scales</a>.
+</div>
+<div id="ref-tidyr" class="csl-entry" role="listitem">
+Wickham, Hadley, Davis Vaughan, and Maximilian Girlich. 2024. <em><span class="nocase">tidyr</span>: Tidy Messy Data</em>. <a href="https://CRAN.R-project.org/package=tidyr">https://CRAN.R-project.org/package=tidyr</a>.
+</div>
+<div id="ref-ggtextures" class="csl-entry" role="listitem">
+Wilke, Claus. 2022. <em><span class="nocase">ggtextures: Drawing Textured Rectangles and Bars with grid and ggplot2</span></em>. <a href="https://github.com/clauswilke/ggtextures">https://github.com/clauswilke/ggtextures</a>.
+</div>
+<div id="ref-cowplot" class="csl-entry" role="listitem">
+Wilke, Claus O. 2024. <em><span class="nocase">cowplot</span>: Streamlined Plot Theme and Plot Annotations for <span class="nocase">’ggplot2’</span></em>. <a href="https://wilkelab.org/cowplot/">https://wilkelab.org/cowplot/</a>.
+</div>
+<div id="ref-ggtext" class="csl-entry" role="listitem">
+Wilke, Claus O., and Brenton M. Wiernik. 2022. <em><span class="nocase">ggtext</span>: Improved Text Rendering Support for <span class="nocase">’ggplot2’</span></em>. <a href="https://CRAN.R-project.org/package=ggtext">https://CRAN.R-project.org/package=ggtext</a>.
+</div>
+<div id="ref-nobel_data" class="csl-entry" role="listitem">
+www.nobelprize.org. 2024. <span>“<span>Nobel Prize API Version 2.1</span>.”</span> <a href="https://api.nobelprize.org/2.1/laureates">https://api.nobelprize.org/2.1/laureates</a>.
+</div>
+<div id="ref-owidR" class="csl-entry" role="listitem">
+York, Piers. 2023. <em><span class="nocase">owidR</span>: Import Data from Our World in Data</em>. <a href="https://github.com/piersyork/owidR">https://github.com/piersyork/owidR</a>.
+</div>
+<div id="ref-ggimage" class="csl-entry" role="listitem">
+Yu, Guangchuang. 2023. <em><span class="nocase">ggimage: Use Image in ’ggplot2’</span></em>. <a href="https://CRAN.R-project.org/package=ggimage">https://CRAN.R-project.org/package=ggimage</a>.
+</div>
+<div id="ref-gghighlight" class="csl-entry" role="listitem">
+Yutani, Hiroaki. 2023. <em><span class="nocase">gghighlight</span>: Highlight Lines and Points in <span class="nocase">’ggplot2’</span></em>. <a href="https://CRAN.R-project.org/package=gghighlight">https://CRAN.R-project.org/package=gghighlight</a>.
+</div>
+<div id="ref-lemurs_data" class="csl-entry" role="listitem">
+Zehr, Sarah M., Richard G. Roach, David Haring, Julie Taylor, Freda H. Cameron, and Anne D. Yoder. 2014. <span>“<span class="nocase">Life history profiles for 27 strepsirrhine primate taxa generated using captive data from the Duke Lemur Center</span>.”</span> <em>Scientific Data</em> 1 (1). <a href="https://doi.org/10.1038/sdata.2014.19">https://doi.org/10.1038/sdata.2014.19</a>.
+</div>
+</div>
+</section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/nrennie\.rbind\.io\/art-of-viz\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><nav class="page-navigation"><div class="nav-page nav-page-previous">
+      <a href="./cats.html" class="pagination-link" aria-label="고양이: **`ggtext`**를 사용한 데이터 기반 주석">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">고양이: <strong><code>ggtext</code></strong>를 사용한 데이터 기반 주석</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./images.html" class="pagination-link" aria-label="이미지 작업">
+        <span class="nav-page-text">이미지 작업</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+<script src="site_libs/quarto-contrib/line-highlight-1.0.0/line-highlight.js" defer="true"></script>
+</body></html>

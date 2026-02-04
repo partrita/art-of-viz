@@ -1,0 +1,1920 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+<meta charset="UTF-8">
+<meta name="generator" content="quarto-1.8.27">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>6&nbsp; 캐나다 풍력 터빈: 와플 차트와 픽토그램 – The Art of Data Visualization with ggplot2</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./cats.html" rel="next">
+<link href="./text.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-795e9e8eca1e12b12abcb09a27409631.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-68ad1da78fd76636681285468deb74db.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/quarto-contrib/line-highlight-1.0.0/line-highlight.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-1SWN5BH1PZ"></script><script type="text/javascript">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-1SWN5BH1PZ', { 'anonymize_ip': true});
+</script>
+<meta property="og:title" content="6&nbsp; 캐나다 풍력 터빈: 와플 차트와 픽토그램 – The Art of Data Visualization with ggplot2">
+<meta property="og:description" content="">
+<meta property="og:image" content="https://nrennie.rbind.io/art-of-viz/wind-turbines_files/figure-html/fig-turbines-scatter-1.png">
+<meta property="og:site_name" content="The Art of Data Visualization with ggplot2">
+<meta property="og:image:alt" content="로터 직경과 터빈 용량 간의 관계를 보여주는 산점도. 점들로 형성된 수직선이 일부 있는 것 같습니다.">
+<meta property="og:image:height" content="1125">
+<meta property="og:image:width" content="1500">
+</head>
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top"><nav class="quarto-secondary-nav"><div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./text.html">아이콘, 글꼴 및 텍스트 활용</a></li><li class="breadcrumb-item"><a href="./wind-turbines.html"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">캐나다 풍력 터빈: 와플 차트와 픽토그램</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav></header><!-- content --><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">The Art of Data Visualization with ggplot2</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">서문</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./author.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">저자</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">소개</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./common-charts.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">일반적인 차트도 지루할 필요는 없습니다!</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./programming-languages.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">프로그래밍 언어: <strong><code>ggplot2</code></strong>를 이용한 덤벨 차트</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./museums.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">영국 박물관: <strong><code>gghighlight</code></strong>로 선형 차트 강조하기</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./bee-colonies.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">꿀벌 군집 손실:푸아송 디스크 샘플링으로 수량 시각화</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./animal-intakes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">동물 보호소 입소: <strong><code>ggforce</code></strong>를 사용한 게이지 차트 만들기</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./text.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">아이콘, 글꼴 및 텍스트 활용</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./wind-turbines.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">캐나다 풍력 터빈: 와플 차트와 픽토그램</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cats.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">고양이: <strong><code>ggtext</code></strong>를 사용한 데이터 기반 주석</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./nobel-laureates.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">노벨상 수상자: 텍스트 배치 및 플롯 매개변수화</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./images.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">이미지 작업</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./lemurs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">여우원숭이: R에서 이미지 조작하기</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./r-packages.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">R 패키지: 사용자 지정 패면 레이블에 이미지 사용하기</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./spatial.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">공간 데이터 시각화</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./doctors.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">전 세계 의사 분포: <strong><code>ggplot2</code></strong>로 지도 만들기</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./time-zones.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">시간대: <strong><code>sf</code></strong>를 사용한 공간 데이터 및 매핑</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./us-elections.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">미국 하원 선거: <strong><code>geofacet</code></strong>을 이용한 그리드 위의 지리</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./other-tricks.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">기타 팁과 요령</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bibliography</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">부록</span></a>
+  </div>
+</li>
+    </ul>
+</div>
+</nav><div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">Contents</h2>
+   
+  <ul>
+<li>
+<a href="#%EB%8D%B0%EC%9D%B4%ED%84%B0" id="toc-데이터" class="nav-link active" data-scroll-target="#%EB%8D%B0%EC%9D%B4%ED%84%B0"><span class="header-section-number">6.1</span> 데이터</a>
+  <ul class="collapse">
+<li><a href="#openxlsx%EB%A1%9C-%EB%8D%B0%EC%9D%B4%ED%84%B0-%EC%9D%BD%EA%B8%B0" id="toc-openxlsx로-데이터-읽기" class="nav-link" data-scroll-target="#openxlsx%EB%A1%9C-%EB%8D%B0%EC%9D%B4%ED%84%B0-%EC%9D%BD%EA%B8%B0"><span class="header-section-number">6.1.1</span> <strong><code>openxlsx</code></strong>로 데이터 읽기</a></li>
+  </ul>
+</li>
+  <li>
+<a href="#%ED%83%90%EC%83%89-%EC%9E%91%EC%97%85" id="toc-탐색-작업" class="nav-link" data-scroll-target="#%ED%83%90%EC%83%89-%EC%9E%91%EC%97%85"><span class="header-section-number">6.2</span> 탐색 작업</a>
+  <ul class="collapse">
+<li><a href="#%EB%8D%B0%EC%9D%B4%ED%84%B0-%ED%83%90%EC%83%89" id="toc-데이터-탐색" class="nav-link" data-scroll-target="#%EB%8D%B0%EC%9D%B4%ED%84%B0-%ED%83%90%EC%83%89"><span class="header-section-number">6.2.1</span> 데이터 탐색</a></li>
+  <li><a href="#%ED%83%90%EC%83%89%EC%A0%81-%EC%8A%A4%EC%BC%80%EC%B9%98" id="toc-탐색적-스케치" class="nav-link" data-scroll-target="#%ED%83%90%EC%83%89%EC%A0%81-%EC%8A%A4%EC%BC%80%EC%B9%98"><span class="header-section-number">6.2.2</span> 탐색적 스케치</a></li>
+  </ul>
+</li>
+  <li>
+<a href="#%ED%94%8C%EB%A1%AF-%EC%A4%80%EB%B9%84" id="toc-플롯-준비" class="nav-link" data-scroll-target="#%ED%94%8C%EB%A1%AF-%EC%A4%80%EB%B9%84"><span class="header-section-number">6.3</span> 플롯 준비</a>
+  <ul class="collapse">
+<li><a href="#%EB%8D%B0%EC%9D%B4%ED%84%B0-%EB%9E%AD%EA%B8%80%EB%A7%81" id="toc-데이터-랭글링" class="nav-link" data-scroll-target="#%EB%8D%B0%EC%9D%B4%ED%84%B0-%EB%9E%AD%EA%B8%80%EB%A7%81"><span class="header-section-number">6.3.1</span> 데이터 랭글링</a></li>
+  <li><a href="#font-awesome-%EA%B8%80%EA%BC%B4-%EC%84%A4%EC%B9%98" id="toc-font-awesome-글꼴-설치" class="nav-link" data-scroll-target="#font-awesome-%EA%B8%80%EA%BC%B4-%EC%84%A4%EC%B9%98"><span class="header-section-number">6.3.2</span> Font Awesome 글꼴 설치</a></li>
+  <li><a href="#waffle%EC%9D%84-%EC%82%AC%EC%9A%A9%ED%95%9C-%EC%B2%AB-%EB%B2%88%EC%A7%B8-%ED%94%8C%EB%A1%AF" id="toc-waffle을-사용한-첫-번째-플롯" class="nav-link" data-scroll-target="#waffle%EC%9D%84-%EC%82%AC%EC%9A%A9%ED%95%9C-%EC%B2%AB-%EB%B2%88%EC%A7%B8-%ED%94%8C%EB%A1%AF"><span class="header-section-number">6.3.3</span> <strong><code>waffle</code></strong>을 사용한 첫 번째 플롯</a></li>
+  </ul>
+</li>
+  <li>
+<a href="#%EA%B3%A0%EA%B8%89-%EC%8A%A4%ED%83%80%EC%9D%BC%EB%A7%81" id="toc-고급-스타일링" class="nav-link" data-scroll-target="#%EA%B3%A0%EA%B8%89-%EC%8A%A4%ED%83%80%EC%9D%BC%EB%A7%81"><span class="header-section-number">6.4</span> 고급 스타일링</a>
+  <ul class="collapse">
+<li><a href="#rcartocolor%EB%A5%BC-%EC%82%AC%EC%9A%A9%ED%95%9C-%EC%83%89%EC%83%81" id="toc-rcartocolor를-사용한-색상" class="nav-link" data-scroll-target="#rcartocolor%EB%A5%BC-%EC%82%AC%EC%9A%A9%ED%95%9C-%EC%83%89%EC%83%81"><span class="header-section-number">6.4.1</span> <strong><code>rcartocolor</code></strong>를 사용한 색상</a></li>
+  <li><a href="#marquee%EB%A1%9C-%EC%8A%A4%ED%83%80%EC%9D%BC%EC%9D%B4-%EC%A7%80%EC%A0%95%EB%90%9C-%ED%85%8D%EC%8A%A4%ED%8A%B8-%EC%B6%94%EA%B0%80" id="toc-marquee로-스타일이-지정된-텍스트-추가" class="nav-link" data-scroll-target="#marquee%EB%A1%9C-%EC%8A%A4%ED%83%80%EC%9D%BC%EC%9D%B4-%EC%A7%80%EC%A0%95%EB%90%9C-%ED%85%8D%EC%8A%A4%ED%8A%B8-%EC%B6%94%EA%B0%80"><span class="header-section-number">6.4.2</span> <strong><code>marquee</code></strong>로 스타일이 지정된 텍스트 추가</a></li>
+  <li><a href="#%EC%8A%A4%EC%BC%80%EC%9D%BC-%EB%B0%8F-%ED%85%8C%EB%A7%88-%EC%A1%B0%EC%A0%95" id="toc-스케일-및-테마-조정" class="nav-link" data-scroll-target="#%EC%8A%A4%EC%BC%80%EC%9D%BC-%EB%B0%8F-%ED%85%8C%EB%A7%88-%EC%A1%B0%EC%A0%95"><span class="header-section-number">6.4.3</span> 스케일 및 테마 조정</a></li>
+  </ul>
+</li>
+  <li><a href="#%EC%84%B1%EC%B0%B0" id="toc-성찰" class="nav-link" data-scroll-target="#%EC%84%B1%EC%B0%B0"><span class="header-section-number">6.5</span> 성찰</a></li>
+  <li><a href="#%EC%97%B0%EC%8A%B5-%EB%AC%B8%EC%A0%9C" id="toc-연습-문제" class="nav-link" data-scroll-target="#%EC%97%B0%EC%8A%B5-%EB%AC%B8%EC%A0%9C"><span class="header-section-number">6.6</span> 연습 문제</a></li>
+  </ul></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./text.html">아이콘, 글꼴 및 텍스트 활용</a></li><li class="breadcrumb-item"><a href="./wind-turbines.html"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">캐나다 풍력 터빈: 와플 차트와 픽토그램</span></a></li></ol></nav><div class="quarto-title">
+<h1 class="title"><span id="sec-turbines" class="quarto-section-identifier"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">캐나다 풍력 터빈: 와플 차트와 픽토그램</span></span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header><p>이 장에서는 URL을 통해 Excel 파일에서 데이터를 읽는 방법, <strong><code>waffle</code></strong> 패키지를 사용하여 와플 차트를 만드는 방법, 기존 범례 대신 사용할 색상 텍스트가 포함된 부제목을 작성하는 방법을 배웁니다.</p>
+<p>이 장을 마치면 다음을 할 수 있습니다:</p>
+<ul>
+<li>온라인에 호스팅된 파일을 포함하여 Excel 파일에서 데이터를 로드합니다;</li>
+<li>사용자 정의 아이콘을 사용하여 와플 차트를 만듭니다;</li>
+<li>다양한 차트에서 일관된 스타일을 유지하기 위해 자신만의 소스 텍스트 함수를 작성합니다.</li>
+</ul>
+<p>이 장에서 필요한 패키지를 로드하는 것으로 시작합니다.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org">dplyr</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ggobi.github.io/ggally/">GGally</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org">ggplot2</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://glue.tidyverse.org/">glue</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://marquee.r-lib.org">marquee</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ycphs.github.io/openxlsx/index.html">openxlsx</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/Nowosad/rcartocolor">rcartocolor</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://readr.tidyverse.org">readr</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/yixuan/showtext">showtext</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://stringr.tidyverse.org">stringr</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/yixuan/sysfonts">sysfonts</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">waffle</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>이전 장에서와 같이 <strong><code>ggplot2</code></strong>를 사용하여 플롯을 작성하고 <strong><code>dplyr</code></strong>을 사용하여 데이터를 가져오고 조작하며 <strong><code>glue</code></strong>를 사용하여 데이터 기반 문자열을 생성합니다. <strong><code>sysfonts</code></strong> 및 <strong><code>showtext</code></strong> 패키지는 다양한 글꼴을 로드하고 렌더링하는 데 다시 사용됩니다.</p>
+<p>이 장에서는 아직 사용하지 않은 꽤 많은 패키지를 소개합니다. 도입된 새로운 아이디어의 수에 압도되지 마십시오. 나중에 이러한 패키지에 익숙해지기 위해 더 많은 장에서 다시 사용할 것입니다!</p>
+<ul>
+<li>
+<strong><code>GGally</code></strong>: 변수 간의 관계를 살펴보기 위한 빠른 탐색적 차트용.</li>
+<li>
+<strong><code>marquee</code></strong>: 이전 장에서 <strong><code>ggtext</code></strong>를 사용했던 방식과 유사하게 차트에서 서식 있는 텍스트(richtext) 서식을 지정하기 위해.</li>
+<li>
+<strong><code>openxlsx</code></strong>: Excel 파일에서 데이터를 가져오기 위해.</li>
+<li>
+<strong><code>rcartocolor</code></strong>: 색상 팔레트 패키지.</li>
+<li>
+<strong><code>readr</code></strong>: CSV 및 Excel 파일 모두에서 데이터를 가져오기 위해.</li>
+<li>
+<strong><code>stringr</code></strong>: 문자열을 조작하기 위해.</li>
+<li>
+<strong><code>waffle</code></strong>: 와플 차트와 픽토그램을 만들기 위해.</li>
+</ul>
+<p> </p>
+<section id="데이터" class="level2" data-number="6.1"><h2 data-number="6.1" class="anchored" data-anchor-id="데이터">
+<span class="header-section-number">6.1</span> 데이터</h2>
+<p>2020년 10월, 캐나다 정부 오픈 데이터 포털의 풍력 터빈 데이터가 <a href="https://github.com/rfordatascience/tidytuesday/tree/master/data/2020/2020-10-27">TidyTuesday 데이터 세트</a>로 사용되었습니다 <span class="citation" data-cites="tidytuesday">(<a href="references.html#ref-tidytuesday" role="doc-biblioref">R4DS Online Learning Community 2023</a>)</span>. 캐나다 풍력 터빈 데이터베이스는 전력 용량 및 지리적 위치를 포함하여 캐나다에 설치된 풍력 터빈에 대한 정보를 제공합니다 <span class="citation" data-cites="turbines_data">(<a href="references.html#ref-turbines_data" role="doc-biblioref">Natural Resources Canada 2021</a>)</span>. 이전 장에서 했던 것처럼 <strong><code>tidytuesdayR</code></strong> 패키지를 사용하여 데이터를 읽는 대신 <a href="https://open.canada.ca/en">open.canada.ca</a> 웹사이트에서 직접 데이터를 읽어 봅시다.</p>
+<div id="tip-turbines-open" class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip&nbsp;6.1: 캐나다의 오픈 정부 데이터
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>캐나다 풍력 터빈 데이터에는 <a href="https://open.canada.ca/en/open-government-licence-canada">Open Government Licence - Canada</a>에 따라 라이선스가 부여된 정보가 포함되어 있습니다. <a href="https://search.open.canada.ca/opendata/">search.open.canada.ca/opendata</a>에서 더 많은 오픈 데이터를 검색할 수 있습니다. 오픈 데이터 소스에 대한 자세한 논의는 <a href="doctors.html" class="quarto-xref"><span>Chapter 11</span></a> 를 참조하십시오.</p>
+</div>
+</div>
+<section id="openxlsx로-데이터-읽기" class="level3" data-number="6.1.1"><h3 data-number="6.1.1" class="anchored" data-anchor-id="openxlsx로-데이터-읽기">
+<span class="header-section-number">6.1.1</span> <strong><code>openxlsx</code></strong>로 데이터 읽기</h3>
+<p><strong><code>readxl</code></strong> 패키지 <span class="citation" data-cites="readxl">(<a href="references.html#ref-readxl" role="doc-biblioref">Wickham and Bryan 2023</a>)</span>는 로컬에 저장된 Excel 파일을 읽는 데 사용할 수 있지만 URL에서 직접 Excel 파일을 읽는 데는 작동하지 않습니다. 관련 <a href="https://open.canada.ca/data/dataset/">open.canada.ca/data/dataset</a> 웹사이트를 방문하여 파일을 수동으로 다운로드한 다음 <strong><code>readxl</code></strong>을 사용하여 읽을 수 있습니다. 또는 URL을 전달할 수 있는 <strong><code>openxlsx</code></strong> 패키지 <span class="citation" data-cites="openxlsx">(<a href="references.html#ref-openxlsx" role="doc-biblioref">Schauberger and Walker 2023</a>)</span>를 사용할 수 있습니다.</p>
+<p>물론 이 파일의 URL이 무엇인지 알아야 합니다. 풍력 터빈 데이터에 대한 다음 웹페이지(<a href="https://open.canada.ca/data/dataset/79fdad93-9025-49ad-ba16-c26d718cc070">open.canada.ca/data/dataset/79fdad93-9025-49ad-ba16-c26d718cc070</a>)를 방문하여 Excel 파일 링크를 마우스 오른쪽 버튼으로 클릭하면 링크 주소를 복사할 수 있습니다. 해당 링크 주소를 <code>url</code>이라는 문자열로 저장합니다. 동일한 사이트에서 다른 데이터 세트를 다운로드할 계획이라면 나중에 다시 사용할 수 있도록 기본 웹사이트를 <code>base_url</code> 변수로 저장하는 것이 유용할 수 있습니다.</p>
+<p>그런 다음 <strong><code>openxlsx</code></strong>의 <code><a href="https://rdrr.io/pkg/openxlsx/man/read.xlsx.html">read.xlsx()</a></code> 함수를 사용하며, 여기서 <code>url</code> 변수를 <code>xlsxFile</code> 인수에 전달합니다: </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">base_url</span> <span class="op">&lt;-</span> <span class="st">"https://ftp.cartes.canada.ca/"</span></span>
+<span><span class="va">url</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span></span>
+<span>  <span class="va">base_url</span>,</span>
+<span>  <span class="st">"pub/nrcan_rncan/Wind-energy_Energie-eolienne/wind_turbines_database/Wind_Turbine_Database_FGP.xlsx"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">wind_turbines</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/openxlsx/man/read.xlsx.html">read.xlsx</a></span><span class="op">(</span>xlsxFile <span class="op">=</span> <span class="va">url</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Excel 파일에는 사람에게는 친숙하지만 컴퓨터에는 덜 친숙하게 만드는 몇 가지 기능이 있습니다:</p>
+<ul>
+<li>여러 시트</li>
+<li>빈 행</li>
+<li>병합된 셀</li>
+</ul>
+<p>다행히 다운로드한 <code>.xlsx</code> 파일은 사람에게 친숙하면서도 컴퓨터에게도 친숙하므로 지금은 이러한 문제를 처리할 필요가 없습니다.</p>
+<div id="tip-turbines-excel-1" class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip&nbsp;6.2: Excel의 여러 시트 처리
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Excel 파일에는 여러 데이터 시트가 포함될 수 있습니다. <code><a href="https://rdrr.io/pkg/openxlsx/man/read.xlsx.html">read.xlsx()</a></code>의 <code>sheet</code> 인수를 사용하여 읽으려는 시트의 이름이나 인덱스를 지정할 수 있습니다. 시트 이름을 사용하는 것이 일반적으로 조금 더 강력합니다. 즉, 시트 순서가 (우발적으로) 변경되어도 코드가 견딜 수 있습니다.</p>
+</div>
+</div>
+<div id="tip-turbines-excel-2" class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip&nbsp;6.3: Excel에서 빈 행 건너뛰기
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><code><a href="https://rdrr.io/pkg/openxlsx/man/read.xlsx.html">read.xlsx()</a></code> 함수는 항상 파일 시작 부분의 빈 행을 건너뜁니다. 그러나 때로는 스프레드시트 작성자가 제목 행을 추가한 다음 <em>실제</em> 데이터가 시작되기 전에 빈 행을 몇 개 추가할 수 있습니다. <code>startRow</code> 인수를 사용하여 데이터가 실제로 시작되는 행을 지정할 수 있습니다.</p>
+</div>
+</div>
+<div id="tip-turbines-excel-3" class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip&nbsp;6.4: Excel에서 병합된 셀 처리
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>병합된 셀은 데이터가 더 이상 멋진 직사각형 구조에 맞지 않기 때문에 처리하기 어렵습니다. 병합된 셀이 어디에 있고 무엇을 포함하느냐에 따라 처리 난이도가 달라집니다. 파일 상단(예: 제목 정보 포함)에 있는 경우 <code>startRow</code>를 사용하는 것으로 충분할 수 있습니다. 그렇지 않으면 <code><a href="https://rdrr.io/pkg/openxlsx/man/read.xlsx.html">read.xlsx()</a></code>에서 <code>fillMergedCells = TRUE</code>를 설정하면 <em>병합된 셀의 값이 병합 내의 모든 셀에 부여됨</em>을 의미합니다 <span class="citation" data-cites="openxlsx">(<a href="references.html#ref-openxlsx" role="doc-biblioref">Schauberger and Walker 2023</a>)</span>.</p>
+</div>
+</div>
+<p>작업하고 싶을 때마다 URL에서 데이터를 다시 다운로드하고 싶지는 않으므로(특히 데이터가 업데이트될 수 있는 경우) 로컬에 사본을 저장해 봅시다. 단순히 Excel 파일을 저장할 수도 있습니다(또는 <code><a href="https://readr.tidyverse.org/reference/read_delim.html">read_csv()</a></code> 대신 <code><a href="https://rdrr.io/r/utils/download.file.html">download.file()</a></code>을 사용할 수도 있음). 그러나 CSV 파일은 크기가 더 작고 간단한 텍스트 편집기에서 열 수 있으므로 CSV 파일로 저장하는 것이 좋습니다. 다행히도 <code>wind_turbines</code> 데이터는 형식이 잘 갖추어져 있습니다. 병합된 셀, 여러 시트 또는 처리해야 할 빈 행이 없습니다. 즉, 적절한 파일 이름으로(그리고 행 이름의 추가 열을 추가하지 않도록 <code>row.names = FALSE</code>를 설정하여) <code><a href="https://rdrr.io/r/utils/write.table.html">write.csv()</a></code>를 사용하여 CSV 파일로 저장할 수 있습니다. </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/write.table.html">write.csv</a></span><span class="op">(</span></span>
+<span>  x <span class="op">=</span> <span class="va">wind_turbines</span>,</span>
+<span>  file <span class="op">=</span> <span class="st">"data/wind_turbines.csv"</span>,</span>
+<span>  row.names <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>그런 다음 <strong><code>readr</code></strong>의 <code><a href="https://rdrr.io/r/utils/read.table.html">read.csv()</a></code> 또는 <code><a href="https://readr.tidyverse.org/reference/read_delim.html">read_csv()</a></code>를 사용하여 CSV 파일을 다시 읽을 수 있습니다: </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">wind_turbines</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html">read_csv</a></span><span class="op">(</span><span class="st">"data/wind_turbines.csv"</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><code>wind_turbines</code> 데이터에는 6698개의 행과 15개의 열이 있습니다. 데이터의 처음 몇 행은 다음과 같습니다:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">wind_turbines</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre data-code-line-numbers=""><code># A tibble: 6 × 15
+  OBJECTID `Province/Territory` Project.name          
+     &lt;dbl&gt; &lt;chr&gt;                &lt;chr&gt;                 
+1        1 Alberta              Optimist Wind Energy  
+2        2 Alberta              Castle River Wind Farm
+3        3 Alberta              Waterton Wind Turbines
+4        4 Alberta              Waterton Wind Turbines
+5        5 Alberta              Waterton Wind Turbines
+6        6 Alberta              Waterton Wind Turbines
+# ℹ 12 more variables: `Total.project.capacity.(MW)` &lt;dbl&gt;,
+#   Turbine.identifier &lt;chr&gt;,
+#   Turbine.number.in.project &lt;chr&gt;,
+#   `Turbine.rated.capacity.(kW)` &lt;chr&gt;,
+#   `Rotor.diameter.(m)` &lt;dbl&gt;, `Hub.height.(m)` &lt;dbl&gt;,
+#   Manufacturer &lt;chr&gt;, Model &lt;chr&gt;,
+#   Commissioning.date &lt;chr&gt;, Latitude &lt;dbl&gt;, …</code></pre>
+</div>
+</div>
+<p><code>OBJECTID</code> 열은 고유 행 식별자입니다. 데이터에는 각 풍력 터빈에 대한 행이 있으며, 일부 데이터는 터빈 수준에서, 일부 데이터는 프로젝트 수준에서 제공됩니다. 프로젝트 수준 데이터와 관련된 변수의 경우, 이는 동일한 프로젝트의 터빈에 대해 열 내에서 값이 여러 번 반복될 수 있음을 의미합니다.</p>
+<p><code>Province/Territory</code> 열은 터빈이 있는 지리적 지역을 지정하고 <code>Latitude</code> 및 <code>Longitude</code> 열은 정확한 좌표를 제공합니다. <code>Project.name</code>은 각 풍력 터빈이 연결된 프로젝트의 이름을 제공하고 <code>Total.project.capacity.(MW)</code>는 프로젝트의 총 전력 용량을 메가와트 단위로 제공합니다. <code>Turbine.identifier</code> 열은 각 터빈의 고유 ID를 제공합니다. 이는 프로젝트 이름의 약어와 프로젝트 내 터빈 번호를 식별하는 번호의 조합입니다(<code>Turbine.number.in.project</code>에도 프로젝트 당 총 터빈 수의 분수로 나열됨). 각 개별 터빈의 용량(킬로와트)은 <code>Turbine.rated.capacity.(kW)</code>에 제공됩니다(프로젝트의 모든 터빈에 대한 개별 용량을 합산하면 <code>Total.project.capacity.(MW)</code>의 값에 100을 곱한 값이 됨).</p>
+<p>각 터빈의 로터 직경과 허브 높이는 각각 <code>Rotor.diameter.(m)</code> 및 <code>Hub.height.(m)</code>로 제공됩니다. 제조업체와 모델은 <code>Manufacturer</code> 및 <code>Model</code> 열에도 제공됩니다. 시운전 날짜는 <code>Commissioning.date</code> 열에 제공됩니다. 일부는 프로젝트 수준에서 제공되는 반면 다른 일부는 프로젝트 내 터빈마다 다른 것으로 보입니다. <code>Notes</code> 열에는 일부 터빈에 대한 추가 정보가 포함된 자유 텍스트 데이터가 포함되어 있습니다. 이 값의 대부분은 비어 있지만 열에는 터빈 용량이 변경되었는지 여부 또는 값 계산 방법에 대한 가정에 대한 정보를 제공할 수 있습니다.</p>
+</section></section><section id="탐색-작업" class="level2" data-number="6.2"><h2 data-number="6.2" class="anchored" data-anchor-id="탐색-작업">
+<span class="header-section-number">6.2</span> 탐색 작업</h2>
+<p>여기서 살펴볼 만한 꽤 많은 변수가 있습니다. 특히 서로 관련될 수 있는 개별 터빈에 대한 여러 변수가 있기 때문입니다. 예를 들어 로터 직경이 더 큰 터빈의 용량이 더 높습니까? 로터 직경과 허브 높이 사이의 관계는 무엇입니까? 어떤 제조업체가 가장 일반적입니까? 어느 지역에 터빈이 가장 많습니까? 지리적 좌표가 있으므로 캐나다 전역의 터빈 공간 분포를 살펴볼 수도 있습니다. 공간 데이터 플롯은 <a href="doctors.html" class="quarto-xref"><span>Chapter 11</span></a>, <a href="time-zones.html" class="quarto-xref"><span>Chapter 12</span></a>, 및 <a href="us-elections.html" class="quarto-xref"><span>Chapter 13</span></a> 에서 조금 더 나중에 살펴볼 것입니다.</p>
+<section id="데이터-탐색" class="level3" data-number="6.2.1"><h3 data-number="6.2.1" class="anchored" data-anchor-id="데이터-탐색">
+<span class="header-section-number">6.2.1</span> 데이터 탐색</h3>
+<p>로터 직경이 더 큰 풍력 터빈은 용량도 더 높다는 가설을 탐색하는 것으로 시작하겠습니다. 초기 단계로 이 두 변수의 산점도를 만들 수 있습니다. <code>Turbine.rated.capacity.(kW)</code> 열은 숫자 값을 포함하고 있음에도 불구하고 현재 문자 열이므로 플롯하기 전에 <code><a href="https://rdrr.io/r/base/numeric.html">as.numeric()</a></code>으로 래핑합니다:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span></span>
+<span>  x <span class="op">=</span> <span class="va">wind_turbines</span><span class="op">$</span><span class="va">`Rotor.diameter.(m)`</span>,</span>
+<span>  y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html">as.numeric</a></span><span class="op">(</span></span>
+<span>    <span class="va">wind_turbines</span><span class="op">$</span><span class="va">`Turbine.rated.capacity.(kW)`</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  xlab <span class="op">=</span> <span class="st">"Rotor diameter (m)"</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="st">"Turbine rated capacity (kW)"</span></span>
+<span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-turbines-scatter" class="quarto-float quarto-figure quarto-figure-center anchored" alt="로터 직경과 터빈 용량 간의 관계를 보여주는 산점도. 점들로 형성된 수직선이 일부 있는 것 같습니다.">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-turbines-scatter-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="wind-turbines_files/figure-html/fig-turbines-scatter-1.png" class="img-fluid figure-img" alt="로터 직경과 터빈 용량 간의 관계를 보여주는 산점도. 점들로 형성된 수직선이 일부 있는 것 같습니다.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-turbines-scatter-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6.1: 로터 직경과 터빈 용량 간의 관계를 보여주는 산점도.
+</figcaption></figure>
+</div>
+</div>
+</div>
+<p>이 산점도는 몇 가지 문제를 강조합니다:</p>
+<ul>
+<li>
+<p><code>NA</code> 값에 대한 경고 메시지가 표시됩니다.</p>
+<blockquote class="blockquote">
+<p><code>Warning message: In xy.coords(x, y, xlabel, ylabel, log) : NAs introduced by coercion</code></p>
+</blockquote>
+<p>이것은 <code>Turbine.rated.capacity.(kW)</code> 열의 <code>as.numeric</code> 변환에서 발생합니다. 이 열을 더 자세히 살펴보면 <code>"1903/2126/2221"</code>과 같은 몇 가지 비정상적인 값이 있음을 알 수 있습니다. 설명에 대해 <code>Notes</code> 열을 보면 <code>"Some turbines derated such that the farm has an maximum operating capacity of 180 MW"(팜의 최대 작동 용량이 180MW가 되도록 일부 터빈 등급이 낮아짐)</code> 때문에 이러한 값이 존재함을 알 수 있습니다. 불행히도 우리는 이 등급 낮춤이 어떤 개별 터빈에 적용되는지 모르기 때문에 산점도를 만들기 어렵습니다.</p>
+</li>
+<li><p>이 산점도의 다른 문제는 많은 관측치가 동일하지만 플롯에 명확하게 표시되지 않는다는 것입니다. 나중에 어떤 통계 모델을 적합하여 이 관계를 더 자세히 탐색하려는 경우 일반적인 가정은 각 관측치가 독립적이라는 것입니다. 여기서는 그렇지 않습니다. 많은 개별 터빈이 동일한 프로젝트에 속하므로 로터 직경과 용량이 동일한 동일한 모델입니다. 대신 고유 값을 그룹화하고 특정 모델의 터빈 수를 가중치로 사용할 수 있습니다. 이것은 각 직경-용량 조합의 터빈 수를 보여주는 거품 크기가 있는 버블 차트로 더 잘 시각화될 수 있습니다.</p></li>
+</ul>
+<div id="tip-turbines-view" class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip&nbsp;6.5: 데이터 검사
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><code>View(wind_turbines)</code>를 사용하여 사람이 읽기에 더 편한 형식으로 데이터를 검사할 수 있음을 기억하십시오. 데이터를 보고, 열의 요약을 얻고, 기본 R로 탐색적 그래픽을 만드는 것 외에도 탐색적 데이터 분석을 돕는 많은 패키지를 사용할 수 있습니다.</p>
+<p>예를 들어 <strong><code>GGally</code></strong> 패키지 <span class="citation" data-cites="GGally">(<a href="references.html#ref-GGally" role="doc-biblioref">Schloerke et al. 2024</a>)</span>를 사용하면 데이터의 일부 또는 모든 열을 탐색하기 위해 쌍별 비교 플롯과 상관 행렬을 쉽게 만들 수 있습니다.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://ggobi.github.io/ggally/reference/ggpairs.html">ggpairs</a></span><span class="op">(</span></span>
+<span>  data <span class="op">=</span> <span class="va">wind_turbines</span>,</span>
+<span>  columns <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span></span>
+<span>    <span class="st">"Province/Territory"</span>,</span>
+<span>    <span class="st">"Hub.height.(m)"</span>,</span>
+<span>    <span class="st">"Rotor.diameter.(m)"</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-turbines-ggally" class="quarto-float quarto-figure quarto-figure-center anchored" alt="상관 관계, 밀도 플롯, 막대 차트, 산점도 및 상자 그림을 사용하여 `wind_turbines` 데이터 관계의 세 열 간의 비교를 보여주는 3x3 그리드.">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-turbines-ggally-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="wind-turbines_files/figure-html/fig-turbines-ggally-1.png" class="img-fluid figure-img" alt="상관 관계, 밀도 플롯, 막대 차트, 산점도 및 상자 그림을 사용하여 `wind_turbines` 데이터 관계의 세 열 간의 비교를 보여주는 3x3 그리드.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-turbines-ggally-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6.2: 상관 관계, 밀도 플롯, 막대 차트, 산점도 및 상자 그림을 사용하여 <code>wind_turbines</code> 데이터 관계의 세 열 간의 비교를 보여주는 3x3 그리드.
+</figcaption></figure>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p>대신 정렬된 막대 차트를 만들어 각 지역의 터빈 수를 살펴봅시다. <code><a href="https://rdrr.io/r/base/table.html">table()</a></code> 함수를 사용하여 지역별 수를 얻고 <code><a href="https://rdrr.io/r/base/sort.html">sort()</a></code>를 사용하여 가장 작은 것부터 가장 큰 것까지 순서를 정합니다. 그런 다음 <code><a href="https://rdrr.io/r/graphics/barplot.html">barplot()</a></code> 함수를 사용하여 차트를 만들고 <code>horiz = TRUE</code>를 설정하여 막대를 가로로 만들어 읽기 쉽게 만듭니다.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html">barplot</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/sort.html">sort</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span><span class="va">wind_turbines</span><span class="op">$</span><span class="va">`Province/Territory`</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  las <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  horiz <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-turbines-barplot" class="quarto-float quarto-figure quarto-figure-center anchored" alt="각 주 또는 준주에서 커미셔닝된 풍력 터빈 수를 보여주는 정렬된 막대 차트. 온타리오가 약 2500으로 가장 높습니다.">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-turbines-barplot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="wind-turbines_files/figure-html/fig-turbines-barplot-1.png" class="img-fluid figure-img" alt="각 주 또는 준주에서 커미셔닝된 풍력 터빈 수를 보여주는 정렬된 막대 차트. 온타리오가 약 2500으로 가장 높습니다.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-turbines-barplot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6.3: 각 주 또는 준주에서 커미셔닝된 풍력 터빈 수를 보여주는 정렬된 막대 차트.
+</figcaption></figure>
+</div>
+</div>
+</div>
+<p>대부분의 터빈은 온타리오에 있지만 항상 그랬습니까? 각 터빈의 시운전 날짜에 대한 정보도 있습니다. 다른 기간에 대해 이 막대 차트를 다시 작성하여 터빈의 지리적 확산이 시간이 지남에 따라 어떻게 변했는지 확인할 수 있습니다. <code>wind_turbines$Commissioning.date</code>를 <code><a href="https://rdrr.io/r/base/table.html">table()</a></code> 함수에 추가하여 각 연도에 대한 누적 막대 차트를 만들 수 있습니다:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html">barplot</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/table.html">table</a></span><span class="op">(</span></span>
+<span>    <span class="va">wind_turbines</span><span class="op">$</span><span class="va">`Province/Territory`</span>,</span>
+<span>    <span class="va">wind_turbines</span><span class="op">$</span><span class="va">Commissioning.date</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  las <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  horiz <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-turbines-barplot-2" class="quarto-float quarto-figure quarto-figure-center anchored" alt="각 주 또는 준주에 얼마나 많은지 보여주는 누적 막대가 있는 기간 내에 커미셔닝된 풍력 터빈 수를 보여주는 정렬된 막대 차트. 날짜 형식이 다양해서 약간 뒤죽박죽인 것처럼 보입니다.">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-turbines-barplot-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="wind-turbines_files/figure-html/fig-turbines-barplot-2-1.png" class="img-fluid figure-img" alt="각 주 또는 준주에 얼마나 많은지 보여주는 누적 막대가 있는 기간 내에 커미셔닝된 풍력 터빈 수를 보여주는 정렬된 막대 차트. 날짜 형식이 다양해서 약간 뒤죽박죽인 것처럼 보입니다.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-turbines-barplot-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6.4: 각 주 또는 준주에 얼마나 많은지 보여주는 누적 막대가 있는 기간 내에 커미셔닝된 풍력 터빈 수를 보여주는 정렬된 막대 차트.
+</figcaption></figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-turbines-barplot-2" class="quarto-xref">Figure&nbsp;<span>6.4</span></a> 의 y축에서 볼 수 있듯이 <code>Commissioning.date</code>가 항상 연도로 제공되는 것은 아닙니다. 대신 때로는 연도 범위로 제공됩니다. <code>Commissioning.date</code> 데이터를 처리하기 전에 이 플롯의 미적으로 더 만족스러운 초안을 작성해 봅시다.</p>
+</section><section id="탐색적-스케치" class="level3" data-number="6.2.2"><h3 data-number="6.2.2" class="anchored" data-anchor-id="탐색적-스케치">
+<span class="header-section-number">6.2.2</span> 탐색적 스케치</h3>
+<p>관측치가 매우 적은 연도와 시운전 날짜의 정확한 연도를 알 수 없는 터빈이 있습니다. 연도별 터빈 수를 그리는 대신 여러 해의 기간 동안 터빈 수를 플롯해 봅시다. 이러한 기간의 선택은 디자이너의 선택에 달려 있습니다. 이 시각화에서는 2000 - 2004, 2005 - 2009, 2010 - 2014, 2015 - 2019의 4개 5년 기간을 고려하는 것으로 시작하겠습니다.</p>
+<p>한 지역을 다른 지역과 비교하기 어렵게 만들 수 있는 각 연도에 대한 누적 막대 차트를 만드는 대신 <em>와플 차트(waffle chart)</em>라는 대안을 살펴봅시다. 와플 차트는 <em>사각형 파이 차트(square pie charts)</em>라고도 합니다. 가장 일반적으로 10x10 그리드로 시각화되며 각 그리드 사각형은 1%를 나타냅니다. 그리드 사각형의 색상은 다른 범주를 나타냅니다. 파이 차트(및 어느 정도 막대 차트)에 비해 와플 차트의 장점은 사용자가 백분율을 쉽게 읽을 수 있다는 것입니다. 사각형을 세기만 하면 됩니다! 단점은 범주의 값이 1% 미만인 경우 이를 시각화할 쉬운 방법이 없다는 것입니다(부분적으로 채색된 사각형이 옵션이긴 하지만). </p>
+<p>와플 차트는 백분율 대신 카운트를 표시하는 데에도 사용할 수 있습니다. 예를 들어, 각 사각형은 풍력 터빈을 나타내고 사각형의 색상은 해당 터빈이 있는 지역을 나타낼 수 있습니다. 예를 들어 카운트의 와플 차트는 <a href="#fig-sketch-turbines" class="quarto-xref">Figure&nbsp;<span>6.5</span></a> 와 같을 수 있습니다.</p>
+<div id="fig-sketch-turbines" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" alt="패싯 와플 차트의 초기 스케치. 메모는 지역별 색상과 하나의 아이콘이 X개의 터빈을 나타내는 방법을 나타냅니다.">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-sketch-turbines-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/sketch-turbines.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="패싯 와플 차트의 초기 스케치. 메모는 지역별 색상과 하나의 아이콘이 X개의 터빈을 나타내는 방법을 나타냅니다.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-sketch-turbines-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6.5: 시간에 따른 터빈을 보여주는 패싯 와플 차트의 초기 스케치.
+</figcaption></figure>
+</div>
+<p>이 기본 버전의 차트에 두 가지 약간의 변형을 줄 수 있습니다:</p>
+<ul>
+<li><p>플롯할 관측치가 6698개 있는데, 이는 개별 그리드 사각형이 매우 많은 것입니다. 대신 각 사각형은 단 하나가 아니라 일정 수의 터빈을 나타낼 수 있습니다.</p></li>
+<li><p>사각형을 플롯하는 대신 아이콘을 사용할 수 있습니다. 예를 들어 풍력 터빈 아이콘을 플롯할 수 있습니다. 이러한 와플 차트의 변형을 <em>픽토그램(pictogram)</em>이라고 합니다. 아이콘은 <code>Province/Territory</code> 열의 지역에 따라 색상을 지정할 수 있습니다. 많은 공간을 차지하는 기존 범례를 사용하는 대신 부제목 내에 색상 텍스트를 대안으로 사용할 수 있습니다.</p></li>
+</ul>
+<p></p>
+</section></section><section id="플롯-준비" class="level2" data-number="6.3"><h2 data-number="6.3" class="anchored" data-anchor-id="플롯-준비">
+<span class="header-section-number">6.3</span> 플롯 준비</h2>
+<p><strong><code>ggplot2</code></strong>를 사용하여 <a href="#fig-sketch-turbines" class="quarto-xref">Figure&nbsp;<span>6.5</span></a> 의 초안을 작성하려면 준비해야 할 몇 가지 사항이 있습니다:</p>
+<ul>
+<li>
+<code>Commissioning.date</code> 열은 다년 레이블을 처리하고 5년 범주로 그룹화하도록 처리해야 합니다.</li>
+<li>각 아이콘이 몇 개의 풍력 터빈을 나타낼지 결정해야 합니다.</li>
+<li>
+<code>Province/Territory</code> 열의 일부 범주는 숫자가 매우 적고 각 아이콘이 나타내는 터빈 수보다 적을 수 있으므로 함께 그룹화해야 할 수도 있습니다.</li>
+</ul>
+<section id="데이터-랭글링" class="level3" data-number="6.3.1"><h3 data-number="6.3.1" class="anchored" data-anchor-id="데이터-랭글링">
+<span class="header-section-number">6.3.1</span> 데이터 랭글링</h3>
+<p><code>Commissioning.date</code> 열을 처리하는 것부터 시작하겠습니다. 여기에는 세 가지 유형의 값이 있습니다:</p>
+<ul>
+<li>단일 연도(예: <code>"2019"</code>): 이것은 이상적인 시나리오이며 아무것도 할 필요가 없습니다.</li>
+<li>
+<code>/</code>로 구분된 두 연도(예: <code>"2001/2003"</code>): 이를 처리하는 몇 가지 옵션이 있습니다. 첫해, 마지막 해 또는 (연속되지 않은 연도인 경우) 연도 범위의 중간 지점을 취할 수 있습니다. 여기서는 마지막 해를 취할 것입니다. 이는 <code>Commissioning.date</code>가 있는 모든 풍력 터빈이 해당 날짜까지 확실히 시운전되었음을 의미하기 때문입니다.</li>
+<li>
+<code>/</code>로 구분된 3년(예: <code>"2005/2006/2012"</code>): 이것은 더 복잡하지만 위와 같은 이유로 마지막 해를 취할 것입니다.</li>
+</ul>
+<p>본질적으로 이것은 다음을 의미합니다:</p>
+<ul>
+<li>
+<code>Commissioning.date</code>에 <code>"/"</code>가 없으면 아무 것도 하지 않습니다.</li>
+<li>
+<code>Commissioning.date</code>에 하나 이상의 <code>"/"</code>가 있으면 마지막 <code>"/"</code> 뒤에 오는 것을 추출합니다.</li>
+</ul>
+<p><code>extract_after_last_slash()</code>라는 함수를 만들어 봅시다. 이 함수의 입력은 문자열 벡터입니다. 먼저 <strong><code>stringr</code></strong> 패키지의 <code><a href="https://stringr.tidyverse.org/reference/str_detect.html">str_detect()</a></code>를 사용하여 입력 요소에 <code>"/"</code>가 포함되어 있는지 확인합니다 <span class="citation" data-cites="stringr">(<a href="references.html#ref-stringr" role="doc-biblioref">Wickham 2023b</a>)</span>. 그런 다음 정규 표현식과 함께 <strong><code>stringr</code></strong>의 <code><a href="https://stringr.tidyverse.org/reference/str_match.html">str_match()</a></code>를 사용하여 마지막 <code>"/"</code> 뒤의 요소를 추출합니다. <code>"/"</code>가 없으면 출력은 <code>NA</code>가 됩니다. <code><a href="https://stringr.tidyverse.org/reference/str_match.html">str_match()</a></code> 함수는 입력 길이와 동일한 행 수를 가진 행렬을 반환하며, 여기서 첫 번째 열은 전체 일치, 즉 입력입니다. 두 번째 열에는 원하는 출력이 포함되어 있으므로 <code>[, 2]</code>를 사용하여 추출합니다. 마지막으로 <strong><code>dplyr</code></strong>의 <code><a href="https://dplyr.tidyverse.org/reference/if_else.html">if_else()</a></code>를 사용하여 <code>"/"</code>가 있으면 <code><a href="https://stringr.tidyverse.org/reference/str_match.html">str_match()</a></code>의 출력을 사용하고, 그렇지 않으면 원래 값을 유지합니다. </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">extract_after_last_slash</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">texts</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">has_slash</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://stringr.tidyverse.org/reference/str_detect.html">str_detect</a></span><span class="op">(</span><span class="va">texts</span>, <span class="st">"/"</span><span class="op">)</span></span>
+<span>  <span class="va">extracted</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://stringr.tidyverse.org/reference/str_match.html">str_match</a></span><span class="op">(</span><span class="va">texts</span>, <span class="st">".*/(.*)$"</span><span class="op">)</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span></span>
+<span>  <span class="va">output</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/if_else.html">if_else</a></span><span class="op">(</span><span class="va">has_slash</span>, <span class="va">extracted</span>, <span class="va">texts</span><span class="op">)</span></span>
+<span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="va">output</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="tip-turbines-ifelse" class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip&nbsp;6.6: <code><a href="https://dplyr.tidyverse.org/reference/if_else.html">if_else()</a></code>와 <code><a href="https://rdrr.io/r/base/ifelse.html">ifelse()</a></code> 비교
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>이전에 기본 R에서 <code><a href="https://rdrr.io/r/base/ifelse.html">ifelse()</a></code> 함수를 사용해 본 적이 있다면 <strong><code>dplyr</code></strong>에 매우 비슷한 이름의 함수가 있는 이유와 차이점이 무엇인지 궁금할 것입니다. 주요 차이점은 <code><a href="https://dplyr.tidyverse.org/reference/if_else.html">if_else()</a></code>가 당신이 생각하는 대로 수행하고 있는지 확인하는 데 더 엄격하다는 것입니다. 예를 들어 길이가 4인 벡터 <code>x</code>가 있고 0과 같은 <code>x</code>의 값을 다른 것으로 바꾸고 싶다고 가정해 봅시다. 해당 대체가 길이가 3인 경우 실제로 말이 되지 않습니다. 길이 3의 벡터에서 어떤 값을 사용해야 합니까? <code><a href="https://dplyr.tidyverse.org/reference/if_else.html">if_else()</a></code> 함수는 오류로 이 문제를 강조하지만 <code><a href="https://rdrr.io/r/base/ifelse.html">ifelse()</a></code> 함수는 조용히 같은 위치의 값을 사용합니다.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/if_else.html">if_else</a></span><span class="op">(</span><span class="va">x</span> <span class="op">==</span> <span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">3</span><span class="op">)</span>, <span class="va">x</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-error">
+<pre data-code-line-numbers=""><code>Error in `if_else()`:
+! Can't recycle `true` (size 3) to size 4.</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span><span class="op">(</span><span class="va">x</span> <span class="op">==</span> <span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">3</span><span class="op">)</span>, <span class="va">x</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre data-code-line-numbers=""><code>[1] 1 5 2 3</code></pre>
+</div>
+</div>
+<p><strong><code>dplyr</code></strong>의 <code><a href="https://dplyr.tidyverse.org/reference/if_else.html">if_else()</a></code> 함수는 유형도 보존합니다. <code>Date</code>를 <code><a href="https://dplyr.tidyverse.org/reference/if_else.html">if_else()</a></code>에 넣으면 <code>Date</code>가 나옵니다. <code><a href="https://rdrr.io/r/base/ifelse.html">ifelse()</a></code>의 경우에는 항상 그런 것은 아닙니다. </p>
+</div>
+</div>
+<p>이제 새로운 <code>extract_after_last_slash()</code> 함수를 사용해 봅시다! <code><a href="https://dplyr.tidyverse.org/reference/select.html">select()</a></code>를 사용하여 실제로 필요한 열인 <code>Province/Territory</code> 및 <code>Commissioning.date</code>만 유지하는 것으로 시작합니다. 그런 다음 <code>Commissioning.date</code> 열에 <code>extract_after_last_slash()</code>를 적용한 결과인 <code>Year</code>라는 새 열을 만듭니다. 처음에 이 열은 여전히 문자열이므로 <code><a href="https://rdrr.io/r/base/numeric.html">as.numeric()</a></code>을 사용하여 숫자로 변환합니다: </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">turbines_year</span> <span class="op">&lt;-</span> <span class="va">wind_turbines</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span></span>
+<span>    <span class="va">`Province/Territory`</span>, <span class="va">Commissioning.date</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span></span>
+<span>    Year <span class="op">=</span> <span class="fu">extract_after_last_slash</span><span class="op">(</span><span class="va">Commissioning.date</span><span class="op">)</span>,</span>
+<span>    Year <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html">as.numeric</a></span><span class="op">(</span><span class="va">Year</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>이제 새로운 <code>Year</code> 열을 범주로 그룹화해 봅시다. 범주는 2000년부터 2019년까지를 포괄하므로 <strong><code>dplyr</code></strong>의 <code><a href="https://dplyr.tidyverse.org/reference/filter.html">filter()</a></code>를 사용하여 이 기간에 맞지 않는 행을 필터링하는 것으로 시작합니다. 그런 다음 <strong><code>dplyr</code></strong>의 <code><a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html">case_when()</a></code>을 사용하여 실제로 범주를 구성합니다. 여기서는 <code><a href="https://rdrr.io/r/base/seq.html">seq()</a></code> 함수를 사용합니다. <code>seq(2000, 2004)</code> 코드는 벡터 <code>2000 2001 2002 2003 2004</code>를 생성합니다. <code>Year</code>가 이러한 값 중 하나와 같으면 <code>"2000 - 2004"</code> 범주로 들어갑니다. 등등. R은 범주를 자동으로 정렬하지만, 이 경우 알파벳 순서가 원하는 순서와 일치하기 때문입니다. 그러나 범주의 순서를 명시적으로 지정하는 것이 좋은 관행이므로 <code>Year_Group</code>을 팩터(factor)로 설정하고 올바른 순서를 지정할 수도 있습니다. </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">turbines_year_group</span> <span class="op">&lt;-</span> <span class="va">turbines_year</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">Year</span> <span class="op">&gt;=</span> <span class="fl">2000</span> <span class="op">&amp;</span> <span class="va">Year</span> <span class="op">&lt;=</span> <span class="fl">2019</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span></span>
+<span>    Year_Group <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html">case_when</a></span><span class="op">(</span></span>
+<span>      <span class="va">Year</span> <span class="op"><a href="https://rdrr.io/r/base/match.html">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">2000</span>, <span class="fl">2004</span><span class="op">)</span> <span class="op">~</span> <span class="st">"2000 - 2004"</span>,</span>
+<span>      <span class="va">Year</span> <span class="op"><a href="https://rdrr.io/r/base/match.html">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">2005</span>, <span class="fl">2009</span><span class="op">)</span> <span class="op">~</span> <span class="st">"2005 - 2009"</span>,</span>
+<span>      <span class="va">Year</span> <span class="op"><a href="https://rdrr.io/r/base/match.html">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">2010</span>, <span class="fl">2014</span><span class="op">)</span> <span class="op">~</span> <span class="st">"2010 - 2014"</span>,</span>
+<span>      <span class="va">Year</span> <span class="op"><a href="https://rdrr.io/r/base/match.html">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">2015</span>, <span class="fl">2019</span><span class="op">)</span> <span class="op">~</span> <span class="st">"2015 - 2019"</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span></span>
+<span>    Year_Group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">Year_Group</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span></span>
+<span>      <span class="st">"2000 - 2004"</span>, <span class="st">"2005 - 2009"</span>,</span>
+<span>      <span class="st">"2010 - 2014"</span>, <span class="st">"2015 - 2019"</span></span>
+<span>    <span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><code>Province/Territory</code> 범주를 살펴봅시다. <strong><code>dplyr</code></strong>의 <code><a href="https://dplyr.tidyverse.org/reference/count.html">count()</a></code> 및 <code><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange()</a></code>를 사용하면 범주 간에 큰 불균형이 있음을 알 수 있습니다: </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">turbines_year_group</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html">count</a></span><span class="op">(</span><span class="va">`Province/Territory`</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange</a></span><span class="op">(</span><span class="op">-</span><span class="va">n</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre data-code-line-numbers=""><code># A tibble: 12 × 2
+   `Province/Territory`          n
+   &lt;chr&gt;                     &lt;int&gt;
+ 1 Ontario                    2662
+ 2 Quebec                     1859
+ 3 Alberta                     895
+ 4 Nova Scotia                 310
+ 5 British Columbia            292
+ 6 Saskatchewan                153
+ 7 Manitoba                    133
+ 8 New Brunswick               119
+ 9 Prince Edward Island        104
+10 Newfoundland and Labrador    27
+11 Northwest Territories         4
+12 Yukon                         1</code></pre>
+</div>
+</div>
+<p>먼저 <code>Province/Territory</code> 열의 이름을 <code>Region</code>으로 바꿉니다. 짧은 이름이라 작업하기가 조금 더 쉽습니다. 범주의 수와 관련하여 제기된 문제 외에도 12개 범주는 시각화하기에 상당히 많은 수입니다. 가장 작은 6개 범주를 함께 그룹화하도록 선택할 수 있습니다. 6개 선택은 다소 임의적이지만 숫자가 적은 많은 범주와 숫자가 매우 많은 적은 범주 간의 균형을 원합니다. 다시 <code><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate()</a></code> 및 <code><a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html">case_when()</a></code>을 사용하여 지역이 지정된 6개 값 중 하나인 경우 <code>Region</code>의 값을 <code>"other"</code>로 변경합니다. </p>
+<p>그런 다음 <code><a href="https://dplyr.tidyverse.org/reference/count.html">count()</a></code>를 사용하여 각 <code>Year_Group</code> 및 <code>Region</code> 조합에서 얼마나 많은 터빈이 시운전되었는지 계산합니다. 또한 각 아이콘이 나타낼 터빈 수를 결정해야 합니다. 원하는 해상도와 최종 플롯의 크기에 따라 이 값을 결정하는 데 약간의 시행착오가 필요합니다. 여기서는 <code>20</code>을 사용했습니다. 즉, 터빈 수를 <code>20</code>으로 나누어 필요한 아이콘 수를 얻고, 전체 아이콘만 가질 수 있으므로 값을 반올림합니다. </p>
+<p>반올림된 카운트가 <code>0</code>인 행은 플롯되지 않으므로 필터링합니다. 여담으로, 단순히 버리기 전에 이 값에 대해 생각하는 것이 중요합니다. 예를 들어 특정 기간에 9개의 터빈이 있는 지역은 이 플롯에 표시되지 않습니다. <code>9/20</code>은 0.5 미만이므로 <code>0</code>으로 반올림되기 때문입니다. 이것은 이러한 유형의 와플 차트 변형의 불행한 한계입니다. </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">turbines_region</span> <span class="op">&lt;-</span> <span class="va">turbines_year_group</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html">rename</a></span><span class="op">(</span>Region <span class="op">=</span> <span class="va">`Province/Territory`</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span></span>
+<span>    Region <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/case-and-replace-when.html">case_when</a></span><span class="op">(</span></span>
+<span>      <span class="va">Region</span> <span class="op"><a href="https://rdrr.io/r/base/match.html">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span></span>
+<span>        <span class="st">"Northwest Territories"</span>,</span>
+<span>        <span class="st">"Newfoundland and Labrador"</span>,</span>
+<span>        <span class="st">"Prince Edward Island"</span>,</span>
+<span>        <span class="st">"New Brunswick"</span>,</span>
+<span>        <span class="st">"Manitoba"</span>,</span>
+<span>        <span class="st">"Saskatchewan"</span></span>
+<span>      <span class="op">)</span> <span class="op">~</span> <span class="st">"other"</span>,</span>
+<span>      <span class="cn">TRUE</span> <span class="op">~</span> <span class="va">Region</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html">count</a></span><span class="op">(</span><span class="va">Region</span>, <span class="va">Year_Group</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">n</span> <span class="op">/</span> <span class="fl">20</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">n</span> <span class="op">!=</span> <span class="fl">0</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><code>Region</code> 변수는 기본적으로 알파벳순으로 플롯되지만 이것이 가장 유용한 순서인 경우는 드뭅니다. 대신 크기별로 정렬해 봅시다. 단, <code>"other"</code> 범주는 마지막에 둡니다.</p>
+<p>먼저 <code><a href="https://dplyr.tidyverse.org/reference/summarise.html">summarise()</a></code> 함수를 사용하여 다른 기간의 터빈 수를 합산하여 <code>Region</code>당 합계를 얻습니다. 그런 다음 내림차순으로 <code><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange()</a></code>합니다 (<code>n</code> 앞의 <code>-</code>에 유의). 그런 다음 <code><a href="https://dplyr.tidyverse.org/reference/filter.html">filter()</a></code>를 사용하여 <code>"other"</code> 범주를 제외하고 <code><a href="https://dplyr.tidyverse.org/reference/pull.html">pull()</a></code>을 사용하여 <code>Region</code> 열을 추출한 후 끝에 붙입니다. </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">region_levels</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="va">turbines_region</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html">summarise</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span>, .by <span class="op">=</span> <span class="va">Region</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange</a></span><span class="op">(</span><span class="op">-</span><span class="va">n</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">Region</span> <span class="op">!=</span> <span class="st">"other"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html">pull</a></span><span class="op">(</span><span class="va">Region</span><span class="op">)</span>, <span class="st">"other"</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>이제 <code><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate()</a></code>를 사용하여 이러한 새 팩터 수준을 <code>Region</code> 열에 적용해 봅시다. 플롯을 만드는 데 사용할 <strong><code>waffle</code></strong> 패키지 <span class="citation" data-cites="waffle">(<a href="references.html#ref-waffle" role="doc-biblioref">Rudis and Gandy 2023</a>)</span>의 <em>특이한 점</em>(팩터 수준에 따르지 않고 데이터 집합에 나타나는 순서대로 데이터를 플롯함)으로 인해 <strong><code>dplyr</code></strong>의 <code><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange()</a></code>를 사용하여 데이터를 정렬합니다. </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">plot_data</span> <span class="op">&lt;-</span> <span class="va">turbines_region</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span></span>
+<span>    Region <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">Region</span>, levels <span class="op">=</span> <span class="va">region_levels</span><span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange</a></span><span class="op">(</span><span class="va">Region</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>이제 데이터를 플롯할 준비가 되었습니다!</p>
+</section><section id="font-awesome-글꼴-설치" class="level3" data-number="6.3.2"><h3 data-number="6.3.2" class="anchored" data-anchor-id="font-awesome-글꼴-설치">
+<span class="header-section-number">6.3.2</span> Font Awesome 글꼴 설치</h3>
+<p>플롯팅으로 넘어가기 전에 한 가지 더 해야 할 일이 있습니다. <a href="#fig-sketch-turbines" class="quarto-xref">Figure&nbsp;<span>6.5</span></a> 에서 우리는 단순히 색칠된 그리드 사각형 대신 와플 차트에 아이콘을 사용하기로 결정했습니다. 따라서 R에서 아이콘을 사용할 방법을 찾아야 합니다.</p>
+<p><a href="programming-languages.html" class="quarto-xref"><span>Chapter 2</span></a> 에서 <strong><code>sysfonts</code></strong> 및 <strong><code>showtext</code></strong> 패키지를 사용하여 글꼴을 R에 로드하는 방법을 보았습니다. 다행히도 여기서 유사한 프로세스를 사용하여 아이콘 글꼴을 로드할 수 있습니다. <a href="https://fontawesome.com/">Font Awesome</a>은 확장 가능한 벡터 아이콘과 소셜 로고를 제공하는 인기 있는 아이콘 도구 키트입니다(자세한 내용은 <a href="cats.html" class="quarto-xref"><span>Chapter 7</span></a> 참조) <span class="citation" data-cites="fontawesome">(<a href="references.html#ref-fontawesome" role="doc-biblioref">Font Awesome 2024</a>)</span>. <a href="https://fontawesome.com/download">fontawesome.com/download</a>에서 무료로 사용 가능한 아이콘이 포함된 글꼴 파일을 다운로드할 수 있으며 <strong>Free for Desktop</strong> 옵션을 선택하면 됩니다. 그러면 여러 글꼴 파일이 포함된 zip 파일이 다운로드됩니다. 이 차트의 경우 해당 파일 중 <code>Font-Awesome-6-Free-Solid-900.otf</code> 하나만 필요합니다. 이 <code>.otf</code> 파일을 <code>fonts</code>라는 프로젝트 폴더와 같이 다시 찾을 수 있는 곳에 저장합니다. </p>
+<p>그런 다음 <strong><code>sysfonts</code></strong> <span class="citation" data-cites="sysfonts">(<a href="references.html#ref-sysfonts" role="doc-biblioref">Qiu 2022</a>)</span>의 <code><a href="https://rdrr.io/pkg/sysfonts/man/font_add.html">font_add()</a></code>를 사용하여 글꼴을 R에 로드합니다. <code>family</code> 인수는 R에서 글꼴을 참조할 이름입니다. <code>regular</code> 인수는 <code>.otf</code> 파일의 파일 경로입니다. 그런 다음 <a href="programming-languages.html" class="quarto-xref"><span>Chapter 2</span></a> 에서와 완전히 동일한 방식으로 <code><a href="https://rdrr.io/pkg/showtext/man/showtext_auto.html">showtext_auto()</a></code> 및 <code><a href="https://rdrr.io/pkg/showtext/man/showtext_opts.html">showtext_opts()</a></code>를 사용하여 <strong><code>showtext</code></strong>를 사용하여 텍스트를 렌더링합니다. </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/sysfonts/man/font_add.html">font_add</a></span><span class="op">(</span></span>
+<span>  family <span class="op">=</span> <span class="st">"Font Awesome 6"</span>,</span>
+<span>  regular <span class="op">=</span> <span class="st">"fonts/Font-Awesome-6-Free-Solid-900.otf"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/showtext/man/showtext_auto.html">showtext_auto</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/showtext/man/showtext_opts.html">showtext_opts</a></span><span class="op">(</span>dpi <span class="op">=</span> <span class="fl">300</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="tip-turbines-open" class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip&nbsp;6.7: <strong><code>waffle</code></strong>로 Font Awesome 아이콘 설치
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong><code>waffle</code></strong> 패키지에는 Font Awesome 5가 번들로 제공되며, 여기서 설명하는 방법 대신 <code><a href="https://rdrr.io/pkg/waffle/man/install_fa_fonts.html">install_fa_fonts()</a></code> 함수를 사용하여 글꼴을 설치할 수 있습니다. <code><a href="https://rdrr.io/pkg/sysfonts/man/font_add.html">font_add()</a></code> 접근 방식을 사용하여 다운로드하고 설치하면 최신 <strong>Font Awesome 6</strong> 글꼴을 사용하므로 더 다양한 아이콘을 사용할 수 있으며 글꼴 시스템을 전체적으로 설치할 필요 없이 R에만 로드하면 됩니다. </p>
+</div>
+</div>
+<p>이제 플롯할 준비가 되었습니다!</p>
+</section><section id="waffle을-사용한-첫-번째-플롯" class="level3" data-number="6.3.3"><h3 data-number="6.3.3" class="anchored" data-anchor-id="waffle을-사용한-첫-번째-플롯">
+<span class="header-section-number">6.3.3</span> <strong><code>waffle</code></strong>을 사용한 첫 번째 플롯</h3>
+<p><strong><code>waffle</code></strong> 패키지 <span class="citation" data-cites="waffle">(<a href="references.html#ref-waffle" role="doc-biblioref">Rudis and Gandy 2023</a>)</span>를 사용하여 플롯을 만들 것입니다. 패키지에는 <code>data.frame</code>에서 와플 차트를 직접 만들 수 있는 <code><a href="https://rdrr.io/pkg/waffle/man/waffle.html">waffle()</a></code> 함수가 포함되어 있지만, <strong><code>ggplot2</code></strong>로 일반적으로 하는 방식으로 차트를 만들 수 있는 <code>geom</code> 함수도 포함되어 있습니다. <code><a href="https://rdrr.io/pkg/waffle/man/geom_waffle.html">geom_waffle()</a></code> 함수는 그리드 사각형이 있는 기존 와플 차트를 만드는 데 사용할 수 있으며 <code><a href="https://rdrr.io/pkg/waffle/man/geom_pictogram.html">geom_pictogram()</a></code> 함수는 아이콘이 있는 와플 차트(예: 픽토그램)에 사용됩니다. 우리는 <code><a href="https://rdrr.io/pkg/waffle/man/geom_pictogram.html">geom_pictogram()</a></code>을 사용할 것입니다. 즉, 평소처럼 데이터를 <code><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot()</a></code>에 전달하여 플롯을 시작합니다. </p>
+<p>그런 다음 <code><a href="https://rdrr.io/pkg/waffle/man/geom_pictogram.html">geom_pictogram()</a></code> 함수에서 미적 매핑을 편집하여 <code>label</code>과 <code>color</code>를 지정합니다. 둘 다 <code>Region</code> 열에 매핑됩니다. 아이콘이 지역에 따라 다르지 않기를 원하기 때문에 약간 이상하게 보일 수 있습니다. 대신 모든 범주에 대해 동일한 아이콘을 사용하고 싶습니다. 그러나 <code><a href="https://rdrr.io/pkg/waffle/man/geom_pictogram.html">geom_pictogram()</a></code>은 <code>label</code>이 범주에 따라 다를 것으로 예상하므로 지역에 매핑하고 나중에 <code><a href="https://rdrr.io/pkg/waffle/man/scale_label_pictogram.html">scale_label_pictogram()</a></code>을 사용하여 모두 동일한 아이콘으로 만들 것입니다. <code>values</code> 인수도 필수 미적 요소입니다. 데이터의 <code>n</code> 열을 사용하여 각 범주에 대해 플롯할 아이콘 수를 지정합니다. x 및 y 좌표는 <code><a href="https://rdrr.io/pkg/waffle/man/geom_pictogram.html">geom_pictogram()</a></code> 함수를 사용할 때 자동으로 계산되므로 <code><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes()</a></code> 함수에서 매핑할 필요가 없습니다. </p>
+<p>또한 <code><a href="https://rdrr.io/pkg/waffle/man/geom_pictogram.html">geom_pictogram()</a></code> 함수의 몇 가지 다른 매개변수도 편집합니다. 기본적으로 픽토그램은 수평으로 쌓입니다. 이는 종종 읽기 쉽기 때문입니다(수평 막대 차트와 유사). 그러나 날짜 변수를 x축에 두는 것도 매우 일반적입니다. <code>flip = TRUE</code>를 설정하면 픽토그램 범주가 위쪽으로 쌓이고 날짜 범주가 x축에 위치할 수 있습니다. <code>n_rows = 10</code>을 설정하면 픽토그램의 각 행에 10개의 아이콘이 포함됩니다(여기서 행과 열이 뒤집혔음을 기억하십시오). 예를 들어 <code><a href="https://ggplot2.tidyverse.org/reference/geom_text.html">geom_text()</a></code>에서 글꼴 크기를 편집하는 것과 같은 방식으로 아이콘의 <code>size</code>를 편집할 수 있습니다. 아이콘이 겹치지 않고 볼 수 있을 만큼 충분히 큰지 확인하려면 약간의 시행착오가 필요할 수 있습니다. 또한 <code>family = "Font Awesome 6"</code>(<code><a href="https://rdrr.io/pkg/sysfonts/man/font_add.html">font_add()</a></code>에서 사용된 <code>family</code> 인수와 동일한 이름)을 설정하여 아이콘이 Font Awesome 6에서 왔음을 명시해야 합니다. </p>
+<p>마지막으로 <code><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html">facet_wrap()</a></code>을 추가하여 각 날짜 범위에 대한 픽토그램을 만들고 단일 행에 배치하고 패싯 레이블을 차트 하단으로 이동합니다. </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">basic_plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">plot_data</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/waffle/man/geom_pictogram.html">geom_pictogram</a></span><span class="op">(</span></span>
+<span>    mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span></span>
+<span>      label <span class="op">=</span> <span class="va">Region</span>,</span>
+<span>      color <span class="op">=</span> <span class="va">Region</span>,</span>
+<span>      values <span class="op">=</span> <span class="va">n</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    flip <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>    n_rows <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>    size <span class="op">=</span> <span class="fl">2.5</span>,</span>
+<span>    family <span class="op">=</span> <span class="st">"Font Awesome 6"</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">Year_Group</span>,</span>
+<span>    nrow <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>    strip.position <span class="op">=</span> <span class="st">"bottom"</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="va">basic_plot</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-turbines-base-plot" class="quarto-float quarto-figure quarto-figure-center anchored" alt="각 지역의 기간별 터빈 수를 보여주는 픽토그램으로, 아이콘 대신 지역 이름이 표시됩니다. 많은 텍스트가 겹쳐져 있습니다.">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-turbines-base-plot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="wind-turbines_files/figure-html/fig-turbines-base-plot-1.png" class="img-fluid figure-img" alt="각 지역의 기간별 터빈 수를 보여주는 픽토그램으로, 아이콘 대신 지역 이름이 표시됩니다. 많은 텍스트가 겹쳐져 있습니다.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-turbines-base-plot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6.6: 각 지역의 기간별 터빈 수를 보여주는 픽토그램으로, 아이콘 대신 지역 이름이 표시됩니다.
+</figcaption></figure>
+</div>
+</div>
+</div>
+<div id="tip-turbines-waffle-prop" class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip&nbsp;6.8: 비례 와플 차트
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>기본적으로 <code><a href="https://rdrr.io/pkg/waffle/man/geom_pictogram.html">geom_pictogram()</a></code> 및 <code><a href="https://rdrr.io/pkg/waffle/man/geom_waffle.html">geom_waffle()</a></code>은 모두 <code>values</code>에 매핑된 열이 카운트로 플롯되어야 한다고 가정합니다. 값을 백분율로 플롯하려면 <code>make_proportional = TRUE</code>를 설정하십시오.</p>
+</div>
+</div>
+<p><a href="#fig-turbines-base-plot" class="quarto-xref">Figure&nbsp;<span>6.6</span></a> 에서 즉시 알 수 있는 것은 아이콘이 없다는 것입니다. 대신 플롯에 <code>Region</code> 이름이 인쇄되었습니다(<code>family = "Font Awesome 6"</code>을 설정했음에도 불구하고). 이는 사용하려는 아이콘을 정의하지 않았기 때문입니다. 적절한 아이콘과 이름을 찾으려면 <a href="https://fontawesome.com/search">fontawesome.com/search</a>에서 Font Awesome 웹사이트를 탐색하고 관련 아이콘을 검색할 수 있습니다. 예를 들어 <em>풍력 터빈</em> 아이콘을 검색할 수 있습니다. Font Awesome 풍력 터빈 아이콘이 있기는 하지만 불행히도 Pro 버전에서만 사용할 수 있습니다. 이 테마에 맞는 다른 무료 아이콘이 있습니다: <code>wind</code>, <code>bolt</code>(에너지를 나타내기 위해) 또는 <code>fan</code>. 우리는 <code>fan</code>을 사용할 것입니다 <span class="citation" data-cites="fontawesome">(<a href="references.html#ref-fontawesome" role="doc-biblioref">Font Awesome 2024</a>)</span>. </p>
+<p><strong><code>waffle</code></strong>의 <code><a href="https://rdrr.io/pkg/waffle/man/scale_label_pictogram.html">scale_label_pictogram()</a></code>을 플롯에 추가하여 아이콘을 지정할 수 있습니다. 일반적으로 아이콘 이름 벡터를 <code>values</code> 인수에 전달합니다(각 범주에 대해 하나의 아이콘). 그러나 모든 범주에 대해 동일한 아이콘을 사용하려고 하므로 R이 벡터의 요소를 재사용한다는 사실을 이용하여 단일 이름을 전달할 수 있습니다. 아이콘이 모두 동일하므로 <code>guide = "none"</code>을 설정하여 아이콘 범례를 제거합니다. 또는 이전 장에서 범례를 제거하기 위해 했던 것처럼 나중에 <code>theme(legend.position = "none")</code>을 설정할 수 있습니다. </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">icons_plot</span> <span class="op">&lt;-</span> <span class="va">basic_plot</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/waffle/man/scale_label_pictogram.html">scale_label_pictogram</a></span><span class="op">(</span></span>
+<span>    values <span class="op">=</span> <span class="st">"fan"</span>,</span>
+<span>    guide <span class="op">=</span> <span class="st">"none"</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="va">icons_plot</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-turbines-icons-plot" class="quarto-float quarto-figure quarto-figure-center anchored" alt="각 지역의 기간별 터빈 수를 보여주는 픽토그램으로, 팬 아이콘은 20개의 터빈을 나타냅니다. 약간 찌그러져 보입니다.">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-turbines-icons-plot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="wind-turbines_files/figure-html/fig-turbines-icons-plot-1.png" class="img-fluid figure-img" alt="각 지역의 기간별 터빈 수를 보여주는 픽토그램으로, 팬 아이콘은 20개의 터빈을 나타냅니다. 약간 찌그러져 보입니다.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-turbines-icons-plot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6.7: 각 지역의 기간별 터빈 수를 보여주는 픽토그램으로, 팬 아이콘은 20개의 터빈을 나타냅니다.
+</figcaption></figure>
+</div>
+</div>
+</div>
+<p>또한 y축의 값이 올바르지 않다는 것을 눈치챘을 것입니다. 2010 - 2014 기간에는 확실히 15개 이상의 터빈이 있습니다! 다음 섹션에서 축을 다룰 것입니다.</p>
+</section></section><section id="고급-스타일링" class="level2" data-number="6.4"><h2 data-number="6.4" class="anchored" data-anchor-id="고급-스타일링">
+<span class="header-section-number">6.4</span> 고급 스타일링</h2>
+<p>이제 플롯에 사용된 색상을 편집하고 제목과 부제목(범례를 대체할 색상 텍스트 포함)을 추가하고 축 레이블을 편집해야 합니다.</p>
+<section id="rcartocolor를-사용한-색상" class="level3" data-number="6.4.1"><h3 data-number="6.4.1" class="anchored" data-anchor-id="rcartocolor를-사용한-색상">
+<span class="header-section-number">6.4.1</span> <strong><code>rcartocolor</code></strong>를 사용한 색상</h3>
+<p>배경 및 텍스트 색상에 대한 변수를 정의하는 것으로 시작합니다: </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">bg_col</span> <span class="op">&lt;-</span> <span class="st">"#FAFAFA"</span></span>
+<span><span class="va">text_col</span> <span class="op">&lt;-</span> <span class="st">"black"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>또한 아이콘 색상에 사용할 색상 팔레트를 정의해 봅시다. 우리는 6가지 다른 색상을 찾고 있습니다 - 영역마다 하나씩. <strong><code>rcartocolor</code></strong> <span class="citation" data-cites="rcartocolor">(<a href="references.html#ref-rcartocolor" role="doc-biblioref">Nowosad 2018</a>)</span> 패키지는 <a href="https://carto.com/">CARTO</a> <span class="citation" data-cites="cartocolors">(<a href="references.html#ref-cartocolors" role="doc-biblioref">CARTO 2016</a>)</span>가 디자인한 지도를 위한 <a href="https://carto.com/carto-colors/">CARTOColors</a> 색상 팔레트에 대한 액세스를 제공합니다. 이 팔레트는 주로 지도를 색칠하기 위해 설계되었지만 색상 팔레트는 다른 유형의 그래픽에도 매우 효과적입니다.</p>
+<p><strong><code>rcartocolor</code></strong> 패키지에서 범주형 팔레트를 <em>질적(qualitative)</em> 팔레트라고 합니다. <code><a href="https://jakubnowosad.com/rcartocolor/reference/display_carto_all.html">display_carto_all()</a></code>을 사용하여 충분한 수의 색상이 있는 사용 가능한 모든 질적 팔레트를 볼 수 있습니다: </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb27" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://jakubnowosad.com/rcartocolor/reference/display_carto_all.html">display_carto_all</a></span><span class="op">(</span></span>
+<span>  n <span class="op">=</span> <span class="fl">6</span>, type <span class="op">=</span> <span class="st">"qualitative"</span></span>
+<span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-turbines-rcarto" class="quarto-float quarto-figure quarto-figure-center anchored" alt="`rcartocolor` 패키지에 있는 최소 6가지 색상의 모든 질적 색상 팔레트.">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-turbines-rcarto-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="wind-turbines_files/figure-html/fig-turbines-rcarto-1.png" class="img-fluid figure-img" alt="`rcartocolor` 패키지에 있는 최소 6가지 색상의 모든 질적 색상 팔레트.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-turbines-rcarto-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6.8: <code>rcartocolor</code> 패키지에 있는 최소 6가지 색상의 모든 질적 색상 팔레트.
+</figcaption></figure>
+</div>
+</div>
+</div>
+<p><strong><code>rcartocolor</code></strong> 패키지에는 플롯에 직접 사용할 수 있는 <code><a href="https://jakubnowosad.com/rcartocolor/reference/carto_scale.html">scale_fill_carto_d()</a></code> 함수가 있지만, 색상을 더 쉽게 재사용할 수 있도록 색상 팔레트를 16진수 코드 벡터로 저장할 것입니다. <a href="#fig-turbines-rcarto" class="quarto-xref">Figure&nbsp;<span>6.8</span></a> 에서 볼 수 있듯이 <strong><code>rcartocolor</code></strong> 패키지의 질적 팔레트에서 마지막 색상은 종종 회색입니다. 누락된 데이터를 나타내는 데는 좋지만 범주별로 다른 색상을 원할 때는 잘 작동하지 않습니다. 요령은 필요한 것보다 한 가지 더 많은 색상을 요청한 다음 색상 팔레트의 마지막 요소를 버리는 것입니다. 플롯에 6개의 범주가 있으므로 <code><a href="https://jakubnowosad.com/rcartocolor/reference/carto_pal.html">carto_pal()</a></code> 함수를 사용하여 7가지 색상을 요청한 다음 처음 6개만 추출합니다. 여기서는 <code>"Vivid"</code> 팔레트를 사용합니다. </p>
+<p>또한 <code><a href="https://rdrr.io/r/base/names.html">names()</a></code> 함수를 사용하고 <code>region_levels</code>를 이름으로 사용하여 <code>col_palette</code> 벡터를 명명된 벡터로 만듭니다. 색상을 플롯에 추가하는 데 꼭 필요한 것은 아니지만 색상을 추출하고 각 색상이 올바른 범주 레이블에 매핑되도록 하는 것이 더 쉬워집니다.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb28" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">col_palette</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://jakubnowosad.com/rcartocolor/reference/carto_pal.html">carto_pal</a></span><span class="op">(</span></span>
+<span>  n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">plot_data</span><span class="op">$</span><span class="va">Region</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span>,</span>
+<span>  name <span class="op">=</span> <span class="st">"Vivid"</span></span>
+<span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">plot_data</span><span class="op">$</span><span class="va">Region</span><span class="op">)</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">col_palette</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">region_levels</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>그런 다음 이 <code>col_palette</code> 벡터를 <code><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html">scale_color_manual()</a></code>에 전달하여 플롯에 색상을 적용할 수 있습니다. 기존 범례 대신 색상 텍스트를 사용할 것이므로 <code>guide = "none"</code>을 설정하여 범례를 다시 제거합니다. </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb29" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">col_plot</span> <span class="op">&lt;-</span> <span class="va">icons_plot</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html">scale_color_manual</a></span><span class="op">(</span></span>
+<span>    values <span class="op">=</span> <span class="va">col_palette</span>,</span>
+<span>    guide <span class="op">=</span> <span class="st">"none"</span></span>
+<span>  <span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section><section id="marquee로-스타일이-지정된-텍스트-추가" class="level3" data-number="6.4.2"><h3 data-number="6.4.2" class="anchored" data-anchor-id="marquee로-스타일이-지정된-텍스트-추가">
+<span class="header-section-number">6.4.2</span> <strong><code>marquee</code></strong>로 스타일이 지정된 텍스트 추가</h3>
+<p><a href="programming-languages.html" class="quarto-xref"><span>Chapter 2</span></a> 및 <a href="museums.html" class="quarto-xref"><span>Chapter 3</span></a> 에서 <code><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme()</a></code> 요소 내부의 <code>face = "bold"</code> 인수를 사용하여 제목 또는 부제목 텍스트를 굵게 서식을 지정하는 방법을 이미 보았습니다. 하지만 텍스트의 <em>일부</em>만 굵게 만들고 싶다면 어떻게 해야 할까요? <strong><code>marquee</code></strong> 패키지 <span class="citation" data-cites="marquee">(<a href="references.html#ref-marquee" role="doc-biblioref">Pedersen and Mitáš 2024</a>)</span>를 사용하여 문자열 내의 텍스트에 스타일을 추가할 수 있습니다. <strong><code>marquee</code></strong> 패키지를 사용하면 <strong><code>ggplot2</code></strong>로 만든 플롯이나 <strong><code>grid</code></strong>로 만든 기타 그래픽을 포함하여 R에서 그래픽을 만들 때 텍스트에 Markdown 구문을 사용할 수 있습니다. </p>
+<p>Markdown에서는 텍스트를 굵게 만들려면 두 쌍의 별표로 묶습니다(예: <code>**굵은 텍스트**</code>). 예를 들어 전체 제목을 굵은 글꼴로 표시하려면 제목을 <code>**</code> 안에 쓸 수 있습니다. 캡션에서는 <code>Data</code>와 <code>Graphic</code>이라는 단어를 굵게 표시하여 두 가지 다른 정보 필드가 있음을 강조할 수 있습니다:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb30" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">title</span> <span class="op">&lt;-</span> <span class="st">"**Ontario is the province with the most wind turbines**"</span></span>
+<span><span class="va">cap</span> <span class="op">&lt;-</span> <span class="st">"**Data**: Natural Resources Canada | **Graphic**: N. Rennie"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>플롯 캡션에 대한 이러한 유형의 서식은 여러 플롯에서 재사용하고 싶은 것일 수 있습니다. 그리고 코드를 재사용하고 싶을 때는 함수로 만드는 것이 거의 항상 유용합니다. 세 가지 인수가 있는 <code>source_caption()</code>이라는 함수를 정의해 보겠습니다:</p>
+<ul>
+<li>
+<code>source</code>: 데이터 소스에 대한 문자열</li>
+<li>
+<code>graphic</code>: 시각화의 속성에 대한 문자열</li>
+<li>
+<code>sep</code>: 두 개의 텍스트를 구분해야 하는 문자열로, 기본값은 <code>" | "</code>입니다.</li>
+</ul>
+<p>그런 다음 <strong><code>glue</code></strong>의 <code><a href="https://glue.tidyverse.org/reference/glue.html">glue()</a></code>를 사용하여 이 세 가지 인수를 결합하고 <code>**</code>를 사용하여 굵은 서식을 포함합니다. 여기서는 네임스페이싱(함수 이름 앞에 패키지 이름과 <code>::</code> 접두사 붙이기)을 사용하여 나중 장에서 이 함수를 더 쉽게 재사용할 수 있도록 합니다.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb31" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">source_caption</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">source</span>, <span class="va">graphic</span>, <span class="va">sep</span> <span class="op">=</span> <span class="st">" | "</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">caption</span> <span class="op">&lt;-</span> <span class="fu">glue</span><span class="fu">::</span><span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html">glue</a></span><span class="op">(</span></span>
+<span>    <span class="st">"**Data**: {source}{sep}**Graphic**: {graphic}"</span></span>
+<span>  <span class="op">)</span></span>
+<span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="va">caption</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>새로운 <code>source_caption()</code> 함수를 사용하여 캡션을 구성할 수 있습니다:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb32" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">cap</span> <span class="op">&lt;-</span> <span class="fu">source_caption</span><span class="op">(</span></span>
+<span>  source <span class="op">=</span> <span class="st">"Natural Resources Canada"</span>,</span>
+<span>  graphic <span class="op">=</span> <span class="st">"N. Rennie"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">cap</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre data-code-line-numbers=""><code>**Data**: Natural Resources Canada | **Graphic**: N. Rennie</code></pre>
+</div>
+</div>
+<p>이전에 수동으로 만든 캡션과 동일하다는 것을 알 수 있습니다. 이후 장에서도 <code>source_caption()</code> 함수를 재사용할 것입니다.</p>
+<p>부제목으로 넘어가 보겠습니다. 이 시각화에서 부제목은 다른 범주를 나타내기 위해 색상 텍스트를 사용할 것이므로 범례 역할도 겸하게 됩니다. <strong><code>marquee</code></strong>에서 텍스트는 중괄호로 텍스트를 묶어 색상을 지정할 수 있습니다. 여기서 첫 번째 단어 앞에는 마침표가 붙고 텍스트의 색상을 식별합니다. 즉, <code>{.color text to color}</code>입니다. 예를 들어 <code>{.red This is red text.}</code>입니다.</p>
+<p>우리는 프로그래밍 방식으로 색상과 텍스트를 추가하고 싶습니다. 대괄호를 사용하여 <code>col_palette</code> 벡터에 저장된 값과 이름을 하위 집합화합니다. 여기서 <code>col_palette[[1]]</code>은 첫 번째 범주의 색상에 대한 16진수 코드를 추출하고 <code>names(col_palette)[[1]]</code>은 첫 번째 범주의 이름을 추출합니다.</p>
+<p>일반적으로 문자열을 쓰고 문자열에 변수를 삽입하려면 <code><a href="https://glue.tidyverse.org/reference/glue.html">glue()</a></code>를 사용하여 결합합니다. 그러나 <code><a href="https://glue.tidyverse.org/reference/glue.html">glue()</a></code>에서 변수에 일반적으로 사용하는 <code><a href="https://rdrr.io/r/base/Paren.html">{}</a></code>가 <strong><code>marquee</code></strong>로 텍스트 서식을 지정하는 데 사용할 <code><a href="https://rdrr.io/r/base/Paren.html">{}</a></code>와 섞이게 됩니다. 이 문제를 해결할 수 있는 몇 가지 다른 방법이 있습니다. 한 가지 방법은 <code><a href="https://glue.tidyverse.org/reference/glue.html">glue()</a></code>에서 사용되는 구분 기호를 변경하는 것입니다. 예를 들어 <code><a href="https://glue.tidyverse.org/reference/glue.html">glue()</a></code> 함수 내에서 <code>.open = "["</code> 및 <code>.close = "]"</code>를 설정합니다. 또는 이 문제를 처리하기 위해 만들어진 <code><a href="https://glue.tidyverse.org/reference/glue.html">glue()</a></code>의 동등한 버전인 <strong><code>marquee</code></strong> 패키지의 <code><a href="https://marquee.r-lib.org/reference/marquee_glue.html">marquee_glue()</a></code>를 사용할 수 있습니다.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb34" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">st</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://marquee.r-lib.org/reference/marquee_glue.html">marquee_glue</a></span><span class="op">(</span></span>
+<span>  <span class="st">"The Canadian Wind Turbine Database contains the geographic location and key technology details for wind turbines installed in Canada. It includes information about turbines installed in {.{col_palette[[1]]} {names(col_palette)[[1]]}}, {.{col_palette[[2]]} {names(col_palette)[[2]]}}, {.{col_palette[[3]]} {names(col_palette)[[3]]}}, {.{col_palette[[4]]} {names(col_palette)[[4]]}}, {.{col_palette[[5]]} {names(col_palette)[[5]]}}, and {.{col_palette[[6]]} {names(col_palette)[[6]]}} regions."</span></span>
+<span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>변수가 평가되었을 때 부제목이 어떻게 보이는지 확인해 봅시다:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb35" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">st</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre data-code-line-numbers=""><code>The Canadian Wind Turbine Database contains the geographic location and key technology details for wind turbines installed in Canada. It includes information about turbines installed in {.#E58606 Ontario}, {.#5D69B1 Quebec}, {.#52BCA3 Alberta}, {.#99C945 Nova Scotia}, {.#CC61B0 British Columbia}, and {.#24796C other} regions.</code></pre>
+</div>
+</div>
+<p>이것이 바로 <code>region_levels</code>를 구성할 때 <code>"other"</code> 범주를 소문자로 하고 마지막 위치에 두고 싶었던 이유입니다. 그래야 문장이 더 잘 읽힙니다.</p>
+<p>이 텍스트 요소들을 <code><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs()</a></code> 함수에 전달하여 평소와 같이 플롯에 추가합니다: </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb37" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">text_plot</span> <span class="op">&lt;-</span> <span class="va">col_plot</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span><span class="op">(</span></span>
+<span>    title <span class="op">=</span> <span class="va">title</span>,</span>
+<span>    subtitle <span class="op">=</span> <span class="va">st</span>,</span>
+<span>    caption <span class="op">=</span> <span class="va">cap</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="va">text_plot</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-turbines-text-plot" class="quarto-float quarto-figure quarto-figure-center anchored" alt="각 지역의 기간별 터빈 수를 보여주는 픽토그램으로, 제목과 캡션 텍스트는 굵은 텍스트를 나타내는 별표를 보여줍니다. 텍스트가 제대로 렌더링되지 않고 raw markdown으로 표시됩니다.">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-turbines-text-plot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="wind-turbines_files/figure-html/fig-turbines-text-plot-1.png" class="img-fluid figure-img" alt="각 지역의 기간별 터빈 수를 보여주는 픽토그램으로, 제목과 캡션 텍스트는 굵은 텍스트를 나타내는 별표를 보여줍니다. 텍스트가 제대로 렌더링되지 않고 raw markdown으로 표시됩니다.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-turbines-text-plot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6.9: 각 지역의 기간별 터빈 수를 보여주는 픽토그램으로, 제목과 캡션 텍스트는 굵은 텍스트를 나타내는 별표를 보여줍니다.
+</figcaption></figure>
+</div>
+</div>
+</div>
+<p>서식이 적용되지 않았고 <code>**</code>가 문자 그대로 렌더링된 것을 알 수 있습니다. <code><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme()</a></code>에서 인수를 편집할 때 이 문제를 다룰 것입니다. 아직 제목 텍스트 서식을 지정하기 위해 <strong><code>marquee</code></strong>를 사용하지 않았습니다!</p>
+</section><section id="스케일-및-테마-조정" class="level3" data-number="6.4.3"><h3 data-number="6.4.3" class="anchored" data-anchor-id="스케일-및-테마-조정">
+<span class="header-section-number">6.4.3</span> 스케일 및 테마 조정</h3>
+<p><strong><code>marquee</code></strong>로 서식을 적용하고 조금 더 깔끔하게 보이도록 플롯에 마지막 몇 가지 조정을 할 수 있습니다. 스케일을 조정하는 것으로 시작하겠습니다. 현재 y축 범위는 0에서 약 15까지입니다. 데이터에 6,500개 이상의 관측치가 있으므로 이것이 올바르지 않다는 것을 알고 있습니다. y축의 스케일이 올바르지 않은 데에는 두 가지 이유가 있습니다:</p>
+<ul>
+<li>각 아이콘은 20개의 터빈을 나타내므로 y축 레이블은 실제보다 20배 작게 표시됩니다.</li>
+<li>각 패싯 내에서 행에는 10개의 아이콘이 포함되므로 y축 레이블은 실제보다 또 다른 10배 작게 표시됩니다.</li>
+</ul>
+<p><code><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_y_continuous()</a></code>의 <code>labels</code> 인수에 함수를 전달하여 이 문제를 해결해 봅시다. 이 함수는 기존 y축 레이블을 가져와 <code>10</code>을 곱하고 <code>20</code>을 곱하고 천 단위 구분 기호 쉼표를 사용하여 서식을 지정합니다. <code>expand = c(0, 0)</code>을 설정하여 y축 위아래의 여분의 공간을 제거합니다. 또한 0에서 4,000까지 1,000마다 중단점이 있는 약간 더 나은 y축 중단점을 선택해 봅시다. 불행히도 레이블 스케일이 아닌 원래 스케일에서 제한과 중단점을 지정해야 합니다. 예를 들어 <code>15</code>의 중단점은 실제로 <code>15 * 20 * 10 = 3000</code>의 중단점입니다. <code><a href="https://ggplot2.tidyverse.org/reference/coord_fixed.html">coord_fixed()</a></code>를 추가하면 각 아이콘 영역을 정사각형으로 만들어 아이콘 겹침 문제를 처리하는 데 도움이 됩니다. </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb38" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">scale_plot</span> <span class="op">&lt;-</span> <span class="va">text_plot</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_y_continuous</a></span><span class="op">(</span></span>
+<span>    labels <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
+<span>      <span class="fu"><a href="https://rdrr.io/r/base/format.html">format</a></span><span class="op">(</span></span>
+<span>        <span class="va">x</span> <span class="op">*</span> <span class="fl">10</span> <span class="op">*</span> <span class="fl">20</span>,</span>
+<span>        big.mark <span class="op">=</span> <span class="st">","</span></span>
+<span>      <span class="op">)</span></span>
+<span>    <span class="op">}</span>,</span>
+<span>    expand <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>,</span>
+<span>    breaks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">5</span>, <span class="fl">10</span>, <span class="fl">15</span>, <span class="fl">20</span><span class="op">)</span>,</span>
+<span>    limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">20</span><span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_fixed.html">coord_fixed</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>테마를 편집하여 플롯을 정리하기 위해 마지막 몇 가지 편집을 해 봅시다. <code><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_minimal()</a></code>을 기본 테마로 사용하고(글꼴 크기를 조금 작게 만듦) <code><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme()</a></code> 인수를 사용하여 몇 가지 추가 편집을 합니다. </p>
+<p><code><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme()</a></code> 내에서 <code>plot.title.position</code> 및 <code>plot.caption.position</code>을 <code>"plot"</code>으로 설정하여 제목, 부제목 및 캡션 텍스트를 첫 번째 패널의 시작이 아닌 전체 플롯의 가장자리에 맞춥니다. <code>plot.margin</code>을 사용하여 플롯 가장자리 주위에 약간의 추가 간격을 추가하고 <code>plot.background</code> 인수에 대해 <code><a href="https://ggplot2.tidyverse.org/reference/element.html">element_rect()</a></code>의 <code>fill</code> 및 <code>color</code> 인수를 사용하여 배경색을 편집합니다. 그리드 선은 <code>panel.grid.major</code>를 조정하여 약간 더 얇게 만듭니다. </p>
+<p>마지막으로 플롯, 부제목 및 캡션 요소를 편집하고 <code><a href="https://marquee.r-lib.org/reference/element_marquee.html">element_marquee()</a></code>를 사용하여 모두 지정합니다. <code><a href="https://marquee.r-lib.org/reference/element_marquee.html">element_marquee()</a></code>를 사용하면 굵은 글씨 및 유색 텍스트와 같이 적용한 Markdown 구문이 올바르게 렌더링됩니다. <code><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text()</a></code>와 같은 방식으로 <strong><code>marquee</code></strong> 텍스트의 <code>color</code>, <code>size</code>, <code>margin</code> 및 <code>hjust</code>를 조정할 수 있습니다. 텍스트의 일부 요소는 <code><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text()</a></code>로 렌더링되고 일부는 <code><a href="https://marquee.r-lib.org/reference/element_marquee.html">element_marquee()</a></code>로 렌더링된 경우 텍스트 크기와 간격에 약간의 차이가 있을 수 있습니다. <code>size</code> 인수를 사용하여 개별 요소의 크기를 설정해 보십시오. </p>
+<p><code>width</code> 인수는 텍스트 래핑을 적용하며, 여기서 <code>width = 1</code>은 텍스트가 플롯의 전체 너비로 래핑됨을 의미합니다. 이것은 <strong><code>ggtext</code></strong>의 <code>element_textbox_simple()</code>이 작동하는 방식과 유사합니다. 그러나 <code>width</code>는 기본적으로 설정되어 있지 않으므로 텍스트가 래핑되도록 하려면 너비를 지정하는 것이 중요합니다.</p>
+<div id="tip-turbines-marquee-req" class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip&nbsp;6.9: <strong><code>marquee</code></strong> 사용을 위한 요구 사항
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong><code>marquee</code></strong> 패키지는 R 그래픽 엔진의 최신 기능 중 일부에 의존합니다. 즉, <strong><code>marquee</code></strong> 텍스트가 올바르게 렌더링되려면 최소 버전 4.3의 R이 필요합니다. 모든 그래픽 장치가 이러한 새로운 기능을 지원하는 것은 아니므로(특히 Windows의 경우) R이 사용하는 그래픽 장치를 조정해야 할 수도 있습니다. <strong><code>ragg</code></strong> 패키지 <span class="citation" data-cites="ragg">(<a href="references.html#ref-ragg" role="doc-biblioref">Pedersen and Shemanarev 2023</a>)</span>를 통해 사용할 수 있는 장치가 좋은 선택입니다. </p>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb39" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">scale_plot</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_minimal</a></span><span class="op">(</span></span>
+<span>    base_size <span class="op">=</span> <span class="fl">7.5</span></span>
+<span>  <span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span></span>
+<span>    <span class="co"># spacing around text and plot</span></span>
+<span>    plot.title.position <span class="op">=</span> <span class="st">"plot"</span>,</span>
+<span>    plot.caption.position <span class="op">=</span> <span class="st">"plot"</span>,</span>
+<span>    plot.margin <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">margin</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">10</span>, <span class="fl">5</span>, <span class="fl">10</span><span class="op">)</span>,</span>
+<span>    <span class="co"># background and grid lines</span></span>
+<span>    plot.background <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_rect</a></span><span class="op">(</span></span>
+<span>      fill <span class="op">=</span> <span class="va">bg_col</span>, color <span class="op">=</span> <span class="va">bg_col</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    panel.grid.major.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_blank</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>    panel.grid.major.y <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_line</a></span><span class="op">(</span></span>
+<span>      linewidth <span class="op">=</span> <span class="fl">0.4</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    panel.grid.minor <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_blank</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>    axis.text.x <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_blank</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>    <span class="co"># format text with marquee</span></span>
+<span>    plot.title <span class="op">=</span> <span class="fu"><a href="https://marquee.r-lib.org/reference/element_marquee.html">element_marquee</a></span><span class="op">(</span></span>
+<span>      color <span class="op">=</span> <span class="va">text_col</span>,</span>
+<span>      width <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>      size <span class="op">=</span> <span class="fl">12</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    plot.subtitle <span class="op">=</span> <span class="fu"><a href="https://marquee.r-lib.org/reference/element_marquee.html">element_marquee</a></span><span class="op">(</span></span>
+<span>      color <span class="op">=</span> <span class="va">text_col</span>,</span>
+<span>      width <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>      size <span class="op">=</span> <span class="fl">9</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    plot.caption <span class="op">=</span> <span class="fu"><a href="https://marquee.r-lib.org/reference/element_marquee.html">element_marquee</a></span><span class="op">(</span></span>
+<span>      hjust <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>      lineheight <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>      size <span class="op">=</span> <span class="fl">8</span>,</span>
+<span>      margin <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">margin</a></span><span class="op">(</span>t <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-turbines-theme-plot" class="quarto-float quarto-figure quarto-figure-center anchored" alt="각 지역의 기간별 터빈 수를 보여주는 픽토그램으로, 부제목의 색상 텍스트는 각 지역에 매핑되는 색상을 나타냅니다.">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-turbines-theme-plot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="wind-turbines_files/figure-html/fig-turbines-theme-plot-1.png" class="img-fluid figure-img" alt="각 지역의 기간별 터빈 수를 보여주는 픽토그램으로, 부제목의 색상 텍스트는 각 지역에 매핑되는 색상을 나타냅니다.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-turbines-theme-plot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6.10: 각 지역의 기간별 터빈 수를 보여주는 픽토그램으로, 부제목의 색상 텍스트는 각 지역에 매핑되는 색상을 나타냅니다.
+</figcaption></figure>
+</div>
+</div>
+</div>
+<p>이제 완료되었으며 사본을 저장할 준비가 되었습니다! </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb40" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsave.html">ggsave</a></span><span class="op">(</span></span>
+<span>  filename <span class="op">=</span> <span class="st">"wind-turbines.png"</span>,</span>
+<span>  width <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>  height <span class="op">=</span> <span class="fl">0.75</span> <span class="op">*</span> <span class="fl">5</span></span>
+<span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section></section><section id="성찰" class="level2" data-number="6.5"><h2 data-number="6.5" class="anchored" data-anchor-id="성찰">
+<span class="header-section-number">6.5</span> 성찰</h2>
+<p>기존 범례 대신 색상 부제목을 사용하는 것은 기존 범례보다 훨씬 적은 공간을 사용하여 데이터에 더 많은 공간을 남기므로 효과적입니다. 그러나 부제목에는 여전히 개선될 수 있는 몇 가지 요소가 있습니다. 우리는 이미 와플 차트와 픽토그램의 한계에 대해 숫자가 작은 범주에 대한 표현이 부족하다는 측면에서 논의했습니다. 즉, 일부 지역을 그룹화해야 했고, 따라서 터빈이 적은 지역은 차트에 포함된 정보가 적습니다. 아마도 부제목을 업데이트하여 사용자에게 각 아이콘이 20개의 터빈을 나타내며 이는 10개 이하의 터빈이 있는 지역은 표시되지 않는다는 것을 설명할 수 있습니다.</p>
+<p>또한 사용된 날짜에 대한 약간의 불확실성이 있으며 차트에서 실제로 설명되지 않습니다. <code>Commissioning.date</code> 열을 처리할 때 가장 최근 날짜를 사용했지만 반드시 항상 최선의 선택은 아닙니다. 데이터의 한계는 설치 날짜나 첫 가동 날짜가 아니라 시운전 날짜만 있다는 것입니다. 이는 아마도 데이터의 일부 값이 아직 건설되지 않은 기간에 터빈이 존재한다고 제안할 수 있음을 의미합니다.</p>
+<p>마지막으로 Font Awesome 풍력 터빈 아이콘은 Pro 버전에서만 사용할 수 있기 때문에 <code>fan</code> 아이콘을 사용했습니다. 풍력 터빈 아이콘을 사용하면 훨씬 더 명확하고 플롯의 주제와 더 일관성이 있을 것입니다. 대체 아이콘 글꼴 사용을 고려하거나 대신 이미지를 사용할 수 있습니다. 기존 <code>fan</code> 아이콘을 다른 소스의 풍력 터빈 아이콘으로 대체하는 방법에 대한 설명은 <a href="other-tricks.html#sec-ggbuild" class="quarto-xref"><span>Section 14.2</span></a> 를 참조하십시오.</p>
+<p>이 시각화의 원본 버전을 개발하는 과정에서 생성된 각 플롯은 <strong><code>camcorder</code></strong>를 사용하여 캡처되었으며 아래 gif에 표시됩니다. <strong><code>camcorder</code></strong>를 데이터 시각화 프로세스에 사용하는 방법에 대해 자세히 알아보려면 <a href="other-tricks.html#sec-camcorder" class="quarto-xref"><span>Section 14.1</span></a> 를 참조하십시오.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure"><p><img src="images/turbines.gif" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="차트 작성 과정을 보여주는 Gif"></p>
+</figure>
+</div>
+</section><section id="연습-문제" class="level2" data-number="6.6"><h2 data-number="6.6" class="anchored" data-anchor-id="연습-문제">
+<span class="header-section-number">6.6</span> 연습 문제</h2>
+<ul>
+<li><p>아이콘을 사용하여 터빈 수를 나타내는 대신 아이콘이 총 용량(kW)을 나타내는 이 시각화를 다시 만드십시오. 다른 아이콘을 선택해야 합니까?</p></li>
+<li><p>두 버전(수 및 용량)을 단일 시각화로 배열할 수 있습니까? 힌트: <a href="time-zones.html" class="quarto-xref"><span>Chapter 12</span></a> 에서 설명한 <strong><code>patchwork</code></strong> 패키지를 사용하고 싶을 수 있습니다. ```</p></li>
+</ul>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list" style="display: none">
+<div id="ref-Anscombe1973" class="csl-entry" role="listitem">
+Anscombe, F. J. 1973. <span>“Graphs in Statistical Analysis.”</span> <em>The American Statistician</em> 27 (1): 17–21. <a href="https://doi.org/10.1080/00031305.1973.10478966">https://doi.org/10.1080/00031305.1973.10478966</a>.
+</div>
+<div id="ref-aphalo2024" class="csl-entry" role="listitem">
+Aphalo, Pedro J. 2024. <em><span class="nocase">Learn R: As a Language</span></em>. Second Edition. CRC Press. <a href="https://www.learnr-book.info/">https://www.learnr-book.info/</a>.
+</div>
+<div id="ref-egg" class="csl-entry" role="listitem">
+Auguie, Baptiste. 2019. <em><span class="nocase">egg: Extensions for ’ggplot2’: Custom Geom, Custom Themes, Plot Alignment, Labelled Panels, Symmetric Scales, and Fixed Panel Size</span></em>. <a href="https://CRAN.R-project.org/package=egg">https://CRAN.R-project.org/package=egg</a>.
+</div>
+<div id="ref-imager" class="csl-entry" role="listitem">
+Barthelme, Simon. 2024. <em><span class="nocase">imager: Image Processing Library Based on ’CImg’</span></em>. <a href="https://CRAN.R-project.org/package=imager">https://CRAN.R-project.org/package=imager</a>.
+</div>
+<div id="ref-vandenBrandv4" class="csl-entry" role="listitem">
+Brand, Teun van den. 2025. <span>“<span class="nocase">ggplot2 4.0.0</span>.”</span> <a href="https://www.tidyverse.org/blog/2025/09/ggplot2-4-0-0/" class="uri">https://www.tidyverse.org/blog/2025/09/ggplot2-4-0-0/</a>.
+</div>
+<div id="ref-bridson2007" class="csl-entry" role="listitem">
+Bridson, Robert. 2007. <span>“Fast Poisson Disk Sampling in Arbitrary Dimensions.”</span> In <em>ACM SIGGRAPH 2007 Sketches</em>. SIGGRAPH ’07. New York, NY, USA: Association for Computing Machinery. <a href="https://doi.org/10.1145/1278780.1278807">https://doi.org/10.1145/1278780.1278807</a>.
+</div>
+<div id="ref-Brown2009" class="csl-entry" role="listitem">
+Brown, Mark J.F., and Paxton, Robert J. 2009. <span>“The Conservation of Bees: A Global Perspective.”</span> <em>Apidologie</em> 40 (3): 410–16. <a href="https://doi.org/10.1051/apido/2009019">https://doi.org/10.1051/apido/2009019</a>.
+</div>
+<div id="ref-geomtextpath" class="csl-entry" role="listitem">
+Cameron, Allan, and Teun van den Brand. 2024. <em><span class="nocase">geomtextpath: Curved Text in ’ggplot2’</span></em>. <a href="https://CRAN.R-project.org/package=geomtextpath">https://CRAN.R-project.org/package=geomtextpath</a>.
+</div>
+<div id="ref-cartocolors" class="csl-entry" role="listitem">
+CARTO. 2016. <em><span>’CARTOColors’ Palettes</span></em>. <a href="https://carto.com/carto-colors/">https://carto.com/carto-colors/</a>.
+</div>
+<div id="ref-extrafont" class="csl-entry" role="listitem">
+Chang, Winston. 2023. <em><span class="nocase">extrafont</span>: Tools for Using Fonts</em>. <a href="https://CRAN.R-project.org/package=extrafont">https://CRAN.R-project.org/package=extrafont</a>.
+</div>
+<div id="ref-dumbbell" class="csl-entry" role="listitem">
+Cheung, Foo. 2021. <em><span class="nocase">dumbbell</span>: Displaying Changes Between Two Points Using Dumbbell Plots</em>. <a href="https://CRAN.R-project.org/package=dumbbell">https://CRAN.R-project.org/package=dumbbell</a>.
+</div>
+<div id="ref-ggannotate" class="csl-entry" role="listitem">
+Cowgill, Matt, and John Helveston. 2021. <em><span class="nocase">ggannotate: Interactively Annotate ggplot2 Plots</span></em>. <a href="https://github.com/MattCowgill/ggannotate">https://github.com/MattCowgill/ggannotate</a>.
+</div>
+<div id="ref-pak" class="csl-entry" role="listitem">
+Csárdi, Gábor, and Jim Hester. 2024. <em><span class="nocase">pak: Another Approach to Package Installation</span></em>. <a href="https://CRAN.R-project.org/package=pak">https://CRAN.R-project.org/package=pak</a>.
+</div>
+<div id="ref-remotes" class="csl-entry" role="listitem">
+Csárdi, Gábor, Jim Hester, Hadley Wickham, Winston Chang, Martin Morgan, and Dan Tenenbaum. 2024. <em><span class="nocase">remotes: R Package Installation from Remote Repositories, Including ’GitHub’</span></em>. <a href="https://CRAN.R-project.org/package=remotes">https://CRAN.R-project.org/package=remotes</a>.
+</div>
+<div id="ref-ggview" class="csl-entry" role="listitem">
+Domin, Iaroslav. 2024. <em><span class="nocase">ggview: ’ggplot2’ Picture Previewer</span></em>. <a href="https://CRAN.R-project.org/package=ggview">https://CRAN.R-project.org/package=ggview</a>.
+</div>
+<div id="ref-tidyplots" class="csl-entry" role="listitem">
+Engler, Jan Broder. 2024. <span>“Tidyplots Empowers Life Scientists with Easy Code-Based Data Visualization.”</span> <em>bioRxiv</em>. <a href="https://doi.org/10.1101/2024.11.08.621836">https://doi.org/10.1101/2024.11.08.621836</a>.
+</div>
+<div id="ref-ggpattern" class="csl-entry" role="listitem">
+FC, Mike, Trevor L. Davis, and ggplot2 authors. 2024. <em><span class="nocase">ggpattern: ’ggplot2’ Pattern Geoms</span></em>. <a href="https://CRAN.R-project.org/package=ggpattern">https://CRAN.R-project.org/package=ggpattern</a>.
+</div>
+<div id="ref-flaticon" class="csl-entry" role="listitem">
+Flaticon.com. 2024. <span>“<span>Wind Power Flaticon</span>.”</span> <a href="https://www.flaticon.com/free-icon/wind-power_5670189" class="uri">https://www.flaticon.com/free-icon/wind-power_5670189</a>.
+</div>
+<div id="ref-fontawesome" class="csl-entry" role="listitem">
+Font Awesome. 2024. <span>“<span>Font Awesome 6</span>.”</span> <a href="https://fontawesome.com/" class="uri">https://fontawesome.com/</a>.
+</div>
+<div id="ref-Hullman2021" class="csl-entry" role="listitem">
+Franconeri, Steven L., Lace M. Padilla, Priti Shah, Jeffrey M. Zacks, and Jessica Hullman. 2021. <span>“The Science of Visual Data Communication: What Works.”</span> <em>Psychological Science in the Public Interest</em> 22 (3): 110–61. <a href="https://doi.org/10.1177/15291006211051956">https://doi.org/10.1177/15291006211051956</a>.
+</div>
+<div id="ref-viridis" class="csl-entry" role="listitem">
+Garnier, Simon, Ross, Noam, Rudis, Robert, Camargo, et al. 2024. <em><span class="nocase">viridis(Lite)</span> - Colorblind-Friendly Color Maps for <span>R</span></em>. <a href="https://doi.org/10.5281/zenodo.4679423">https://doi.org/10.5281/zenodo.4679423</a>.
+</div>
+<div id="ref-ggiraph" class="csl-entry" role="listitem">
+Gohel, David, and Panagiotis Skintzos. 2024. <em><span class="nocase">ggiraph: Make ’ggplot2’ Graphics Interactive</span></em>. <a href="https://CRAN.R-project.org/package=ggiraph">https://CRAN.R-project.org/package=ggiraph</a>.
+</div>
+<div id="ref-GAcharts" class="csl-entry" role="listitem">
+Government Analysis Function. 2021. <span>“Data Visualisation: Colours.”</span> <a href="https://analysisfunction.civilservice.gov.uk/policy-store/data-visualisation-colours-in-charts/" class="uri">https://analysisfunction.civilservice.gov.uk/policy-store/data-visualisation-colours-in-charts/</a>.
+</div>
+<div id="ref-geofacet" class="csl-entry" role="listitem">
+Hafen, Ryan. 2023. <em><span class="nocase">geofacet</span>: <span class="nocase">’ggplot2’</span> Faceting Utilities for Geographical Data</em>. <a href="https://CRAN.R-project.org/package=geofacet">https://CRAN.R-project.org/package=geofacet</a>.
+</div>
+<div id="ref-harmon2024" class="csl-entry" role="listitem">
+Harmon, Jon. 2024. <em><span class="nocase">Web APIs with R</span></em>. <span>CRC Press</span>. <a href="https://wapir.io/">https://wapir.io/</a>.
+</div>
+<div id="ref-lintr" class="csl-entry" role="listitem">
+Hester, Jim, Florent Angly, Russ Hyde, Michael Chirico, Kun Ren, Alexander Rosenstock, and Indrajeet Patil. 2024. <em><span class="nocase">lintr</span>: A ’Linter’ for <span>R</span> Code</em>. <a href="https://CRAN.R-project.org/package=lintr">https://CRAN.R-project.org/package=lintr</a>.
+</div>
+<div id="ref-glue" class="csl-entry" role="listitem">
+Hester, Jim, and Jennifer Bryan. 2024. <em><span class="nocase">glue</span>: Interpreted String Literals</em>. <a href="https://glue.tidyverse.org/">https://glue.tidyverse.org/</a>.
+</div>
+<div id="ref-camcorder" class="csl-entry" role="listitem">
+Hughes, Ellis. 2022a. <em><span class="nocase">camcorder</span>: Record Your Plot History</em>. <a href="https://CRAN.R-project.org/package=camcorder">https://CRAN.R-project.org/package=camcorder</a>.
+</div>
+<div id="ref-tidytuesdayR" class="csl-entry" role="listitem">
+———. 2022b. <em><span class="nocase">tidytuesdayR</span>: Access the Weekly ’TidyTuesday’ Project Dataset</em>. <a href="https://CRAN.R-project.org/package=tidytuesdayR">https://CRAN.R-project.org/package=tidytuesdayR</a>.
+</div>
+<div id="ref-paletteer" class="csl-entry" role="listitem">
+Hvitfeldt, Emil. 2021. <em><span class="nocase">paletteer</span>: Comprehensive Collection of Color Palettes</em>. <a href="https://github.com/EmilHvitfeldt/paletteer">https://github.com/EmilHvitfeldt/paletteer</a>.
+</div>
+<div id="ref-animalshelter" class="csl-entry" role="listitem">
+———. 2025. <em><span class="nocase">animalshelter</span>: Animal Shelter Data</em>. <a href="https://github.com/EmilHvitfeldt/animalshelter">https://github.com/EmilHvitfeldt/animalshelter</a>.
+</div>
+<div id="ref-fontawesomeR" class="csl-entry" role="listitem">
+Iannone, Richard. 2024. <em><span class="nocase">fontawesome: Easily Work with ’Font Awesome’ Icons</span></em>. <a href="https://CRAN.R-project.org/package=fontawesome">https://CRAN.R-project.org/package=fontawesome</a>.
+</div>
+<div id="ref-zones_data" class="csl-entry" role="listitem">
+Internet Assigned Numbers Authority. 2023. <span>“The <span class="nocase">tz</span> Database: Time Zone and Daylight Saving Time Data.”</span> <span>Internet Assigned Numbers Authority</span>. <a href="https://data.iana.org/time-zones/tz-link.html">https://data.iana.org/time-zones/tz-link.html</a>.
+</div>
+<div id="ref-img_jax" class="csl-entry" role="listitem">
+Jax (@lysrix). 2017. <span>“Lemur.”</span> <a href="https://unsplash.com/photos/red-and-white-rodent-h5xrh3CNT-k">https://unsplash.com/photos/red-and-white-rodent-h5xrh3CNT-k</a>.
+</div>
+<div id="ref-kays2020" class="csl-entry" role="listitem">
+Kays, R., R. R. Dunn, A. W. Parsons, B. Mcdonald, T. Perkins, S. A. Powers, L. Shell, et al. 2020. <span>“The Small Home Ranges and Large Local Ecological Impacts of Pet Cats.”</span> <em>Animal Conservation</em> 23 (5): 516–23. <a href="https://doi.org/10.1111/acv.12563">https://doi.org/10.1111/acv.12563</a>.
+</div>
+<div id="ref-r4rest" class="csl-entry" role="listitem">
+Keyes, David. 2024. <em><span class="nocase">R for the Rest of Us: A Statistics-Free Introduction</span></em>. No Starch Press. <a href="https://book.rfortherestofus.com/">https://book.rfortherestofus.com/</a>.
+</div>
+<div id="ref-longbeach_data" class="csl-entry" role="listitem">
+Long Beach Animal Shelter. 2025. <span>“<span>Animal Shelter Data</span>.”</span> City of Long Beach Animal Care Services. <a href="https://data.longbeach.gov/explore/dataset/animal-shelter-intakes-and-outcomes/information/">https://data.longbeach.gov/explore/dataset/animal-shelter-intakes-and-outcomes/information/</a>.
+</div>
+<div id="ref-Vizumap" class="csl-entry" role="listitem">
+Lucchesi, Lydia, and Petra Kuhnert. 2020. <em><span>Vizumap</span>: Visualizing Uncertainty in Spatial Data</em>. <a href="https://github.com/lydialucchesi/Vizumap">https://github.com/lydialucchesi/Vizumap</a>.
+</div>
+<div id="ref-museums_data" class="csl-entry" role="listitem">
+Mapping Museums. 2021. <span>“Mapping Museums Data.”</span> <a href="https://www.mappingmuseums.org">www.mappingmuseums.org</a>.
+</div>
+<div id="ref-rnaturalearth" class="csl-entry" role="listitem">
+Massicotte, Philippe, and Andy South. 2023. <em><span class="nocase">rnaturalearth</span>: World Map Data from Natural Earth</em>. <a href="https://docs.ropensci.org/rnaturalearth/">https://docs.ropensci.org/rnaturalearth/</a>.
+</div>
+<div id="ref-Matejka2017" class="csl-entry" role="listitem">
+Matejka, Justin, and George Fitzmaurice. 2017. <span>“Same Stats, Different Graphs: Generating Datasets with Varied Appearance and Identical Statistics Through Simulated Annealing.”</span> In, 1290–94. <a href="https://doi.org/10.1145/3025453.3025912">https://doi.org/10.1145/3025453.3025912</a>.
+</div>
+<div id="ref-cats_data" class="csl-entry" role="listitem">
+McDonald, J. L., and H. Cole. 2020. <span>“Data from: The Small Home Ranges and Large Local Ecological Impacts of Pet Cats [United Kingdom].”</span> Movebank data repository. <a href="https://doi.org/doi:10.5441/001/1.pf315732">https://doi.org/doi:10.5441/001/1.pf315732</a>.
+</div>
+<div id="ref-colorblindr" class="csl-entry" role="listitem">
+McWhite, Claire D., and Claus O. Wilke. 2024. <em><span class="nocase">colorblindr: Simulate colorblindness in R figures</span></em>. <a href="https://github.com/clauswilke/colorblindr">https://github.com/clauswilke/colorblindr</a>.
+</div>
+<div id="ref-Apiculture" class="csl-entry" role="listitem">
+Mid-Atlantic Apiculture Research and Extension Consortium. 2024. <span>“Seasonal Cycles of Activities in Colonies.”</span> <a href="https://canr.udel.edu/maarec/honey-bee-biology/seasonal-cycles-of-activities-in-colonies/" class="uri">https://canr.udel.edu/maarec/honey-bee-biology/seasonal-cycles-of-activities-in-colonies/</a>.
+</div>
+<div id="ref-poissoned" class="csl-entry" role="listitem">
+mikefc. 2024. <em><span class="nocase">poissoned: Tileable Poisson Disc Sampling</span></em>. <a href="https://github.com/coolbutuseless/poissoned">https://github.com/coolbutuseless/poissoned</a>.
+</div>
+<div id="ref-MetBrewer" class="csl-entry" role="listitem">
+Mills, Blake Robert. 2022. <em><span>MetBrewer</span>: Color Palettes Inspired by Works at the Metropolitan Museum of Art</em>. <a href="https://CRAN.R-project.org/package=MetBrewer">https://CRAN.R-project.org/package=MetBrewer</a>.
+</div>
+<div id="ref-elections_data" class="csl-entry" role="listitem">
+MIT Election Data and Science Lab. 2017. <span>“<span>U.S. House 1976–2022</span>.”</span> Harvard Dataverse. <a href="https://doi.org/10.7910/DVN/IG0UN2">https://doi.org/10.7910/DVN/IG0UN2</a>.
+</div>
+<div id="ref-styler" class="csl-entry" role="listitem">
+Müller, Kirill, and Lorenz Walthert. 2023. <em><span class="nocase">styler</span>: Non-Invasive Pretty Printing of <span>R</span> Code</em>. <a href="https://CRAN.R-project.org/package=styler">https://CRAN.R-project.org/package=styler</a>.
+</div>
+<div id="ref-tibble" class="csl-entry" role="listitem">
+Müller, Kirill, and Hadley Wickham. 2023. <em><span class="nocase">tibble</span>: Simple Data Frames</em>. <a href="https://CRAN.R-project.org/package=tibble">https://CRAN.R-project.org/package=tibble</a>.
+</div>
+<div id="ref-Muth2018" class="csl-entry" role="listitem">
+Muth, Lisa. 2018. <span>“An Alternative to Pink &amp; Blue: Colors for Gender Data.”</span> <a href="https://blog.datawrapper.de/gendercolor/" class="uri">https://blog.datawrapper.de/gendercolor/</a>.
+</div>
+<div id="ref-turbines_data" class="csl-entry" role="listitem">
+Natural Resources Canada. 2021. <span>“Canadian Wind Turbine Database.”</span> Natural Resources Canada (Government of Canada). <a href="https://open.canada.ca/data/en/dataset/79fdad93-9025-49ad-ba16-c26d718cc070">https://open.canada.ca/data/en/dataset/79fdad93-9025-49ad-ba16-c26d718cc070</a>.
+</div>
+<div id="ref-ggbranding" class="csl-entry" role="listitem">
+Noblet, Guillaume. 2025. <em><span class="nocase">ggbranding: Add Personal Branding to ’ggplot2’ Charts</span></em>. <a href="https://github.com/gnoblet/ggbranding">https://github.com/gnoblet/ggbranding</a>.
+</div>
+<div id="ref-rcartocolor" class="csl-entry" role="listitem">
+Nowosad, Jakub. 2018. <em><span>’CARTOColors’ Palettes</span></em>. <a href="https://jakubnowosad.com/rcartocolor/">https://jakubnowosad.com/rcartocolor/</a>.
+</div>
+<div id="ref-magick" class="csl-entry" role="listitem">
+Ooms, Jeroen. 2024. <em><span class="nocase">magick: Advanced Graphics and Image-Processing in R</span></em>. <a href="https://CRAN.R-project.org/package=magick">https://CRAN.R-project.org/package=magick</a>.
+</div>
+<div id="ref-doctors_data" class="csl-entry" role="listitem">
+Our World in Data. 2019. <span>“Medical Doctors Per 1,000 People.”</span> <a href="https://ourworldindata.org/grapher/physicians-per-1000-people">https://ourworldindata.org/grapher/physicians-per-1000-people</a>.
+</div>
+<div id="ref-sf" class="csl-entry" role="listitem">
+Pebesma, Edzer. 2018. <span>“<span class="nocase">Simple Features for R: Standardized Support for Spatial Vector Data</span>.”</span> <em><span>The R Journal</span></em> 10 (1): 439–46. <a href="https://doi.org/10.32614/RJ-2018-009">https://doi.org/10.32614/RJ-2018-009</a>.
+</div>
+<div id="ref-ggforce" class="csl-entry" role="listitem">
+Pedersen, Thomas Lin. 2022. <em><span class="nocase">ggforce</span>: Accelerating <span class="nocase">’ggplot2’</span></em>. <a href="https://CRAN.R-project.org/package=ggforce">https://CRAN.R-project.org/package=ggforce</a>.
+</div>
+<div id="ref-patchwork" class="csl-entry" role="listitem">
+———. 2024. <em><span class="nocase">patchwork</span>: The Composer of Plots</em>. <a href="https://CRAN.R-project.org/package=patchwork">https://CRAN.R-project.org/package=patchwork</a>.
+</div>
+<div id="ref-Pedersen2025" class="csl-entry" role="listitem">
+———. 2025. <span>“<span class="nocase">Fonts in R</span>.”</span> <a href="https://www.tidyverse.org/blog/2025/05/fonts-in-r/" class="uri">https://www.tidyverse.org/blog/2025/05/fonts-in-r/</a>.
+</div>
+<div id="ref-marquee" class="csl-entry" role="listitem">
+Pedersen, Thomas Lin, and Martin Mitáš. 2024. <em><span class="nocase">marquee: Markdown Parser and Renderer for R Graphics</span></em>. <a href="https://CRAN.R-project.org/package=marquee">https://CRAN.R-project.org/package=marquee</a>.
+</div>
+<div id="ref-systemfonts" class="csl-entry" role="listitem">
+Pedersen, Thomas Lin, Jeroen Ooms, and Devon Govett. 2024. <em><span class="nocase">systemfonts: System Native Font Finding</span></em>. <a href="https://CRAN.R-project.org/package=systemfonts">https://CRAN.R-project.org/package=systemfonts</a>.
+</div>
+<div id="ref-ragg" class="csl-entry" role="listitem">
+Pedersen, Thomas Lin, and Maxim Shemanarev. 2023. <em><span class="nocase">ragg</span>: Graphic Devices Based on <span>AGG</span></em>. <a href="https://CRAN.R-project.org/package=ragg">https://CRAN.R-project.org/package=ragg</a>.
+</div>
+<div id="ref-pldb_data" class="csl-entry" role="listitem">
+PLDB contributors. 2022. <span>“<span>PLDB</span>: A Programming Language Database.”</span> <em><span>PLDB</span></em>. <a href="https://pldb.com">https://pldb.com</a>.
+</div>
+<div id="ref-sysfonts" class="csl-entry" role="listitem">
+Qiu, Yixuan. 2022. <em><span class="nocase">sysfonts</span>: Loading Fonts into <span>R</span></em>. <a href="https://CRAN.R-project.org/package=sysfonts">https://CRAN.R-project.org/package=sysfonts</a>.
+</div>
+<div id="ref-showtext" class="csl-entry" role="listitem">
+———. 2023. <em><span class="nocase">showtext</span>: Using Fonts More Easily in <span>R</span> Graphs</em>. <a href="https://CRAN.R-project.org/package=showtext">https://CRAN.R-project.org/package=showtext</a>.
+</div>
+<div id="ref-rproj" class="csl-entry" role="listitem">
+R Core Team. 2024. <em><span>R</span>: A Language and Environment for Statistical Computing</em>. Vienna, Austria: R Foundation for Statistical Computing. <a href="https://www.R-project.org/">https://www.R-project.org/</a>.
+</div>
+<div id="ref-tidytuesday" class="csl-entry" role="listitem">
+R4DS Online Learning Community. 2023. <span>“Tidy Tuesday: A Weekly Social Data Project.”</span> <a href="https://github.com/rfordatascience/tidytuesday">https://github.com/rfordatascience/tidytuesday</a>.
+</div>
+<div id="ref-social_icons" class="csl-entry" role="listitem">
+Rennie, Nicola. 2023a. <span>“Adding Social Media Icons to Charts with <span class="nocase">ggplot2</span>.”</span> <a href="https://nrennie.rbind.io/blog/adding-social-media-icons-ggplot2/">https://nrennie.rbind.io/blog/adding-social-media-icons-ggplot2/</a>.
+</div>
+<div id="ref-template_files" class="csl-entry" role="listitem">
+———. 2023b. <span>“Creating Template Files with <span>R</span>.”</span> <a href="https://nrennie.rbind.io/blog/script-templates-r/">https://nrennie.rbind.io/blog/script-templates-r/</a>.
+</div>
+<div id="ref-streamline" class="csl-entry" role="listitem">
+———. 2023c. <span>“Four Ways to Streamline Your <span>R</span> Workflows.”</span> <a href="https://nrennie.rbind.io/blog/four-ways-streamline-r-workflows/">https://nrennie.rbind.io/blog/four-ways-streamline-r-workflows/</a>.
+</div>
+<div id="ref-ggtextcircle" class="csl-entry" role="listitem">
+———. 2024a. <em><span class="nocase">ggtextcircle: Circular Text in ’ggplot2’</span></em>. <a href="https://github.com/nrennie/ggtextcircle">https://github.com/nrennie/ggtextcircle</a>.
+</div>
+<div id="ref-nobel" class="csl-entry" role="listitem">
+———. 2024b. <em><span class="nocase">nobel: Access data from the Nobel Prize API via R</span></em>. <a href="https://github.com/nrennie/nobel">https://github.com/nrennie/nobel</a>.
+</div>
+<div id="ref-pkgs_data" class="csl-entry" role="listitem">
+———. 2024c. <span>“<span class="nocase">tidytuesday</span>.”</span> <em>GitHub Repository</em>. GitHub. <a href="https://github.com/nrennie/tidytuesday">https://github.com/nrennie/tidytuesday</a>.
+</div>
+<div id="ref-signif2024a" class="csl-entry" role="listitem">
+Rennie, Nicola, and Andreas Krause. 2024. <span>“<span class="nocase">Presenting data the Significance way - Part 1</span>.”</span> <em>Significance</em> 21 (3): 36–39. <a href="https://doi.org/10.1093/jrssig/qmae045">https://doi.org/10.1093/jrssig/qmae045</a>.
+</div>
+<div id="ref-Reynolds2025" class="csl-entry" role="listitem">
+Reynolds, Gina. 2025. <span>“<span class="nocase">Everyday ggplot2 extension</span>.”</span> <a href="https://evamaerey.github.io/everyday_ggplot2_extension/" class="uri">https://evamaerey.github.io/everyday_ggplot2_extension/</a>.
+</div>
+<div id="ref-hex_forcats" class="csl-entry" role="listitem">
+RStudio. 2018a. <span>“<span class="nocase">forcats</span> Hex Sticker.”</span> <a href="https://github.com/rstudio/hex-stickers/blob/main/PNG/forcats.png">https://github.com/rstudio/hex-stickers/blob/main/PNG/forcats.png</a>.
+</div>
+<div id="ref-hex_ggplot2" class="csl-entry" role="listitem">
+———. 2018b. <span>“<span class="nocase">ggplot2</span> Hex Sticker.”</span> <a href="https://github.com/rstudio/hex-stickers/blob/main/PNG/ggplot2.png">https://github.com/rstudio/hex-stickers/blob/main/PNG/ggplot2.png</a>.
+</div>
+<div id="ref-hex_purrr" class="csl-entry" role="listitem">
+———. 2018c. <span>“<span class="nocase">purrr</span> Hex Sticker.”</span> <a href="https://github.com/rstudio/hex-stickers/blob/main/PNG/purrr.png">https://github.com/rstudio/hex-stickers/blob/main/PNG/purrr.png</a>.
+</div>
+<div id="ref-hex_readr" class="csl-entry" role="listitem">
+———. 2018d. <span>“<span class="nocase">readr</span> Hex Sticker.”</span> <a href="https://github.com/rstudio/hex-stickers/blob/main/PNG/readr.png">https://github.com/rstudio/hex-stickers/blob/main/PNG/readr.png</a>.
+</div>
+<div id="ref-hex_tibble" class="csl-entry" role="listitem">
+———. 2018e. <span>“<span class="nocase">tibble</span> Hex Sticker.”</span> <a href="https://github.com/rstudio/hex-stickers/blob/main/PNG/tibble.png">https://github.com/rstudio/hex-stickers/blob/main/PNG/tibble.png</a>.
+</div>
+<div id="ref-hex_dplyr" class="csl-entry" role="listitem">
+———. 2020a. <span>“<span class="nocase">dplyr</span> Hex Sticker.”</span> <a href="https://github.com/rstudio/hex-stickers/blob/main/PNG/dplyr.png">https://github.com/rstudio/hex-stickers/blob/main/PNG/dplyr.png</a>.
+</div>
+<div id="ref-hex_stringr" class="csl-entry" role="listitem">
+———. 2020b. <span>“<span class="nocase">stringr</span> Hex Sticker.”</span> <a href="https://github.com/rstudio/hex-stickers/blob/main/PNG/stringr.png">https://github.com/rstudio/hex-stickers/blob/main/PNG/stringr.png</a>.
+</div>
+<div id="ref-hex_tidyr" class="csl-entry" role="listitem">
+———. 2020c. <span>“<span class="nocase">tidyr</span> Hex Sticker.”</span> <a href="https://github.com/rstudio/hex-stickers/blob/main/PNG/tidyr.png">https://github.com/rstudio/hex-stickers/blob/main/PNG/tidyr.png</a>.
+</div>
+<div id="ref-ggalt" class="csl-entry" role="listitem">
+Rudis, Bob, Ben Bolker, and Jan Schulz. 2017. <em><span class="nocase">ggalt: Extra Coordinate Systems, ’Geoms’, Statistical Transformations, Scales and Fonts for ’ggplot2’</span></em>. <a href="https://CRAN.R-project.org/package=ggalt">https://CRAN.R-project.org/package=ggalt</a>.
+</div>
+<div id="ref-waffle" class="csl-entry" role="listitem">
+Rudis, Bob, and Dave Gandy. 2023. <em><span class="nocase">waffle</span>: Create Waffle Chart Visualizations</em>. <a href="https://CRAN.R-project.org/package=waffle">https://CRAN.R-project.org/package=waffle</a>.
+</div>
+<div id="ref-lattice" class="csl-entry" role="listitem">
+Sarkar, Deepayan. 2008. <em>Lattice: Multivariate Data Visualization with r</em>. New York: Springer. <a href="http://lmdvr.r-forge.r-project.org">http://lmdvr.r-forge.r-project.org</a>.
+</div>
+<div id="ref-openxlsx" class="csl-entry" role="listitem">
+Schauberger, Philipp, and Alexander Walker. 2023. <em><span class="nocase">openxlsx: Read, Write and Edit xlsx Files</span></em>. <a href="https://CRAN.R-project.org/package=openxlsx">https://CRAN.R-project.org/package=openxlsx</a>.
+</div>
+<div id="ref-owidapi" class="csl-entry" role="listitem">
+Scheuch, Christoph. 2025. <em><span class="nocase">owidapi</span>: Access the Our World in Data Chart API</em>. <a href="https://doi.org/10.32614/CRAN.package.owidapi">https://doi.org/10.32614/CRAN.package.owidapi</a>.
+</div>
+<div id="ref-GGally" class="csl-entry" role="listitem">
+Schloerke, Barret, Di Cook, Joseph Larmarange, Francois Briatte, Moritz Marbach, Edwin Thoen, Amos Elberg, and Jason Crowley. 2024. <em><span class="nocase">GGally: Extension to ’ggplot2’</span></em>. <a href="https://CRAN.R-project.org/package=GGally">https://CRAN.R-project.org/package=GGally</a>.
+</div>
+<div id="ref-Schloss" class="csl-entry" role="listitem">
+Schloss, Karen B., Connor C. Gramazio, Allison T. Silverman, Madeline L. Parker, and Audrey S. Wang. 2019. <span>“Mapping Color to Meaning in Colormap Data Visualizations.”</span> <em>IEEE Transactions on Visualization and Computer Graphics</em> 25 (1): 810–19. <a href="https://doi.org/10.1109/TVCG.2018.2865147">https://doi.org/10.1109/TVCG.2018.2865147</a>.
+</div>
+<div id="ref-funspotr" class="csl-entry" role="listitem">
+Shalloway, Bryan. 2023. <em><span class="nocase">funspotr: Spot R Functions &amp; Packages</span></em>. <a href="https://CRAN.R-project.org/package=funspotr">https://CRAN.R-project.org/package=funspotr</a>.
+</div>
+<div id="ref-plotly" class="csl-entry" role="listitem">
+Sievert, Carson. 2020. <em>Interactive Web-Based Data Visualization with r, Plotly, and Shiny</em>. Chapman; Hall/CRC. <a href="https://plotly-r.com">https://plotly-r.com</a>.
+</div>
+<div id="ref-ggrepel" class="csl-entry" role="listitem">
+Slowikowski, Kamil. 2024. <em><span class="nocase">ggrepel: Automatically Position Non-Overlapping Text Labels with ’ggplot2’</span></em>. <a href="https://CRAN.R-project.org/package=ggrepel">https://CRAN.R-project.org/package=ggrepel</a>.
+</div>
+<div id="ref-visdat" class="csl-entry" role="listitem">
+Tierney, Nicholas. 2017. <span>“<span class="nocase">visdat: Visualising Whole Data Frames</span>.”</span> <em>JOSS</em> 2 (16): 355. <a href="https://doi.org/10.21105/joss.00355">https://doi.org/10.21105/joss.00355</a>.
+</div>
+<div id="ref-naniar" class="csl-entry" role="listitem">
+Tierney, Nicholas, and Dianne Cook. 2023. <span>“Expanding Tidy Data Principles to Facilitate Missing Data Exploration, Visualization and Assessment of Imputations.”</span> <em>Journal of Statistical Software</em> 105 (7): 1–31. <a href="https://doi.org/10.18637/jss.v105.i07">https://doi.org/10.18637/jss.v105.i07</a>.
+</div>
+<div id="ref-Tol2021" class="csl-entry" role="listitem">
+Tol, Paul. 2021. <span>“<span class="nocase">Paul Tol’s Notes: Colour schemes and templates</span>.”</span> <a href="https://sronpersonalpages.nl/~pault/" class="uri">https://sronpersonalpages.nl/~pault/</a>.
+</div>
+<div id="ref-UScensuspop" class="csl-entry" role="listitem">
+United States Census Bureau. 2021a. <span>“Historical Population Change Data (1910-2020).”</span> <a href="https://www.census.gov/data/tables/time-series/dec/popchange-data-text.html" class="uri">https://www.census.gov/data/tables/time-series/dec/popchange-data-text.html</a>.
+</div>
+<div id="ref-UScensus" class="csl-entry" role="listitem">
+———. 2021b. <span>“State Area Measurements and Internal Point Coordinates.”</span> <a href="https://www.census.gov/geographies/reference-files/2010/geo/state-area.html" class="uri">https://www.census.gov/geographies/reference-files/2010/geo/state-area.html</a>.
+</div>
+<div id="ref-bees_data" class="csl-entry" role="listitem">
+United States Department of Agriculture: Economics, Statistics and Market Information System. 2022. <span>“Honey Bee Colonies.”</span> <span>USDA Economics, Statistics and Market Information System</span>. <a href="https://usda.library.cornell.edu/concern/publications/rn301137d">https://usda.library.cornell.edu/concern/publications/rn301137d</a>.
+</div>
+<div id="ref-crsuggest" class="csl-entry" role="listitem">
+Walker, Kyle. 2022. <em><span class="nocase">crsuggest: Obtain Suggested Coordinate Reference System Information for Spatial Data</span></em>. <a href="https://CRAN.R-project.org/package=crsuggest">https://CRAN.R-project.org/package=crsuggest</a>.
+</div>
+<div id="ref-Wanzer2021" class="csl-entry" role="listitem">
+Wanzer, Dana Linnell, Tarek Azzam, Natalie D. Jones, and Darrel Skousen. 2021. <span>“The Role of Titles in Enhancing Data Visualization.”</span> <em>Evaluation and Program Planning</em> 84: 101896. <a href="https://doi.org/10.1016/j.evalprogplan.2020.101896">https://doi.org/10.1016/j.evalprogplan.2020.101896</a>.
+</div>
+<div id="ref-ggplot2" class="csl-entry" role="listitem">
+Wickham, Hadley. 2016. <em><span class="nocase">ggplot2</span>: Elegant Graphics for Data Analysis</em>. Springer-Verlag New York. <a href="https://ggplot2.tidyverse.org">https://ggplot2.tidyverse.org</a>.
+</div>
+<div id="ref-forcats" class="csl-entry" role="listitem">
+———. 2023a. <em><span class="nocase">forcats</span>: Tools for Working with Categorical Variables (Factors)</em>. <a href="https://doi.org/10.32614/CRAN.package.forcats">https://doi.org/10.32614/CRAN.package.forcats</a>.
+</div>
+<div id="ref-stringr" class="csl-entry" role="listitem">
+———. 2023b. <em><span class="nocase">stringr: Simple, Consistent Wrappers for Common String Operations</span></em>. <a href="https://CRAN.R-project.org/package=stringr">https://CRAN.R-project.org/package=stringr</a>.
+</div>
+<div id="ref-tidyverse" class="csl-entry" role="listitem">
+Wickham, Hadley, Mara Averick, Jennifer Bryan, Winston Chang, Lucy D’Agostino McGowan, Romain François, Garrett Grolemund, et al. 2019. <span>“Welcome to the <span class="nocase">tidyverse</span>.”</span> <em>Journal of Open Source Software</em> 4 (43): 1686. <a href="https://doi.org/10.21105/joss.01686">https://doi.org/10.21105/joss.01686</a>.
+</div>
+<div id="ref-readxl" class="csl-entry" role="listitem">
+Wickham, Hadley, and Jennifer Bryan. 2023. <em><span class="nocase">readxl: Read Excel Files</span></em>. <a href="https://CRAN.R-project.org/package=readxl">https://CRAN.R-project.org/package=readxl</a>.
+</div>
+<div id="ref-r4ds" class="csl-entry" role="listitem">
+Wickham, Hadley, Mine Çetinkaya-Rundel, and Garrett Grolemund. 2023. <em><span>R</span> for Data Science</em>. Second Edition. O-Reilly. <a href="https://r4ds.hadley.nz">https://r4ds.hadley.nz</a>.
+</div>
+<div id="ref-dplyr" class="csl-entry" role="listitem">
+Wickham, Hadley, Romain François, Lionel Henry, Kirill Müller, and Davis Vaughan. 2023. <em><span class="nocase">dplyr</span>: A Grammar of Data Manipulation</em>. <a href="https://CRAN.R-project.org/package=dplyr">https://CRAN.R-project.org/package=dplyr</a>.
+</div>
+<div id="ref-purrr" class="csl-entry" role="listitem">
+Wickham, Hadley, and Lionel Henry. 2023. <em><span class="nocase">purrr</span>: Functional Programming Tools</em>. <a href="https://CRAN.R-project.org/package=purrr">https://CRAN.R-project.org/package=purrr</a>.
+</div>
+<div id="ref-readr" class="csl-entry" role="listitem">
+Wickham, Hadley, Jim Hester, and Jennifer Bryan. 2024. <em><span class="nocase">readr</span>: Read Rectangular Text Data</em>. <a href="https://CRAN.R-project.org/package=readr">https://CRAN.R-project.org/package=readr</a>.
+</div>
+<div id="ref-scales" class="csl-entry" role="listitem">
+Wickham, Hadley, Thomas Lin Pedersen, and Dana Seidel. 2023. <em><span class="nocase">scales</span>: Scale Functions for Visualization</em>. <a href="https://CRAN.R-project.org/package=scales">https://CRAN.R-project.org/package=scales</a>.
+</div>
+<div id="ref-tidyr" class="csl-entry" role="listitem">
+Wickham, Hadley, Davis Vaughan, and Maximilian Girlich. 2024. <em><span class="nocase">tidyr</span>: Tidy Messy Data</em>. <a href="https://CRAN.R-project.org/package=tidyr">https://CRAN.R-project.org/package=tidyr</a>.
+</div>
+<div id="ref-ggtextures" class="csl-entry" role="listitem">
+Wilke, Claus. 2022. <em><span class="nocase">ggtextures: Drawing Textured Rectangles and Bars with grid and ggplot2</span></em>. <a href="https://github.com/clauswilke/ggtextures">https://github.com/clauswilke/ggtextures</a>.
+</div>
+<div id="ref-cowplot" class="csl-entry" role="listitem">
+Wilke, Claus O. 2024. <em><span class="nocase">cowplot</span>: Streamlined Plot Theme and Plot Annotations for <span class="nocase">’ggplot2’</span></em>. <a href="https://wilkelab.org/cowplot/">https://wilkelab.org/cowplot/</a>.
+</div>
+<div id="ref-ggtext" class="csl-entry" role="listitem">
+Wilke, Claus O., and Brenton M. Wiernik. 2022. <em><span class="nocase">ggtext</span>: Improved Text Rendering Support for <span class="nocase">’ggplot2’</span></em>. <a href="https://CRAN.R-project.org/package=ggtext">https://CRAN.R-project.org/package=ggtext</a>.
+</div>
+<div id="ref-nobel_data" class="csl-entry" role="listitem">
+www.nobelprize.org. 2024. <span>“<span>Nobel Prize API Version 2.1</span>.”</span> <a href="https://api.nobelprize.org/2.1/laureates">https://api.nobelprize.org/2.1/laureates</a>.
+</div>
+<div id="ref-owidR" class="csl-entry" role="listitem">
+York, Piers. 2023. <em><span class="nocase">owidR</span>: Import Data from Our World in Data</em>. <a href="https://github.com/piersyork/owidR">https://github.com/piersyork/owidR</a>.
+</div>
+<div id="ref-ggimage" class="csl-entry" role="listitem">
+Yu, Guangchuang. 2023. <em><span class="nocase">ggimage: Use Image in ’ggplot2’</span></em>. <a href="https://CRAN.R-project.org/package=ggimage">https://CRAN.R-project.org/package=ggimage</a>.
+</div>
+<div id="ref-gghighlight" class="csl-entry" role="listitem">
+Yutani, Hiroaki. 2023. <em><span class="nocase">gghighlight</span>: Highlight Lines and Points in <span class="nocase">’ggplot2’</span></em>. <a href="https://CRAN.R-project.org/package=gghighlight">https://CRAN.R-project.org/package=gghighlight</a>.
+</div>
+<div id="ref-lemurs_data" class="csl-entry" role="listitem">
+Zehr, Sarah M., Richard G. Roach, David Haring, Julie Taylor, Freda H. Cameron, and Anne D. Yoder. 2014. <span>“<span class="nocase">Life history profiles for 27 strepsirrhine primate taxa generated using captive data from the Duke Lemur Center</span>.”</span> <em>Scientific Data</em> 1 (1). <a href="https://doi.org/10.1038/sdata.2014.19">https://doi.org/10.1038/sdata.2014.19</a>.
+</div>
+</div>
+</section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/nrennie\.rbind\.io\/art-of-viz\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><nav class="page-navigation"><div class="nav-page nav-page-previous">
+      <a href="./text.html" class="pagination-link" aria-label="아이콘, 글꼴 및 텍스트 활용">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">아이콘, 글꼴 및 텍스트 활용</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./cats.html" class="pagination-link" aria-label="고양이: **`ggtext`**를 사용한 데이터 기반 주석">
+        <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">고양이: <strong><code>ggtext</code></strong>를 사용한 데이터 기반 주석</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+<script src="site_libs/quarto-contrib/line-highlight-1.0.0/line-highlight.js" defer="true"></script>
+</body></html>

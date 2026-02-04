@@ -1,0 +1,1729 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+<meta charset="UTF-8">
+<meta name="generator" content="quarto-1.8.27">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>9&nbsp; 여우원숭이: R에서 이미지 조작하기 – The Art of Data Visualization with ggplot2</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./r-packages.html" rel="next">
+<link href="./images.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-795e9e8eca1e12b12abcb09a27409631.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-68ad1da78fd76636681285468deb74db.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/quarto-contrib/line-highlight-1.0.0/line-highlight.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-1SWN5BH1PZ"></script><script type="text/javascript">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-1SWN5BH1PZ', { 'anonymize_ip': true});
+</script><script src="site_libs/core-js-2.5.3/shim.min.js"></script><script src="site_libs/react-18.2.0/react.min.js"></script><script src="site_libs/react-18.2.0/react-dom.min.js"></script><script src="site_libs/reactwidget-2.0.0/react-tools.js"></script><link href="site_libs/htmltools-fill-0.5.9/fill.css" rel="stylesheet">
+<script src="site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script><link href="site_libs/reactable-0.4.5/reactable.css" rel="stylesheet">
+<script src="site_libs/reactable-binding-0.4.5/reactable.js"></script>
+<meta property="og:title" content="9&nbsp; 여우원숭이: R에서 이미지 조작하기 – The Art of Data Visualization with ggplot2">
+<meta property="og:description" content="">
+<meta property="og:image" content="https://nrennie.rbind.io/art-of-viz/lemurs_files/figure-html/fig-lemurs-scatter-1.png">
+<meta property="og:site_name" content="The Art of Data Visualization with ggplot2">
+<meta property="og:image:alt" content="체중과 나이 간의 관계를 보여주는 산점도. 플롯에 많은 데이터 포인트가 있어 패턴을 확인하기 어렵습니다.">
+<meta property="og:image:height" content="1005">
+<meta property="og:image:width" content="1500">
+</head>
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top"><nav class="quarto-secondary-nav"><div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./images.html">이미지 작업</a></li><li class="breadcrumb-item"><a href="./lemurs.html"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">여우원숭이: R에서 이미지 조작하기</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav></header><!-- content --><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">The Art of Data Visualization with ggplot2</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">서문</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./author.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">저자</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">소개</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./common-charts.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">일반적인 차트도 지루할 필요는 없습니다!</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./programming-languages.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">프로그래밍 언어: <strong><code>ggplot2</code></strong>를 이용한 덤벨 차트</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./museums.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">영국 박물관: <strong><code>gghighlight</code></strong>로 선형 차트 강조하기</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./bee-colonies.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">꿀벌 군집 손실:푸아송 디스크 샘플링으로 수량 시각화</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./animal-intakes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">동물 보호소 입소: <strong><code>ggforce</code></strong>를 사용한 게이지 차트 만들기</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./text.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">아이콘, 글꼴 및 텍스트 활용</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./wind-turbines.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">캐나다 풍력 터빈: 와플 차트와 픽토그램</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./cats.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">고양이: <strong><code>ggtext</code></strong>를 사용한 데이터 기반 주석</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./nobel-laureates.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">노벨상 수상자: 텍스트 배치 및 플롯 매개변수화</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./images.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">이미지 작업</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./lemurs.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">여우원숭이: R에서 이미지 조작하기</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./r-packages.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">R 패키지: 사용자 지정 패면 레이블에 이미지 사용하기</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="./spatial.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">공간 데이터 시각화</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./doctors.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">전 세계 의사 분포: <strong><code>ggplot2</code></strong>로 지도 만들기</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./time-zones.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">시간대: <strong><code>sf</code></strong>를 사용한 공간 데이터 및 매핑</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./us-elections.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">미국 하원 선거: <strong><code>geofacet</code></strong>을 이용한 그리드 위의 지리</span></span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./other-tricks.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">기타 팁과 요령</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bibliography</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./appendix.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">부록</span></a>
+  </div>
+</li>
+    </ul>
+</div>
+</nav><div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">Contents</h2>
+   
+  <ul>
+<li><a href="#data" id="toc-data" class="nav-link active" data-scroll-target="#data"><span class="header-section-number">9.1</span> Data</a></li>
+  <li>
+<a href="#%ED%83%90%EC%83%89-%EC%9E%91%EC%97%85" id="toc-탐색-작업" class="nav-link" data-scroll-target="#%ED%83%90%EC%83%89-%EC%9E%91%EC%97%85"><span class="header-section-number">9.2</span> 탐색 작업</a>
+  <ul class="collapse">
+<li><a href="#%EB%8D%B0%EC%9D%B4%ED%84%B0-%ED%83%90%EC%83%89" id="toc-데이터-탐색" class="nav-link" data-scroll-target="#%EB%8D%B0%EC%9D%B4%ED%84%B0-%ED%83%90%EC%83%89"><span class="header-section-number">9.2.1</span> 데이터 탐색</a></li>
+  <li><a href="#%ED%83%90%EC%83%89%EC%A0%81-%EC%8A%A4%EC%BC%80%EC%B9%98" id="toc-탐색적-스케치" class="nav-link" data-scroll-target="#%ED%83%90%EC%83%89%EC%A0%81-%EC%8A%A4%EC%BC%80%EC%B9%98"><span class="header-section-number">9.2.2</span> 탐색적 스케치</a></li>
+  </ul>
+</li>
+  <li>
+<a href="#%ED%94%8C%EB%A1%AF-%EC%A4%80%EB%B9%84%ED%95%98%EA%B8%B0" id="toc-플롯-준비하기" class="nav-link" data-scroll-target="#%ED%94%8C%EB%A1%AF-%EC%A4%80%EB%B9%84%ED%95%98%EA%B8%B0"><span class="header-section-number">9.3</span> 플롯 준비하기</a>
+  <ul class="collapse">
+<li><a href="#%EB%8D%B0%EC%9D%B4%ED%84%B0-%EB%9E%AD%EA%B8%80%EB%A7%81" id="toc-데이터-랭글링" class="nav-link" data-scroll-target="#%EB%8D%B0%EC%9D%B4%ED%84%B0-%EB%9E%AD%EA%B8%80%EB%A7%81"><span class="header-section-number">9.3.1</span> 데이터 랭글링</a></li>
+  <li><a href="#%EC%B2%AB-%EB%B2%88%EC%A7%B8-%ED%94%8C%EB%A1%AF" id="toc-첫-번째-플롯" class="nav-link" data-scroll-target="#%EC%B2%AB-%EB%B2%88%EC%A7%B8-%ED%94%8C%EB%A1%AF"><span class="header-section-number">9.3.2</span> 첫 번째 플롯</a></li>
+  </ul>
+</li>
+  <li>
+<a href="#%EA%B3%A0%EA%B8%89-%EC%8A%A4%ED%83%80%EC%9D%BC%EB%A7%81" id="toc-고급-스타일링" class="nav-link" data-scroll-target="#%EA%B3%A0%EA%B8%89-%EC%8A%A4%ED%83%80%EC%9D%BC%EB%A7%81"><span class="header-section-number">9.4</span> 고급 스타일링</a>
+  <ul class="collapse">
+<li><a href="#%EC%83%89%EC%83%81" id="toc-색상" class="nav-link" data-scroll-target="#%EC%83%89%EC%83%81"><span class="header-section-number">9.4.1</span> 색상</a></li>
+  <li><a href="#systemfonts%EB%A1%9C-%EC%9E%91%EC%97%85%ED%95%98%EA%B8%B0" id="toc-systemfonts로-작업하기" class="nav-link" data-scroll-target="#systemfonts%EB%A1%9C-%EC%9E%91%EC%97%85%ED%95%98%EA%B8%B0"><span class="header-section-number">9.4.2</span> <strong><code>systemfonts</code></strong>로 작업하기</a></li>
+  <li><a href="#%ED%85%8D%EC%8A%A4%ED%8A%B8-%EC%B6%94%EA%B0%80" id="toc-텍스트-추가" class="nav-link" data-scroll-target="#%ED%85%8D%EC%8A%A4%ED%8A%B8-%EC%B6%94%EA%B0%80"><span class="header-section-number">9.4.3</span> 텍스트 추가</a></li>
+  <li><a href="#%ED%85%8C%EB%A7%88-%EC%A1%B0%EC%A0%95" id="toc-테마-조정" class="nav-link" data-scroll-target="#%ED%85%8C%EB%A7%88-%EC%A1%B0%EC%A0%95"><span class="header-section-number">9.4.4</span> 테마 조정</a></li>
+  </ul>
+</li>
+  <li>
+<a href="#%EC%9D%B4%EB%AF%B8%EC%A7%80-%EC%9E%91%EC%97%85" id="toc-이미지-작업" class="nav-link" data-scroll-target="#%EC%9D%B4%EB%AF%B8%EC%A7%80-%EC%9E%91%EC%97%85"><span class="header-section-number">9.5</span> 이미지 작업</a>
+  <ul class="collapse">
+<li><a href="#magick-%EB%B0%8F-imager%EB%A5%BC-%EC%82%AC%EC%9A%A9%ED%95%9C-%EC%9D%B4%EB%AF%B8%EC%A7%80-%EC%A1%B0%EC%9E%91" id="toc-magick-및-imager를-사용한-이미지-조작" class="nav-link" data-scroll-target="#magick-%EB%B0%8F-imager%EB%A5%BC-%EC%82%AC%EC%9A%A9%ED%95%9C-%EC%9D%B4%EB%AF%B8%EC%A7%80-%EC%A1%B0%EC%9E%91"><span class="header-section-number">9.5.1</span> <strong><code>magick</code></strong> 및 <strong><code>imager</code></strong>를 사용한 이미지 조작</a></li>
+  <li><a href="#cowplot%EC%9D%84-%EC%82%AC%EC%9A%A9%ED%95%98%EC%97%AC-%ED%94%8C%EB%A1%AF%EC%97%90-%EC%9D%B4%EB%AF%B8%EC%A7%80-%EC%B6%94%EA%B0%80" id="toc-cowplot을-사용하여-플롯에-이미지-추가" class="nav-link" data-scroll-target="#cowplot%EC%9D%84-%EC%82%AC%EC%9A%A9%ED%95%98%EC%97%AC-%ED%94%8C%EB%A1%AF%EC%97%90-%EC%9D%B4%EB%AF%B8%EC%A7%80-%EC%B6%94%EA%B0%80"><span class="header-section-number">9.5.2</span> <strong><code>cowplot</code></strong>을 사용하여 플롯에 이미지 추가</a></li>
+  </ul>
+</li>
+  <li><a href="#%ED%9A%8C%EA%B3%A0" id="toc-회고" class="nav-link" data-scroll-target="#%ED%9A%8C%EA%B3%A0"><span class="header-section-number">9.6</span> 회고</a></li>
+  <li><a href="#%EC%97%B0%EC%8A%B5-%EB%AC%B8%EC%A0%9C" id="toc-연습-문제" class="nav-link" data-scroll-target="#%EC%97%B0%EC%8A%B5-%EB%AC%B8%EC%A0%9C"><span class="header-section-number">9.7</span> 연습 문제</a></li>
+  </ul></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./images.html">이미지 작업</a></li><li class="breadcrumb-item"><a href="./lemurs.html"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">여우원숭이: R에서 이미지 조작하기</span></a></li></ol></nav><div class="quarto-title">
+<h1 class="title"><span id="sec-lemurs" class="quarto-section-identifier"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">여우원숭이: R에서 이미지 조작하기</span></span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header><p>이 장에서는 <strong><code>magick</code></strong>과 <strong><code>imager</code></strong> 패키지를 사용하여 R에서 이미지를 로드하고 조작하는 방법을 다룹니다. 또한 <strong><code>cowplot</code></strong> 패키지를 사용하여 이미지와 플롯을 결합하는 방법도 살펴봅니다.</p>
+<p>이 장을 마치면 다음을 할 수 있습니다:</p>
+<ul>
+<li>이미지를 R로 읽어 들이고 다른 형식으로 변환하며 뒤집기 및 크기 조정과 같은 간단한 작업을 수행합니다;</li>
+<li>이미지 처리 패키지의 알고리즘을 사용하여 사진에서 배경을 제거합니다;</li>
+<li>이미지 오버레이를 위한 공간을 만들고 프로그래밍 방식으로 이미지를 배치하도록 플롯을 사용자 정의합니다.</li>
+</ul>
+<p>이 장에 필요한 패키지를 로드하는 것으로 시작합니다.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://wilkelab.org/cowplot/">cowplot</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org">dplyr</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org">ggplot2</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://wilkelab.org/ggtext/">ggtext</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://glue.tidyverse.org/">glue</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://asgr.github.io/imager/">imager</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://docs.ropensci.org/magick/">magick</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/r-lib/systemfonts">systemfonts</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://dslc-io.github.io/tidytuesdayR/">tidytuesdayR</a></span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>이 장에서는 4가지 새로운 패키지를 소개합니다:</p>
+<ul>
+<li>
+<strong><code>cowplot</code></strong>: 여러 플롯을 배열하고 주석을 추가하는 패키지로, 다양한 요소의 위치를 정밀하게 제어할 수 있습니다. 이미지를 주석으로 추가하기 위해 <strong><code>cowplot</code></strong>을 사용할 것입니다.</li>
+<li>
+<strong><code>imager</code></strong>: R에서 이미지 조작, 특히 픽셀 수준 작업 및 분석을 수행할 수 있는 C++ 라이브러리 CImg에 대한 인터페이스를 제공합니다.</li>
+<li>
+<strong><code>magick</code></strong>: ImageMagick 라이브러리를 기반으로 하는 또 다른 이미지 처리 패키지로, 크기 조정 및 자르기와 같은 이미지 편집 작업에 좋습니다.</li>
+<li>
+<strong><code>systemfonts</code></strong>: 운영 체제에 설치된 글꼴에 액세스하고 사용할 수 있는 R에서 글꼴을 로드하는 또 다른 방법입니다.</li>
+</ul>
+<p> </p>
+<section id="data" class="level2" data-number="9.1"><h2 data-number="9.1" class="anchored" data-anchor-id="data">
+<span class="header-section-number">9.1</span> Data</h2>
+<p>이 장에서는 <a href="https://lemur.duke.edu/">Duke Lemur Center</a>의 여우원숭이 데이터를 탐색합니다 <span class="citation" data-cites="lemurs_data">(<a href="references.html#ref-lemurs_data" role="doc-biblioref">Zehr et al. 2014</a>)</span>. Duke Lemur Center는 다양한 종에 걸쳐 수백 마리의 여우원숭이를 수용하고 있으며, 여우원숭이의 건강, 번식 및 사회적 상호 작용에 영향을 미치는 요인을 더 잘 이해하기 위해 여우원숭이 거주자에 대한 데이터를 수집합니다. 이 데이터는 2021년 8월 TidyTuesday 데이터 세트로 사용되었으며 (<a href="https://github.com/kierisi">Jesse Mostipak</a>이 제안하고 정리한 후), 이전 장에서 했던 것처럼 <strong><code>tidytuesdayR</code></strong>의 <code><a href="https://dslc-io.github.io/tidytuesdayR/reference/tt_load.html">tt_load()</a></code> 함수를 사용하여 R로 로드할 수 있습니다: </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">tuesdata</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dslc-io.github.io/tidytuesdayR/reference/tt_load.html">tt_load</a></span><span class="op">(</span><span class="st">"2021-08-24"</span><span class="op">)</span></span>
+<span><span class="va">lemurs</span> <span class="op">&lt;-</span> <span class="va">tuesdata</span><span class="op">$</span><span class="va">lemurs</span></span>
+<span><span class="va">taxonomy</span> <span class="op">&lt;-</span> <span class="va">tuesdata</span><span class="op">$</span><span class="va">taxonomy</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><code>lemurs</code> 데이터에는 개별 여우원숭이에 대한 정보가 포함되어 있으며 이 장에서 주로 초점을 맞출 데이터 세트입니다. 데이터에는 82609행과 54열이 있어 상당히 큰 데이터 세트입니다. 처음 몇 행은 <code><a href="https://rdrr.io/r/utils/head.html">head()</a></code>로 검사할 수 있습니다:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">lemurs</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre data-code-line-numbers=""><code># A tibble: 6 × 54
+  taxon dlc_id hybrid sex   name  current_resident stud_book
+  &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;            &lt;chr&gt;    
+1 OGG   0005   N      M     KANGA N                &lt;NA&gt;     
+2 OGG   0005   N      M     KANGA N                &lt;NA&gt;     
+3 OGG   0006   N      F     ROO   N                &lt;NA&gt;     
+4 OGG   0006   N      F     ROO   N                &lt;NA&gt;     
+5 OGG   0009   N      M     POOH… N                &lt;NA&gt;     
+6 OGG   0009   N      M     POOH… N                &lt;NA&gt;     
+# ℹ 47 more variables: dob &lt;date&gt;, birth_month &lt;dbl&gt;,
+#   estimated_dob &lt;chr&gt;, birth_type &lt;chr&gt;,
+#   birth_institution &lt;chr&gt;, litter_size &lt;dbl&gt;,
+#   expected_gestation &lt;dbl&gt;, estimated_concep &lt;date&gt;,
+#   concep_month &lt;dbl&gt;, dam_id &lt;chr&gt;, dam_name &lt;chr&gt;,
+#   dam_taxon &lt;chr&gt;, dam_dob &lt;date&gt;,
+#   dam_age_at_concep_y &lt;dbl&gt;, sire_id &lt;chr&gt;, …</code></pre>
+</div>
+</div>
+<p>열은 여우원숭이 종을 식별하는 <code>taxon</code> 코드, 여우원숭이의 이름과 성별, 부모, 생존 여부, 나이와 체중 및 기타 여러 변수에 대한 정보를 제공합니다. 많은 열은 동일한 데이터를 다른 단위로 표현하기 때문에 중복된 정보를 제공합니다(예: 여우원숭이의 나이는 일, 주, 월, 소수점 월 및 연도의 5가지 다른 열로 제공됨).</p>
+<p>82609행의 데이터가 있다고 해서 82609마리의 여우원숭이에 대한 데이터가 있는 것은 아닙니다. 각 여우원숭이에는 여러 행의 데이터가 연결되어 있으며 각 행은 날짜(즉, 다른 나이와 관련된 체중 측정)에 해당합니다. 모든 열이 모든 여우원숭이와 관련이 있는 것은 아니므로(예: 여우원숭이가 아직 살아 있는 경우 <code>age_at_death_y</code> 값이 없음) 데이터 전체에 누락된 값이 많이 있습니다. 이는 또한 누락된 데이터를 처리하려면 어떤 값이 <em>누락</em>되어야 하고 어떤 값이 예상치 못하게 누락되었는지 결정하기 위해 규칙 기반 접근 방식으로 시작해야 함을 의미합니다.</p>
+<p><code>taxonomy</code> 데이터는 본질적으로 <code>lemurs</code> 데이터의 <code>taxon</code> 열에 대한 조회 테이블입니다. 각 <code>taxon</code> 코드에 대해 <code>taxonomy</code> 데이터는 종의 라틴어 이름(<code>latin_name</code>)과 일반 이름(<code>common_name</code>)을 제공합니다. 원하는 경우 <code>taxon</code> 열을 사용하여 두 데이터 세트를 결합할 수 있습니다.</p>
+</section><section id="탐색-작업" class="level2" data-number="9.2"><h2 data-number="9.2" class="anchored" data-anchor-id="탐색-작업">
+<span class="header-section-number">9.2</span> 탐색 작업</h2>
+<p>데이터의 크기와 포함된 변수의 다양성을 감안할 때 우리가 더 탐색하고 싶어 할 수 있는 많은 측면이 있습니다. 부모 정보를 사용하여 <a href="https://raw.githubusercontent.com/nrennie/data-viz-projects/refs/heads/main/Lemur%20Family%20Tree/images/lemur-family-tree.png">여우원숭이 가계도를 구성</a>할 수 있습니다. 다양한 종의 여우원숭이의 체중과 나이 범위를 비교할 수 있습니다. 여우원숭이의 <em>정상적인</em> 성장 곡선을 살펴보고 나이에 비해 정상 체중 범위를 벗어난 여우원숭이를 식별할 수 있습니다. 거의 끝없는 옵션이 있습니다!</p>
+<section id="데이터-탐색" class="level3" data-number="9.2.1"><h3 data-number="9.2.1" class="anchored" data-anchor-id="데이터-탐색">
+<span class="header-section-number">9.2.1</span> 데이터 탐색</h3>
+<p>성장 곡선 아이디어에 초점을 맞추고 여우원숭이 나이와 체중 간의 관계를 살펴보겠습니다. 기본 R <code><a href="https://rdrr.io/r/graphics/plot.default.html">plot()</a></code> 함수를 사용하여 <a href="#fig-lemurs-scatter" class="quarto-xref">Figure&nbsp;<span>9.1</span></a> 를 생성하여 개월 단위의 나이와 그램 단위의 체중 간의 관계를 보여줄 수 있습니다. 82609개의 데이터 포인트가 포함된 데이터 세트에서 예상할 수 있듯이 산점도는 변동성이 너무 크고 많은 포인트가 겹치기 때문에 실제 패턴을 명확하게 보여주지 않습니다. </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span></span>
+<span>  x <span class="op">=</span> <span class="va">lemurs</span><span class="op">$</span><span class="va">age_at_wt_mo</span>,</span>
+<span>  y <span class="op">=</span> <span class="va">lemurs</span><span class="op">$</span><span class="va">weight_g</span>,</span>
+<span>  xlab <span class="op">=</span> <span class="st">"Weight (g)"</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="st">"Age (months)"</span></span>
+<span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-lemurs-scatter" class="quarto-float quarto-figure quarto-figure-center anchored" alt="체중과 나이 간의 관계를 보여주는 산점도. 플롯에 많은 데이터 포인트가 있어 패턴을 확인하기 어렵습니다.">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-lemurs-scatter-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lemurs_files/figure-html/fig-lemurs-scatter-1.png" class="img-fluid figure-img" alt="체중과 나이 간의 관계를 보여주는 산점도. 플롯에 많은 데이터 포인트가 있어 패턴을 확인하기 어렵습니다.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-lemurs-scatter-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9.1: 체중과 나이 간의 관계를 보여주는 산점도. 플롯에 많은 데이터 포인트가 있어 패턴을 확인하기 어렵습니다.
+</figcaption></figure>
+</div>
+</div>
+</div>
+<p>데이터에 27종의 여우원숭이가 있다는 것을 알고 있으며 여우원숭이에 대해 잘 모르더라도 종마다 체중이 다를 것이라고 예상할 수 있습니다. R의 <code><a href="https://rdrr.io/r/graphics/boxplot.html">boxplot()</a></code> 함수를 사용하여 종별 체중을 빠르게 상자 수염 그림으로 그리면 <a href="#fig-lemurs-boxplot" class="quarto-xref">Figure&nbsp;<span>9.2</span></a> 에서 볼 수 있듯이 종 간에 여우원숭이 체중에 큰 차이가 있음을 확인할 수 있습니다. </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html">boxplot</a></span><span class="op">(</span></span>
+<span>  <span class="va">weight_g</span> <span class="op">~</span> <span class="va">taxon</span>,</span>
+<span>  data <span class="op">=</span> <span class="va">lemurs</span>,</span>
+<span>  horizontal <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  las <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  xlab <span class="op">=</span> <span class="st">"Weight"</span>,</span>
+<span>  ylab <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-lemurs-boxplot" class="quarto-float quarto-figure quarto-figure-center anchored" alt="데이터에 기록된 각 여우원숭이 종에 대해 관찰된 체중 범위를 보여주는 수평 상자 수염 그림으로, 종 간 및 종 내에서 상당한 변동성을 보여줍니다.">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-lemurs-boxplot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lemurs_files/figure-html/fig-lemurs-boxplot-1.png" class="img-fluid figure-img" alt="데이터에 기록된 각 여우원숭이 종에 대해 관찰된 체중 범위를 보여주는 수평 상자 수염 그림으로, 종 간 및 종 내에서 상당한 변동성을 보여줍니다.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-lemurs-boxplot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9.2: 데이터에 기록된 각 여우원숭이 종에 대해 관찰된 체중 범위를 보여주는 수평 상자 수염 그림으로, 종 간 및 종 내에서 상당한 변동성을 보여줍니다.
+</figcaption></figure>
+</div>
+</div>
+</div>
+</section><section id="탐색적-스케치" class="level3" data-number="9.2.2"><h3 data-number="9.2.2" class="anchored" data-anchor-id="탐색적-스케치">
+<span class="header-section-number">9.2.2</span> 탐색적 스케치</h3>
+<p>종 간 체중의 변동성을 감안할 때 단일 종에 초점을 맞추고 싶을 수 있습니다. 차트를 합리적으로 단순하게 유지하고 여우원숭이 체중이 나이에 따라 어떻게 변하는지에 대한 산점도를 만들어 보겠습니다. 본질적으로 단일 종에 대해 <a href="#fig-lemurs-scatter" class="quarto-xref">Figure&nbsp;<span>9.1</span></a> 를 다시 만들고 훨씬 더 전문적으로 보이도록 작업합니다. 여우원숭이 종은 매우 다양하고 일반 이름만으로는 모두 쉽게 알아볼 수 없으므로 오른쪽 하단에 여우원숭이 종의 이미지를 추가하여 차트에 더 많은 맥락을 추가합니다.</p>
+<div id="fig-lemurs-sketch" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" alt="나이와 체중 사이의 관계를 보여주는 산점도의 초기 스케치로, 이미지를 위한 공간이 할당되어 있고 제목과 부제목 텍스트가 들어갈 위치를 나타내는 선이 있습니다.">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-lemurs-sketch-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="images/sketch-lemurs.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="나이와 체중 사이의 관계를 보여주는 산점도의 초기 스케치로, 이미지를 위한 공간이 할당되어 있고 제목과 부제목 텍스트가 들어갈 위치를 나타내는 선이 있습니다.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-lemurs-sketch-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9.3: 나이와 체중 사이의 관계를 보여주는 산점도의 초기 스케치로, 이미지를 위한 공간이 할당되어 있고 제목과 부제목 텍스트가 들어갈 위치를 나타내는 선이 있습니다.
+</figcaption></figure>
+</div>
+</section></section><section id="플롯-준비하기" class="level2" data-number="9.3"><h2 data-number="9.3" class="anchored" data-anchor-id="플롯-준비하기">
+<span class="header-section-number">9.3</span> 플롯 준비하기</h2>
+<p>데이터는 <a href="#fig-lemurs-sketch" class="quarto-xref">Figure&nbsp;<span>9.3</span></a> 에 기반하여 만들고자 하는 간단한 산점도의 경우 이미 상당히 깨끗하므로 필요한 데이터 랭글링의 양은 제한적입니다.</p>
+<section id="데이터-랭글링" class="level3" data-number="9.3.1"><h3 data-number="9.3.1" class="anchored" data-anchor-id="데이터-랭글링">
+<span class="header-section-number">9.3.1</span> 데이터 랭글링</h3>
+<p>우리는 데이터의 일부를 추출하여 한 종의 여우원숭이만 고려하려고 합니다. 여우원숭이 전문가가 아니라면 <code>lemurs</code> 데이터의 어떤 분류 코드가 어떤 여우원숭이 종과 관련이 있는지 모를 것입니다. <code>taxonomy</code> 데이터를 <code>lemurs</code> 데이터에 결합한 다음 결합된 <code>common_name</code> 열을 기반으로 데이터를 필터링할 수 있습니다. 그러나 향후 데이터 처리가 매우 적으므로 <code>taxonomy</code> 데이터를 탐색하고 <code>common_name</code> 열에서 여우원숭이 종을 선택하고 관련 분류 코드를 조회할 수 있습니다.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div class="reactable html-widget html-fill-item" id="htmlwidget-55645afdf9258ffd89ab" style="width:auto;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-55645afdf9258ffd89ab">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"taxon":["CMED","DMAD","EALB","ECOL","ECOR","EFLA","EFUL","EMAC","EMON","ERUB","ERUF","ESAN","EUL","GMOH","HGG","LCAT","LTAR","MMUR","MZAZ","NCOU","NPYG","OGG","PCOQ","PPOT","VAR","VRUB","VVV"],"latin_name":["Cheirogaleus medius","Daubentonia madagascariensis","Eulemur albifrons","Eulemur collaris","Eulemur coronatus","Eulemur flavifrons","Eulemur fulvus","Eulemur macaco","Eulemur mongoz","Eulemur rubriventer","Eulemur rufus","Eulemur sanfordi","Eulemur Eulemur","Galago moholi","Hapalemur griseus griseus","Lemur catta","Loris tardigradus","Mircocebus murinus","Mirza coquereli","Nycticebus coucang","Nycticebus pygmaeus","Otolemur garnettii garnettii","Propithecus coquereli","Perodicticus potto","Varecia Varecia","Varecia rubra","Varecia variegata variegata"],"common_name":["Fat-tailed dwarf lemur","Aye-aye","White-fronted brown lemur","Collared brown lemur","Crowned lemur","Blue-eyed black lemur","Common brown lemur","Black lemur","Mongoose lemur","Red-bellied lemur","Red-fronted brown lemur","Sanford's brown lemur","hybrid","Mohol bushbaby","Eastern lesser bamboo lemur","Ring-tailed lemur","Slender loris","Gray mouse lemur","Northern giant mouse lemur","Slow loris","Pygmy slow loris","Northern greater galago","Coquerel's sifaka","Potto","hybrid","Red ruffed lemur","Black-and-white ruffed lemur"]},"columns":[{"id":"taxon","name":"taxon","type":"character"},{"id":"latin_name","name":"latin_name","type":"character"},{"id":"common_name","name":"common_name","type":"character"}],"dataKey":"dcf4058b01293d87a255ff375e14f98b"},"children":[]},"class":"reactR_markup"},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<p>데이터에는 27종의 여우원숭이가 포함되어 있으며 이 장의 나머지 부분에서는 <em>붉은 목도리 여우원숭이(red ruffed lemurs)</em>에 초점을 맞출 것입니다. 붉은 목도리 여우원숭이의 분류 코드는 <code>VRUB</code>입니다. <strong><code>dplyr</code></strong>의 <code><a href="https://dplyr.tidyverse.org/reference/filter.html">filter()</a></code> 함수를 사용하여 <code>taxon</code> 열에 <code>"VRUB"</code>가 있는 데이터 행만 유지합니다: </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">vrub_lemurs</span> <span class="op">&lt;-</span> <span class="va">lemurs</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">taxon</span> <span class="op">==</span> <span class="st">"VRUB"</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>이것은 확실히 이 책에서 가장 쉬운 데이터 랭글링 과정이며 이제 플롯의 첫 번째 초안을 만들 준비가 되었습니다!</p>
+</section><section id="첫-번째-플롯" class="level3" data-number="9.3.2"><h3 data-number="9.3.2" class="anchored" data-anchor-id="첫-번째-플롯">
+<span class="header-section-number">9.3.2</span> 첫 번째 플롯</h3>
+<p><code><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot()</a></code> 함수로 시작하여 붉은 목도리 여우원숭이에 대한 데이터의 일부를 전달하고 x축에 나이(<code>age_at_wt_mo</code>)를 기본 변수로 설정하고 y축에 체중(<code>weight_g</code>)을 설정합니다. 또한 색상을 사용하여 여우원숭이의 성별(<code>sex</code>)을 구분합니다. 그런 다음 <code><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point()</a></code> 레이어를 추가하여 산점도를 만듭니다. </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">basic_plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span><span class="op">(</span></span>
+<span>    data <span class="op">=</span> <span class="va">vrub_lemurs</span>,</span>
+<span>    mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span></span>
+<span>      x <span class="op">=</span> <span class="va">age_at_wt_mo</span>,</span>
+<span>      y <span class="op">=</span> <span class="va">weight_g</span>,</span>
+<span>      color <span class="op">=</span> <span class="va">sex</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="va">basic_plot</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-lemurs-base-plot" class="quarto-float quarto-figure quarto-figure-center anchored" alt="붉은 목도리 여우원숭이의 체중이 나이에 따라 어떻게 변하는지 보여주는 산점도. 수컷 여우원숭이는 청록색 원으로, 암컷은 주황색 원으로 표시됩니다. 원이 너무 크고 많은 원이 겹쳐 있습니다.">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-lemurs-base-plot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lemurs_files/figure-html/fig-lemurs-base-plot-1.png" class="img-fluid figure-img" alt="붉은 목도리 여우원숭이의 체중이 나이에 따라 어떻게 변하는지 보여주는 산점도. 수컷 여우원숭이는 청록색 원으로, 암컷은 주황색 원으로 표시됩니다. 원이 너무 크고 많은 원이 겹쳐 있습니다.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-lemurs-base-plot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9.4: 붉은 목도리 여우원숭이의 체중이 나이에 따라 어떻게 변하는지 보여주는 산점도. 수컷 여우원숭이는 청록색 원으로, 암컷은 주황색 원으로 표시됩니다. 원이 너무 크고 많은 원이 겹쳐 있습니다.
+</figcaption></figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-lemurs-base-plot" class="quarto-xref">Figure&nbsp;<span>9.4</span></a> 에 표시된 데이터는 전체 데이터의 일부이지만 여전히 4166개의 관측값을 포함합니다. 즉, <a href="#fig-lemurs-base-plot" class="quarto-xref">Figure&nbsp;<span>9.4</span></a> 의 많은 포인트가 겹치고 특정 영역에 실제로 얼마나 많은 포인트가 있는지 확인하기 어렵습니다. 초기 플롯 코드를 편집해 보겠습니다. <code><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point()</a></code>에서 <code>size</code>를 변경하여 포인트를 약간 작게 만들 수 있습니다. 또한 <code>alpha = 0.6</code>을 설정하여 포인트를 반투명하게 만듭니다. 이는 데이터 포인트가 겹칠 수 있을 때 유용한 기술입니다. 포인트가 많은 차트 영역은 반투명 포인트가 서로 겹쳐질 때 더 어둡게 나타나기 때문입니다. 색상에만 의존하여 데이터 그룹을 시각적으로 식별하는 것은 접근성 측면에서 좋은 접근 방식이 아니므로 포인트의 <code>shape</code>도 여우원숭이의 <code>sex</code>에 매핑합니다. </p>
+<div class="cell" data-source-line-numbers="8,10,11">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9" data-source-line-numbers="8,10,11" data-code-line-numbers="8,10,11"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">basic_plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span><span class="op">(</span></span>
+<span>    data <span class="op">=</span> <span class="va">vrub_lemurs</span>,</span>
+<span>    mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span></span>
+<span>      x <span class="op">=</span> <span class="va">age_at_wt_mo</span>,</span>
+<span>      y <span class="op">=</span> <span class="va">weight_g</span>,</span>
+<span>      color <span class="op">=</span> <span class="va">sex</span>,</span>
+<span>      shape <span class="op">=</span> <span class="va">sex</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    alpha <span class="op">=</span> <span class="fl">0.6</span>,</span>
+<span>    size <span class="op">=</span> <span class="fl">0.8</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="va">basic_plot</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-lemurs-base-plot-2" class="quarto-float quarto-figure quarto-figure-center anchored" alt="붉은 목도리 여우원숭이의 체중이 나이에 따라 어떻게 변하는지 보여주는 산점도. 수컷 여우원숭이는 청록색 삼각형으로, 암컷은 주황색 원으로 표시됩니다. 두 모양 모두 약간 투명합니다.">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-lemurs-base-plot-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lemurs_files/figure-html/fig-lemurs-base-plot-2-1.png" class="img-fluid figure-img" alt="붉은 목도리 여우원숭이의 체중이 나이에 따라 어떻게 변하는지 보여주는 산점도. 수컷 여우원숭이는 청록색 삼각형으로, 암컷은 주황색 원으로 표시됩니다. 두 모양 모두 약간 투명합니다.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-lemurs-base-plot-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9.5: 붉은 목도리 여우원숭이의 체중이 나이에 따라 어떻게 변하는지 보여주는 산점도. 수컷 여우원숭이는 청록색 삼각형으로, 암컷은 주황색 원으로 표시됩니다. 두 모양 모두 약간 투명합니다.
+</figcaption></figure>
+</div>
+</div>
+</div>
+</section></section><section id="고급-스타일링" class="level2" data-number="9.4"><h2 data-number="9.4" class="anchored" data-anchor-id="고급-스타일링">
+<span class="header-section-number">9.4</span> 고급 스타일링</h2>
+<p>이제 플롯을 스타일링하고 편집하여 미적으로 더 즐겁고 접근하기 쉬우며 유익하게 만들 차례입니다.</p>
+<section id="색상" class="level3" data-number="9.4.1"><h3 data-number="9.4.1" class="anchored" data-anchor-id="색상">
+<span class="header-section-number">9.4.1</span> 색상</h3>
+<p>플롯 배경과 텍스트의 경우 밝은 베이지색(<code>bg_col</code>) 및 따뜻한 갈색(<code>text_col</code>)과 같이 붉은 목도리 여우원숭이에서 찾을 수 있는 색상을 선택합니다. 또한 수컷과 암컷 여우원숭이를 나타낼 두 가지 색상을 선택해야 합니다. 범주의 색상을 선택할 때는 부정적인 고정 관념을 강화하거나 직관적인 색상 선택과 모순되지 않는 색상을 선택하는 것이 중요합니다. 성별이나 성을 나타내는 색상을 선택할 때 남학생은 파란색, 여학생은 분홍색이라는 고정 관념을 보는 것이 매우 일반적입니다. 우리는 이러한 색상이 가질 수 있는 다른 성별에 대한 부정적인 연관성을 강화하고 싶지 않습니다. 마찬가지로 반대를 선택하여 혼란스럽게 만들고 싶지 않습니다(예: 여자는 파란색, 남자는 분홍색). 대신 암컷 여우원숭이(<code>f_col</code>)에는 보라색을, 수컷 여우원숭이(<code>m_col</code>)에는 청록색을 선택합니다. 이것은 성별을 나타내는 데 드문 색상 조합이 아니며 Lisa Muth의 블로그 게시물 <em>An Alternative to Pink &amp; Blue: Colors for Gender Data</em> <span class="citation" data-cites="Muth2018">(<a href="references.html#ref-Muth2018" role="doc-biblioref">Muth 2018</a>)</span>에서 다른 좋은 옵션에 대해 설명합니다. </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">bg_col</span> <span class="op">&lt;-</span> <span class="st">"#F5F5DC"</span></span>
+<span><span class="va">text_col</span> <span class="op">&lt;-</span> <span class="st">"#4E2E12"</span></span>
+<span><span class="va">f_col</span> <span class="op">&lt;-</span> <span class="st">"#A053A1"</span></span>
+<span><span class="va">m_col</span> <span class="op">&lt;-</span> <span class="st">"#21ADA8"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>그런 다음 <code>values</code>에 전달된 벡터 요소의 이름을 지정하여 색상 변수를 데이터의 값에 명시적으로 매핑하는 <code><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html">scale_color_manual()</a></code>을 사용하여 수컷 및 암컷 여우원숭이의 색상을 플롯에 적용할 수 있습니다. <a href="wind-turbines.html" class="quarto-xref"><span>Chapter 6</span></a> 에서 했던 것처럼 이러한 색상 변수를 명명된 벡터로 생성할 수 있지만 레이블이 데이터 값과 다르기를 원하기 때문에(예: <code>F</code> 대신 <code>females</code>) 단순히 변수로 전달하는 것과 비슷한 작업량입니다 - 특히 두 범주의 경우에요. </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">col_plot</span> <span class="op">&lt;-</span> <span class="va">basic_plot</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html">scale_color_manual</a></span><span class="op">(</span></span>
+<span>    values <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"F"</span> <span class="op">=</span> <span class="va">f_col</span>, <span class="st">"M"</span> <span class="op">=</span> <span class="va">m_col</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><a href="wind-turbines.html" class="quarto-xref"><span>Chapter 6</span></a> 에서처럼 두 범주를 구분하기 위해 부제목에 색상 텍스트와 아이콘을 사용할 것이므로 조금 나중에 <code><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme()</a></code> 함수 내에서 <code>legend.position = "none"</code>을 설정하여 범례를 제거할 것입니다. 여기서는 기술적으로 색상에 대한 범례와 모양에 대한 범례의 두 가지 범례가 하나에 있습니다. 범례의 한 부분(예: 색상)만 제거하려면 <code><a href="https://ggplot2.tidyverse.org/reference/scale_manual.html">scale_color_manual()</a></code> 내부에서 <code>guide = "none"</code>을 설정할 수 있습니다. 이렇게 하면 기본적으로 검은색으로 표시되는 모양만 있는 범례가 생성됩니다. </p>
+</section><section id="systemfonts로-작업하기" class="level3" data-number="9.4.2"><h3 data-number="9.4.2" class="anchored" data-anchor-id="systemfonts로-작업하기">
+<span class="header-section-number">9.4.2</span> <strong><code>systemfonts</code></strong>로 작업하기</h3>
+<p>색상과 모양에 대한 전통적인 범례를 사용하는 대신 부제목에 색상 텍스트를 포함할 것입니다. 여기서는 또한 원과 삼각형이 두 범주에 어떻게 매핑되는지 식별하기 위해 부제목에 일부 유니코 아이콘을 포함할 것입니다. 불행히도 Font Awesome 아이콘 글꼴 및 기타 Google 글꼴을 로드하는 데 사용해 온 <strong><code>showtext</code></strong> 패키지는 유니코드 아이콘과 항상 잘 작동하는 것은 아닙니다. 대체 글꼴 패키지인 <strong><code>systemfonts</code></strong> <span class="citation" data-cites="systemfonts">(<a href="references.html#ref-systemfonts" role="doc-biblioref">Pedersen, Ooms, and Govett 2024</a>)</span>를 살펴보겠습니다. <a href="programming-languages.html" class="quarto-xref"><span>Chapter 2</span></a> 에서 언급했듯이 <strong><code>systemfonts</code></strong> 패키지를 사용하면 로컬 시스템에서 사용 가능한 글꼴 파일을 찾거나 로드할 수 있습니다.</p>
+<p><strong><code>systemfonts</code></strong>를 사용하여 글꼴을 등록하려면 <code><a href="https://systemfonts.r-lib.org/reference/register_font.html">register_font()</a></code> 함수를 사용합니다. 로컬 글꼴을 로드하기 위한 <strong><code>showtext</code></strong>의 <code>font_add()</code> 함수와 매우 유사해 보입니다 - 비교하려면 <a href="wind-turbines.html" class="quarto-xref"><span>Chapter 6</span></a> 및 <a href="cats.html" class="quarto-xref"><span>Chapter 7</span></a> 를 참조하십시오. <a href="cats.html" class="quarto-xref"><span>Chapter 7</span></a> 에서 취한 접근 방식의 대안으로 <strong><code>systemfonts</code></strong>를 사용하여 Font Awesome Brand 아이콘을 로드해 보겠습니다. </p>
+<p>첫 번째 인수 <code>name</code>은 R에서 글꼴이 알려진 이름입니다. 원하는 이름을 선택할 수 있지만 여기서는 <code>social_caption()</code> 함수가 여전히 작동하도록 <a href="cats.html" class="quarto-xref"><span>Chapter 7</span></a> 의 <code>family</code> 인수에 대해 했던 것과 동일한 이름을 사용해야 합니다. <code>plain</code> 인수는 글꼴 파일의 경로입니다.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://systemfonts.r-lib.org/reference/register_font.html">register_font</a></span><span class="op">(</span></span>
+<span>  name <span class="op">=</span> <span class="st">"Font Awesome 6 Brands"</span>,</span>
+<span>  plain <span class="op">=</span> <span class="st">"fonts/Font-Awesome-6-Brands-Regular-400.otf"</span></span>
+<span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="tip-lemurs-device" class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip&nbsp;9.1: 그래픽 장치 설정
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>R에서 그래픽 장치는 시각적 출력(플롯 포함)을 렌더링하는 데 사용되는 시스템입니다. 사용되는 그래픽 장치는 사용 중인 운영 체제와 생성하려는 출력 형식(예: png 또는 pdf)에 따라 달라집니다. <strong><code>ragg</code></strong> 패키지 <span class="citation" data-cites="ragg">(<a href="references.html#ref-ragg" role="doc-biblioref">Pedersen and Shemanarev 2023</a>)</span>는 AGG 라이브러리를 기반으로 R용 그래픽 장치를 제공합니다. </p>
+<p>글꼴 작업을 더 쉽게 만들고 고품질 이미지를 제공하기 때문에 RStudio에서 그래픽에 <strong><code>ragg</code></strong>를 사용하는 것이 좋습니다. 다른 그래픽 장치를 사용하는 경우 <strong><code>systemfonts</code></strong>로 로드된 아이콘이나 글꼴이 올바르게 나타나지 않을 수 있습니다. RStudio의 그래픽 장치에 <strong><code>ragg</code></strong>를 사용하려면 <code>Tools -&gt; Global Options -&gt; General -&gt; Graphics -&gt; Backend</code>로 이동하여 <code>AGG</code>를 선택하십시오. R Markdown 또는 Quarto 문서에서는 <code>knitr::opts_chunk$set(dev = "ragg_png")</code> 또는 선택한 장치를 포함하는 설정 청크를 상단에 추가할 수 있습니다. </p>
+</div>
+</div>
+<p>또한 <strong><code>systemfonts</code></strong>의 <code><a href="https://systemfonts.r-lib.org/reference/register_font.html">register_font()</a></code>를 사용하여 플롯의 제목과 본문 텍스트에 사용할 글꼴을 로드할 수 있습니다. 여기서 차이점은 예를 들어 Google Fonts의 글꼴을 사용하려는 경우 먼저 글꼴 파일을 다운로드해야 한다는 것입니다. </p>
+<p>본문 텍스트의 경우 <a href="http://www.latofonts.com/team/">Łukasz Dziedzic</a>이 디자인한 산세리프 서체인 <em>Lato</em>를 사용합니다. 글꼴 파일은 <a href="https://fonts.google.com/specimen/Lato">fonts.google.com/specimen/Lato</a> 또는 <a href="https://www.latofonts.com/lato-free-fonts/">www.latofonts.com/lato-free-fonts</a>에서 다운로드할 수 있습니다. 제목의 경우 큰 제목을 위해 특별히 디자인된 서체인 <em>Passion One</em>을 사용합니다! <a href="https://fonts.google.com/specimen/Passion+One">fonts.google.com/specimen/Passion+One</a>에서 다운로드할 수 있습니다. 이러한 서체를 다운로드하면 단일 파일만 다운로드하는 것이 아니라 실제로 여러 파일을 다운로드하는 것입니다 - 굵게 및 기울임꼴과 같이 사용 가능한 글꼴의 각 변형에 대해 하나씩입니다.</p>
+<p><code><a href="https://systemfonts.r-lib.org/reference/register_font.html">register_font()</a></code>에서는 굵은 버전의 글꼴 파일을 <code>bold</code> 인수에 전달하는 것과 같이 이러한 다른 글꼴 파일을 관련 인수에 전달합니다. 모든 서체에 모든 스타일을 사용할 수 있는 것은 아닙니다. 여기서 <em>Passion One</em>은 기울임꼴을 사용할 수 없으므로 <code>Passion One</code>을 로드할 때 <code>italic</code> 인수에 아무것도 전달하지 않습니다. 특정 글꼴 스타일을 사용하지 않을 경우(예: Lato 글꼴을 사용할 때 텍스트를 굵게 쓰지 않을 것임을 알고 있는 경우) <code><a href="https://systemfonts.r-lib.org/reference/register_font.html">register_font()</a></code>로 이 스타일을 로드할 필요가 없습니다. 그러나 마음이 바뀔 경우를 대비하여 사용할 수 있도록 하는 것이 유용할 수 있습니다!</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://systemfonts.r-lib.org/reference/register_font.html">register_font</a></span><span class="op">(</span></span>
+<span>  name <span class="op">=</span> <span class="st">"Lato"</span>,</span>
+<span>  plain <span class="op">=</span> <span class="st">"fonts/Lato/Lato-Regular.ttf"</span>,</span>
+<span>  bold <span class="op">=</span> <span class="st">"fonts/Lato/Lato-Bold.ttf"</span>,</span>
+<span>  italic <span class="op">=</span> <span class="st">"fonts/Lato/Lato-Italic.ttf"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://systemfonts.r-lib.org/reference/register_font.html">register_font</a></span><span class="op">(</span></span>
+<span>  name <span class="op">=</span> <span class="st">"Passion One"</span>,</span>
+<span>  plain <span class="op">=</span> <span class="st">"fonts/Passion_One/PassionOne-Regular.ttf"</span>,</span>
+<span>  bold <span class="op">=</span> <span class="st">"fonts/Passion_One/PassionOne-Bold.ttf"</span></span>
+<span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">body_font</span> <span class="op">&lt;-</span> <span class="st">"Lato"</span></span>
+<span><span class="va">title_font</span> <span class="op">&lt;-</span> <span class="st">"Passion One"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><code><a href="https://systemfonts.r-lib.org/reference/register_font.html">register_font()</a></code>를 사용하는 대안은 다운로드한 글꼴 파일을 마우스 오른쪽 버튼으로 클릭하고 <em>설치(Install)</em>를 선택하여 시스템에 글꼴을 설치하는 것입니다. 그러면 <strong><code>ragg</code></strong>가 글꼴을 자동으로 찾을 수 있어야 합니다. 그러나 시스템 전체에 글꼴을 설치할 수 없거나 선호하지 않는 이유가 있을 수 있습니다. 스크립트에서 <code><a href="https://systemfonts.r-lib.org/reference/register_font.html">register_font()</a></code>를 사용하면 R 외부에서 발생하는 다른 프로세스에 의존하는 대신 글꼴이 설치된 방법에 대한 기록도 남습니다.</p>
+</section><section id="텍스트-추가" class="level3" data-number="9.4.3"><h3 data-number="9.4.3" class="anchored" data-anchor-id="텍스트-추가">
+<span class="header-section-number">9.4.3</span> 텍스트 추가</h3>
+<p>플롯의 제목은 독자에게 질문을 던지고 플롯에 참여하도록 유도하는 간단한 문자열로 정의할 수 있습니다. 부제목 텍스트를 작성하기 위해 <strong><code>glue</code></strong>의 <code><a href="https://glue.tidyverse.org/reference/glue.html">glue()</a></code> 함수를 사용하여 두 가지 작업을 수행합니다: </p>
+<ul>
+<li>
+<a href="cats.html" class="quarto-xref"><span>Chapter 7</span></a> 에서 했던 것처럼 부제목에 색상 텍스트를 추가합니다.</li>
+<li>
+<a href="programming-languages.html" class="quarto-xref"><span>Chapter 2</span></a> 에서 했던 것처럼 데이터 기반 텍스트를 만듭니다.</li>
+</ul>
+<p>또한 모양 범례를 대체하기 위해 부제목에 유니코드 문자(삼각형 및 원)를 사용할 것입니다. 유니코드 문자가 색상 방식처럼 차트에 그려진 모양과 정확히 동일하지는 않지만 모양은 이 방식이 작동하기에 충분히 비슷합니다. <code>&amp;#x25B2;</code> 문자열은 검은색 삼각형을 추가하고 <code>&amp;#x25CF</code> 문자열은 검은색 원을 추가합니다. 이들이 <em>검은색</em> 모양을 정의하지만 원하는 색상으로 나타납니다. 여기서 <em>검은색</em> 삼각형은 실제로는 <em>채워진</em> 삼각형을 의미합니다(<em>흰색</em> 삼각형은 <em>윤곽선만 있는</em> 삼각형을 의미함). </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">title</span> <span class="op">&lt;-</span> <span class="st">"붉은 목도리 여우원숭이의 무게는 얼마일까요??"</span></span>
+<span><span class="va">subtitle</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://glue.tidyverse.org/reference/glue.html">glue</a></span><span class="op">(</span><span class="st">"Duke Lemur Center에서 붉은 목도리 여우원숭이는 평균 {round(mean(vrub_lemurs$age_at_death_y, na.rm = TRUE), 1)}세까지 살고 약 2세에 성숙합니다. 완전히 자라면 &lt;span style='color:{f_col}'&gt;암컷 &amp;#x25CF;&lt;/span&gt;이 &lt;span style='color:{m_col}'&gt;수컷 &amp;#x25B2;&lt;/span&gt;보다 더 무거운 경향이 있는 것처럼 보일 수 있지만, 이 차트는 임신을 고려하지 않은 것입니다."</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><a href="cats.html" class="quarto-xref"><span>Chapter 7</span></a> 에서 정의한 <code>social_caption()</code> 함수를 사용하여 소셜 미디어용 Font Awesome 아이콘(앞서 정의한 색상 사용)이 포함된 캡션을 만듭니다. 그런 다음 <a href="wind-turbines.html" class="quarto-xref"><span>Chapter 6</span></a> 의 <code>source_caption()</code> 함수에서 소셜 미디어 캡션을 사용하고 Duke Lemur Center와 데이터 출판물을 데이터 소스로 전달합니다. </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">social</span> <span class="op">&lt;-</span> <span class="fu">social_caption</span><span class="op">(</span></span>
+<span>  icon_color <span class="op">=</span> <span class="va">f_col</span>,</span>
+<span>  font_color <span class="op">=</span> <span class="va">text_col</span>,</span>
+<span>  font_family <span class="op">=</span> <span class="va">body_font</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">cap</span> <span class="op">&lt;-</span> <span class="fu">source_caption</span><span class="op">(</span></span>
+<span>  source <span class="op">=</span> <span class="st">"Duke Lemur Center (Zehr et al. 2014)"</span>,</span>
+<span>  sep <span class="op">=</span> <span class="st">"&lt;br&gt;"</span>,</span>
+<span>  graphic <span class="op">=</span> <span class="va">social</span></span>
+<span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>제목, 부제목 및 캡션 텍스트는 변수와 기록된 단위를 표시하는 x 및 y 축 레이블과 함께 <code><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs()</a></code> 함수를 사용하여 플롯에 추가할 수 있습니다. </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">text_plot</span> <span class="op">&lt;-</span> <span class="va">col_plot</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span><span class="op">(</span></span>
+<span>    title <span class="op">=</span> <span class="va">title</span>,</span>
+<span>    subtitle <span class="op">=</span> <span class="va">subtitle</span>,</span>
+<span>    caption <span class="op">=</span> <span class="va">cap</span>,</span>
+<span>    x <span class="op">=</span> <span class="st">"Age (months)"</span>, y <span class="op">=</span> <span class="st">"Weight (g)"</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="va">text_plot</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-lemurs-labels" class="quarto-float quarto-figure quarto-figure-center anchored" alt="붉은 목도리 여우원숭이의 체중이 나이에 따라 어떻게 변하는지 보여주는 산점도. 수컷 여우원숭이는 청록색 삼각형으로, 암컷은 보라색 원으로 표시됩니다. 부제목 텍스트가 페이지를 벗어나고 캡션이 원시 HTML 텍스트로 잘못 서식이 지정되어 있습니다.">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-lemurs-labels-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lemurs_files/figure-html/fig-lemurs-labels-1.png" class="img-fluid figure-img" alt="붉은 목도리 여우원숭이의 체중이 나이에 따라 어떻게 변하는지 보여주는 산점도. 수컷 여우원숭이는 청록색 삼각형으로, 암컷은 보라색 원으로 표시됩니다. 부제목 텍스트가 페이지를 벗어나고 캡션이 원시 HTML 텍스트로 잘못 서식이 지정되어 있습니다.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-lemurs-labels-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9.6: 붉은 목도리 여우원숭이의 체중이 나이에 따라 어떻게 변하는지 보여주는 산점도. 수컷 여우원숭이는 청록색 삼각형으로, 암컷은 보라색 원으로 표시됩니다. 부제목 텍스트가 페이지를 벗어나고 캡션이 원시 HTML 텍스트로 잘못 서식이 지정되어 있습니다.
+</figcaption></figure>
+</div>
+</div>
+</div>
+</section><section id="테마-조정" class="level3" data-number="9.4.4"><h3 data-number="9.4.4" class="anchored" data-anchor-id="테마-조정">
+<span class="header-section-number">9.4.4</span> 테마 조정</h3>
+<p>이제 배경 및 텍스트 색상을 구현하고 원시 HTML 코드가 올바르게 처리되도록 몇 가지 최종 스타일링을 추가해야 합니다.</p>
+<p>그리드 선과 축은 유지하지만 회색 배경과 어두운 축 눈금은 제거하는 <code><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_minimal()</a></code>을 기본으로 시작합니다. 또한 기본 글꼴 크기를 크기 <code>6</code>으로 설정하고 이전에 정의한 <code>body_font</code> 변수를 기본 글꼴 패밀리로 사용합니다. 그런 다음 <code><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme()</a></code>을 사용하여 몇 가지 추가 조정을 할 수 있습니다. 여기서 <code>legend.position = "none"</code>을 설정하여 범례를 제거하고 플롯 가장자리 주위에 여백을 추가하고 <code><a href="https://ggplot2.tidyverse.org/reference/element.html">element_rect()</a></code>를 사용하여 선택한 배경색을 적용합니다. </p>
+<p><code>plot.title.position</code> 및 <code>plot.caption.position</code>을 <code>"plot"</code>으로 설정하면 제목, 부제목 및 캡션이 산점도가 있는 패널이 아닌 전체 플롯의 외부와 정렬되어 더 깔끔하고 균형 잡힌 모양을 제공합니다. 제목 텍스트는 <code><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text()</a></code>로 추가 조정되어 <code>title_font</code> 패밀리를 사용하고 크기를 키우고 색상을 변경하고 하단에 약간의 공간을 더 추가합니다. <a href="programming-languages.html" class="quarto-xref"><span>Chapter 2</span></a> 및 <a href="cats.html" class="quarto-xref"><span>Chapter 7</span></a> 에서 설명한 대로 플롯 부제목 및 캡션에 <strong><code>ggtext</code></strong>의 <code><a href="https://wilkelab.org/ggtext/reference/element_textbox.html">element_textbox_simple()</a></code>을 사용하여 긴 텍스트를 여러 줄로 강제로 줄 바꿈하고 캡션의 HTML 코드를 올바르게 처리합니다. </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">theme_plot</span> <span class="op">&lt;-</span> <span class="va">text_plot</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_minimal</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">6</span>, base_family <span class="op">=</span> <span class="va">body_font</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span></span>
+<span>    <span class="co"># legend</span></span>
+<span>    legend.position <span class="op">=</span> <span class="st">"none"</span>,</span>
+<span>    <span class="co"># background</span></span>
+<span>    plot.margin <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">margin</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">5</span>, <span class="fl">5</span>, <span class="fl">5</span><span class="op">)</span>,</span>
+<span>    plot.background <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_rect</a></span><span class="op">(</span></span>
+<span>      fill <span class="op">=</span> <span class="va">bg_col</span>, color <span class="op">=</span> <span class="va">bg_col</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    <span class="co"># text</span></span>
+<span>    plot.title.position <span class="op">=</span> <span class="st">"plot"</span>,</span>
+<span>    plot.caption.position <span class="op">=</span> <span class="st">"plot"</span>,</span>
+<span>    plot.title <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span></span>
+<span>      family <span class="op">=</span> <span class="va">title_font</span>,</span>
+<span>      size <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">rel</a></span><span class="op">(</span><span class="fl">1.7</span><span class="op">)</span>,</span>
+<span>      color <span class="op">=</span> <span class="va">text_col</span>,</span>
+<span>      margin <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">margin</a></span><span class="op">(</span>b <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    plot.subtitle <span class="op">=</span> <span class="fu"><a href="https://wilkelab.org/ggtext/reference/element_textbox.html">element_textbox_simple</a></span><span class="op">(</span></span>
+<span>      color <span class="op">=</span> <span class="va">text_col</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    plot.caption <span class="op">=</span> <span class="fu"><a href="https://wilkelab.org/ggtext/reference/element_textbox.html">element_textbox_simple</a></span><span class="op">(</span></span>
+<span>      hjust <span class="op">=</span> <span class="fl">0</span>, halign <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>      color <span class="op">=</span> <span class="va">text_col</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="va">theme_plot</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-lemurs-style-1" class="quarto-float quarto-figure quarto-figure-center anchored" alt="붉은 목도리 여우원숭이의 체중이 나이에 따라 어떻게 변하는지 보여주는 산점도. 이제 플롯에 베이지색 배경이 있고 부제목 텍스트가 올바르게 줄 바꿈되었으며 캡션에 데이터 및 그래픽의 속성이 있습니다.">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-lemurs-style-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lemurs_files/figure-html/fig-lemurs-style-1-1.png" class="img-fluid figure-img" alt="붉은 목도리 여우원숭이의 체중이 나이에 따라 어떻게 변하는지 보여주는 산점도. 이제 플롯에 베이지색 배경이 있고 부제목 텍스트가 올바르게 줄 바꿈되었으며 캡션에 데이터 및 그래픽의 속성이 있습니다.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-lemurs-style-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9.7: 붉은 목도리 여우원숭이의 체중이 나이에 따라 어떻게 변하는지 보여주는 산점도. 이제 플롯에 베이지색 배경이 있고 부제목 텍스트가 올바르게 줄 바꿈되었으며 캡션에 데이터 및 그래픽의 속성이 있습니다.
+</figcaption></figure>
+</div>
+</div>
+</div>
+<p>플롯의 오른쪽에 이미지를 추가할 것입니다. 우리가 취하는 접근 방식은 빈 공간을 만들어야 합니다. 아마도 가장 간단한 방법은 <code><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme()</a></code>의 <code>plot.margin</code> 인수를 사용하여 플롯 오른쪽의 여백 크기를 늘리는 것입니다: </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">theme_plot</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span></span>
+<span>    plot.margin <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">margin</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">90</span>, <span class="fl">5</span>, <span class="fl">5</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-lemurs-margin-1" class="quarto-float quarto-figure quarto-figure-center anchored" alt="붉은 목도리 여우원숭이의 체중이 나이에 따라 어떻게 변하는지 보여주는 산점도. 플롯과 부제목 텍스트의 오른쪽에 추가 공간이 비어 있습니다.">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-lemurs-margin-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lemurs_files/figure-html/fig-lemurs-margin-1-1.png" class="img-fluid figure-img" alt="붉은 목도리 여우원숭이의 체중이 나이에 따라 어떻게 변하는지 보여주는 산점도. 플롯과 부제목 텍스트의 오른쪽에 추가 공간이 비어 있습니다.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-lemurs-margin-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9.8: 붉은 목도리 여우원숭이의 체중이 나이에 따라 어떻게 변하는지 보여주는 산점도. 플롯과 부제목 텍스트의 오른쪽에 추가 공간이 비어 있습니다.
+</figcaption></figure>
+</div>
+</div>
+</div>
+<p>그러나 <a href="#fig-lemurs-margin-1" class="quarto-xref">Figure&nbsp;<span>9.8</span></a> 에서 볼 수 있듯이 이 접근 방식은 제목과 부제목 텍스트도 여백으로 확장되지 않기 때문에 플롯의 왼쪽으로 찌그러지는 결과를 낳습니다. 이것은 일부 플롯에는 바람직할 수 있지만 여기서는 잘 작동하지 않습니다. 또 다른 접근 방식은 <code><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_x_continuous()</a></code>의 <code>expand</code> 인수를 사용하여 x축 오른쪽의 공간을 늘리는 것입니다. 그러나 이렇게 하면 축이 확장되므로 그리드 선이 추가 공간에 포함됩니다. 휴식과 축 텍스트를 조작하여 원치 않는 구성 요소를 제거 <em>할 수도</em> 있지만 더 쉬운(약간 <em>해킹적인</em>) 해결책이 있습니다. 보조 y축을 추가하고 편집하는 것입니다. </p>
+<p>보조 축은 보조 축에 대한 변환 선택이 전적으로 임의적이지만 플롯이 해석되는 방식에 큰 영향을 미칠 수 있다는 사실 때문에 거의 항상 차트의 나쁜 선택입니다. 그러나 우리는 실제로 데이터를 표시하기 위해 보조 축을 사용하는 것이 아니라 플롯 배경의 레이아웃을 조작하기 위해서만 사용할 것입니다. 제목을 찌그러뜨리거나 여백에 그리드 선을 추가하지 않고 오른쪽에 추가 여백 공간을 추가하려면 다음을 수행할 수 있습니다: </p>
+<ul>
+<li>
+<code><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_y_continuous()</a></code> 내부에서 <code>sec.axis = dup_axis()</code>를 설정하여 y축을 복제하여 오른쪽에 보조 y축을 만듭니다. <code><a href="https://ggplot2.tidyverse.org/reference/sec_axis.html">dup_axis()</a></code> 대신 <code><a href="https://ggplot2.tidyverse.org/reference/sec_axis.html">sec_axis()</a></code> 함수를 사용할 수 있지만 축을 어떤 방식으로든 변환할 필요가 없습니다.</li>
+<li>
+<code><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme()</a></code>의 <code>axis.text.y.right</code> 인수에 대해 <code>margin = margin(r = 150)</code>을 사용하여 오른쪽 여백을 확장하여 보조 축 레이블에 많은 여백 공간을 추가합니다.</li>
+<li>그런 다음 <code>axis.text.y.right</code>에 대해 <code>color = bg_col</code>을 설정하여 보조 축 레이블을 배경과 같은색으로 만들어 숨깁니다.</li>
+</ul>
+<p>또한 <code>axis.title.y.right</code>를 <code><a href="https://ggplot2.tidyverse.org/reference/element.html">element_blank()</a></code>로 설정하여 제목을 제거합니다. </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">styled_plot</span> <span class="op">&lt;-</span> <span class="va">theme_plot</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_y_continuous</a></span><span class="op">(</span>sec.axis <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/sec_axis.html">dup_axis</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span></span>
+<span>    axis.text.y.right <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span></span>
+<span>      margin <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">margin</a></span><span class="op">(</span>r <span class="op">=</span> <span class="fl">90</span><span class="op">)</span>,</span>
+<span>      color <span class="op">=</span> <span class="va">bg_col</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    axis.title.y.right <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_blank</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="va">styled_plot</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-lemurs-margin-2" class="quarto-float quarto-figure quarto-figure-center anchored" alt="붉은 목도리 여우원숭이의 체중이 나이에 따라 어떻게 변하는지 보여주는 산점도. 부제목 텍스트가 전체 플롯 너비에 걸쳐 있지만 오른쪽에 추가 공간이 비어 있습니다.">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-lemurs-margin-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lemurs_files/figure-html/fig-lemurs-margin-2-1.png" class="img-fluid figure-img" alt="붉은 목도리 여우원숭이의 체중이 나이에 따라 어떻게 변하는지 보여주는 산점도. 부제목 텍스트가 전체 플롯 너비에 걸쳐 있지만 오른쪽에 추가 공간이 비어 있습니다.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-lemurs-margin-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9.9: 붉은 목도리 여우원숭이의 체중이 나이에 따라 어떻게 변하는지 보여주는 산점도. 부제목 텍스트가 전체 플롯 너비에 걸쳐 있지만 오른쪽에 추가 공간이 비어 있습니다.
+</figcaption></figure>
+</div>
+</div>
+</div>
+<p>이제 이미지를 배치할 적절한 공간이 생겼습니다.</p>
+</section></section><section id="이미지-작업" class="level2" data-number="9.5"><h2 data-number="9.5" class="anchored" data-anchor-id="이미지-작업">
+<span class="header-section-number">9.5</span> 이미지 작업</h2>
+<p>데이터 시각화 책에서 이미지를 사용하는 방법에 대한 지침을 자주 찾을 수는 없지만 이미지 오버레이를 플롯 위에 추가하고 싶을 수 있는 데에는 여러 가지 이유가 있습니다. 아마도 더 일관된 브랜딩을 위해 모서리에 회사 로고를 추가해야 할 수도 있습니다. 아니면 플롯을 더 눈에 띄게 만드는 방법을 찾고 있을 수도 있습니다! </p>
+<section id="magick-및-imager를-사용한-이미지-조작" class="level3" data-number="9.5.1"><h3 data-number="9.5.1" class="anchored" data-anchor-id="magick-및-imager를-사용한-이미지-조작">
+<span class="header-section-number">9.5.1</span> <strong><code>magick</code></strong> 및 <strong><code>imager</code></strong>를 사용한 이미지 조작</h3>
+<p><strong><code>magick</code></strong> 패키지 <span class="citation" data-cites="magick">(<a href="references.html#ref-magick" role="doc-biblioref">Ooms 2024</a>)</span>는 ImageMagick 이미지 처리 라이브러리에 대한 바인딩을 제공하며, 이를 통해 회전, 크기 조정, 자르기 또는 흐림(몇 가지만 예를 들면!)을 통해 이미지를 조작할 수 있습니다. PNG, JPG 및 PDF를 포함한 여러 가지 다양한 이미지 형식을 지원합니다. </p>
+<p><strong><code>magick</code></strong> 패키지는 이미지를 처리하고 조작할 수 있는 유일한 R 패키지가 아닙니다. 인기 있는 대안은 David Tschumperlé의 C++ 라이브러리인 CImg를 기반으로 하는 <strong><code>imager</code></strong> 패키지 <span class="citation" data-cites="imager">(<a href="references.html#ref-imager" role="doc-biblioref">Barthelme 2024</a>)</span>입니다. 두 패키지 모두 장단점이 있으며 <strong><code>imager</code></strong>의 <code><a href="https://rdrr.io/pkg/imager/man/magick.html">cimg2magick()</a></code> 및 <code><a href="https://rdrr.io/pkg/imager/man/magick.html">magick2cimg()</a></code> 변환 함수를 통해 두 패키지를 동시에 사용하기 쉽습니다. <strong><code>imager</code></strong>에서 더 쉬운 작업이 있고 <strong><code>magick</code></strong>에서 더 쉬운 작업이 있습니다. 이 장에서는 두 가지 패키지를 함께 사용하여 얼마나 쉬운지 보여드리겠습니다. </p>
+<div id="tip-lemurs-unsplash" class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip&nbsp;9.2: 재사용할 이미지 찾기
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>플롯에 로고를 추가할 때 사용할 이미지와 찾을 위치를 아는 것은 (합리적으로) 쉽습니다. 오버레이하려는 이미지가 아직 없다면 찾는 방법과 위치도 알아야 합니다.</p>
+<p>소유하지 않은 이미지를 플롯에 추가하는 경우 이미지를 재사용할 수 있는 권한이 있는지 확인하고 라이선스 파일이 허용하는지 확인하십시오. Unsplash (<a href="https://unsplash.com/">unsplash.com</a>), Wikimedia Commons (<a href="https://commons.wikimedia.org/">commons.wikimedia.org</a>) 또는 Pixabay (<a href="https://pixabay.com/">pixabay.com</a>)와 같은 사이트는 무료로 재사용할 수 있는 이미지를 찾기에 좋은 곳입니다.</p>
+</div>
+</div>
+<p>이 시각화를 위해 <a href="https://unsplash.com/@lysrix">Jax</a>가 찍은 <a href="https://unsplash.com/photos/red-and-white-rodent-h5xrh3CNT-k">Unsplash</a>의 붉은 목도리 여우원숭이 사진을 사용할 것입니다 <span class="citation" data-cites="img_jax">(<a href="references.html#ref-img_jax" role="doc-biblioref">Jax (@lysrix) 2017</a>)</span>.</p>
+<p><strong><code>imager</code></strong> 패키지로 시작하여 <code><a href="https://rdrr.io/pkg/imager/man/load.image.html">load.image()</a></code> 함수를 사용하여 이미지를 R로 읽어들입니다. <strong><code>magick</code></strong>을 시작으로 사용했다면 대신 <code><a href="https://docs.ropensci.org/magick/reference/editing.html">image_read()</a></code> 함수를 사용했을 것입니다. </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">lemur_img</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/imager/man/load.image.html">load.image</a></span><span class="op">(</span><span class="st">"images/lemur.jpg"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">lemur_img</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-lemurs-imager-read" class="quarto-float quarto-figure quarto-figure-center anchored" alt="픽셀 단위의 이미지 크기를 나타내는 플롯 축과 함께 표시된 붉은 목도리 여우원숭이의 이미지.">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-lemurs-imager-read-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lemurs_files/figure-html/fig-lemurs-imager-read-1.png" class="img-fluid figure-img" alt="픽셀 단위의 이미지 크기를 나타내는 플롯 축과 함께 표시된 붉은 목도리 여우원숭이의 이미지.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-lemurs-imager-read-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9.10: 픽셀 단위의 이미지 크기를 나타내는 플롯 축과 함께 표시된 붉은 목도리 여우원숭이의 이미지.
+</figcaption></figure>
+</div>
+</div>
+</div>
+<p><code>plot(lemur_img)</code>를 실행하여 이미지가 올바르게 로드되었는지 확인할 수 있습니다. 축이 픽셀 수를 나타내는 전통적인 기본 R 그래픽 그리드에 플로팅된 것을 볼 수 있습니다. 이 배경 그리드를 처리하는 방법에 대해서는 걱정하지 마십시오. 잠시 후에 처리하겠습니다!</p>
+<p>여우원숭이의 재미있는 이미지이지만 원시 형식으로 플롯 위에 오버레이하는 것은 미적으로 가장 즐겁지 않을 것입니다. 이미지의 배경은 플롯에 대해 매우 명확할 것입니다. 이미지가 투명한 배경을 가진 여우원숭이 자체의 이미지라면 더 좋을 것입니다. 배경을 제거할 수 있는 많은 온라인 도구와 데스크톱 소프트웨어가 있지만 R에서도 이 작업을 수행할 수 있습니다!</p>
+<p>가능한 한 많은 배경을 잘라내는 것으로 시작하겠습니다. <strong><code>imager</code></strong>에서 <code><a href="https://rdrr.io/pkg/imager/man/imcoord.html">Xc()</a></code> 및 <code><a href="https://rdrr.io/pkg/imager/man/imcoord.html">Yc()</a></code> 함수는 각각 x 및 y 좌표에 대한 이미지의 픽셀 좌표를 반환합니다. 픽셀 좌표를 기반으로 이미지의 픽셀 값을 하위 설정하거나 업데이트하는 것은 본질적으로 R에서 행렬 값을 하위 설정하거나 업데이트하는 것과 같은 방식으로 작동합니다. </p>
+<p><code>Xc(lemur_img) &lt;= 200</code>을 실행하면 x 좌표가 200 이하인 모든 값이 <code>TRUE</code>이고 그렇지 않으면 <code>FALSE</code>인 픽셀 행렬이 생성됩니다. 이 값을 <code>0</code>으로 설정하면 해당 픽셀이 검은색으로 바뀝니다. x 좌표가 275 미만이고 y 좌표가 320보다 큰 섹션을 제거하기 위해 비슷한 작업을 수행할 수 있습니다. 이러한 경계를 올바르게 설정하려면 약간의 시행착오가 필요하지만 플롯 축을 가이드로 사용할 수 있습니다. y축에 주의하십시오 - 대부분의 플롯과 반대 방향으로 이동합니다! </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">px</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/imager/man/imcoord.html">Xc</a></span><span class="op">(</span><span class="va">lemur_img</span><span class="op">)</span> <span class="op">&lt;=</span> <span class="fl">200</span></span>
+<span><span class="va">lemur_img</span><span class="op">[</span><span class="va">px</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">0</span></span>
+<span><span class="va">px</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/imager/man/imcoord.html">Xc</a></span><span class="op">(</span><span class="va">lemur_img</span><span class="op">)</span> <span class="op">&lt;=</span> <span class="fl">275</span> <span class="op">&amp;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/imager/man/imcoord.html">Yc</a></span><span class="op">(</span><span class="va">lemur_img</span><span class="op">)</span> <span class="op">&gt;=</span> <span class="fl">320</span></span>
+<span><span class="va">lemur_img</span><span class="op">[</span><span class="va">px</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>이제 나머지 배경을 제거해야 합니다. 다행히도 유지하려는 이미지 부분(여우원숭이)과 그렇지 않은 부분(배경) 사이에 꽤 많은 대비가 있습니다. <strong><code>imager</code></strong>의 <code><a href="https://rdrr.io/pkg/imager/man/px.flood.html">px.flood()</a></code> 함수를 사용하면 초기 픽셀과 유사한 픽셀을 선택할 수 있습니다. 즉, 여우원숭이에서 픽셀을 선택한 다음 <code><a href="https://rdrr.io/pkg/imager/man/px.flood.html">px.flood()</a></code> 함수를 사용하여 여우원숭이와 유사한 모든 픽셀을 선택할 수 있습니다. <code>x</code> 및 <code>y</code> 인수는 시작할 초기 픽셀의 좌표를 지정하는 데 사용됩니다. <code>sigma</code> 인수는 픽셀이 얼마나 다를 수 있는지 지정하며, 낮은 값은 매우 유사함을 나타내고 높은 <code>sigma</code> 값은 더 다른 값이 선택될 수 있도록 합니다. </p>
+<p>이러한 인수에 가장 적합한 값을 선택하려면 약간의 시행착오가 필요하며 유사한 것으로 간주되는 픽셀의 경계선을 플로팅하여 성능을 시각적으로 검사할 수 있습니다. <code><a href="https://rdrr.io/pkg/imager/man/px.flood.html">px.flood()</a></code>의 출력을 <strong><code>imager</code></strong>의 <code><a href="https://rdrr.io/pkg/imager/man/highlight.html">highlight()</a></code>로 전달하면 <em>유사한</em> 픽셀 주위에 빨간색 윤곽선이 그려집니다. </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">detect_outline</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/imager/man/px.flood.html">px.flood</a></span><span class="op">(</span></span>
+<span>  im <span class="op">=</span> <span class="va">lemur_img</span>,</span>
+<span>  x <span class="op">=</span> <span class="fl">420</span>,</span>
+<span>  y <span class="op">=</span> <span class="fl">200</span>,</span>
+<span>  sigma <span class="op">=</span> <span class="fl">0.5</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">lemur_img</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/imager/man/highlight.html">highlight</a></span><span class="op">(</span><span class="va">detect_outline</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-lemurs-img-outline" class="quarto-float quarto-figure quarto-figure-center anchored" alt="이미지의 주요 부분과 배경 사이의 경계를 나타내는 빨간색 선이 있는 붉은 목도리 여우원숭이의 이미지.">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-lemurs-img-outline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lemurs_files/figure-html/fig-lemurs-img-outline-1.png" class="img-fluid figure-img" alt="이미지의 주요 부분과 배경 사이의 경계를 나타내는 빨간색 선이 있는 붉은 목도리 여우원숭이의 이미지.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-lemurs-img-outline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9.11: 이미지의 주요 부분과 배경 사이의 경계를 나타내는 빨간색 선이 있는 붉은 목도리 여우원숭이의 이미지.
+</figcaption></figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-lemurs-img-outline" class="quarto-xref">Figure&nbsp;<span>9.11</span></a> 에서 여우원숭이의 흰색 깃(collar)이 배경의 일부로 분류된 것을 볼 수 있습니다. <code>x</code>, <code>y</code> 및 <code>sigma</code> 인수를 편집하여 이미지의 이 부분을 별도로 선택할 수 있습니다.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">detect_outline_2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/imager/man/px.flood.html">px.flood</a></span><span class="op">(</span></span>
+<span>  im <span class="op">=</span> <span class="va">lemur_img</span>,</span>
+<span>  x <span class="op">=</span> <span class="fl">430</span>,</span>
+<span>  y <span class="op">=</span> <span class="fl">220</span>,</span>
+<span>  sigma <span class="op">=</span> <span class="fl">0.063</span></span>
+<span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>투명 배경을 더 쉽게 만들기 위해 이미지의 유사하지 않은 부분, 즉 선택한 픽셀 세트 외부의 영역을 검은색으로 바꿉니다. 이미지를 자를 때와 마찬가지로 픽셀 값을 <code>0</code>으로 설정하여 색상이 없도록 합니다.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">lemur_img</span><span class="op">[</span><span class="va">detect_outline</span> <span class="op">&amp;</span> <span class="op">!</span><span class="va">detect_outline_2</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>이제 순수한 검은색인 이미지 섹션을 투명한 섹션으로 바꾸고 싶습니다. 이를 수행하는 가장 쉬운 방법은 <strong><code>magick</code></strong>의 <code><a href="https://docs.ropensci.org/magick/reference/color.html">image_transparent()</a></code> 함수를 사용하는 것입니다. 그러나 <code>lemur_img</code> 이미지는 현재 <strong><code>imager</code></strong>와 함께 작동하도록 설계된 형식이며 <strong><code>magick</code></strong>과 즉시 작동하지 않습니다. 다행히 <strong><code>imager</code></strong> 패키지의 <code><a href="https://rdrr.io/pkg/imager/man/magick.html">cimg2magick()</a></code> 함수는 <strong><code>magick</code></strong>과 호환되는 형식으로 변환합니다. 어떤 이유로 <code><a href="https://rdrr.io/pkg/imager/man/magick.html">cimg2magick()</a></code>은 이미지가 수평으로 뒤집히게 합니다. <strong><code>magick</code></strong>의 <code><a href="https://docs.ropensci.org/magick/reference/transform.html">image_flop()</a></code> 함수를 사용하여 올바른 방향으로 되돌릴 수 있습니다. </p>
+<p>이미지는 항상 <strong><code>magick</code></strong>의 <code>image_*()</code> 함수의 첫 번째 인수이므로(출력은 동일한 클래스로 유지됨) 데이터로 작업할 때 <strong><code>tidyverse</code></strong> 함수를 사용하는 것처럼 여기에서 파이프 워크플로를 사용할 수 있습니다. 마지막으로 <strong><code>magick</code></strong>의 <code><a href="https://docs.ropensci.org/magick/reference/color.html">image_transparent()</a></code> 함수를 사용하여 현재 <code>"black"</code>인 모든 픽셀을 투명하게 만듭니다. </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">lemur_nobg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/imager/man/magick.html">cimg2magick</a></span><span class="op">(</span><span class="va">lemur_img</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://docs.ropensci.org/magick/reference/transform.html">image_flop</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://docs.ropensci.org/magick/reference/color.html">image_transparent</a></span><span class="op">(</span><span class="st">"black"</span><span class="op">)</span></span>
+<span><span class="va">lemur_nobg</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-lemurs-img-rmbg" class="quarto-float quarto-figure quarto-figure-center anchored" alt="배경이 제거된 붉은 목도리 여우원숭이의 이미지와 여우원숭이 깃의 작은 부분.">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-lemurs-img-rmbg-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lemurs_files/figure-html/fig-lemurs-img-rmbg-1.png" class="img-fluid figure-img" alt="배경이 제거된 붉은 목도리 여우원숭이의 이미지와 여우원숭이 깃의 작은 부분." width="205">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-lemurs-img-rmbg-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9.12: 배경이 제거된 붉은 목도리 여우원숭이의 이미지와 여우원숭이 깃의 작은 부분.
+</figcaption></figure>
+</div>
+</div>
+</div>
+<p><strong><code>magick</code></strong>으로 이미지를 인쇄하면 이미지를 플롯 창으로 반환할 뿐만 아니라 이미지 크기, 형식 및 파일 크기에 대한 정보가 포함된 콘솔 출력도 반환합니다. 여우원숭이의 흰색 <em>깃</em>이 여전히 부분적으로 제거되었기 때문에 배경을 투명하게 만드는 과정이 완벽하지 않다는 것을 알 수 있습니다. 또한 올바른 인수 값 조합을 찾기 위해 많은 시행착오가 필요한 과정이기도 합니다.</p>
+</section><section id="cowplot을-사용하여-플롯에-이미지-추가" class="level3" data-number="9.5.2"><h3 data-number="9.5.2" class="anchored" data-anchor-id="cowplot을-사용하여-플롯에-이미지-추가">
+<span class="header-section-number">9.5.2</span> <strong><code>cowplot</code></strong>을 사용하여 플롯에 이미지 추가</h3>
+<p>산점도에 이미지를 추가하기 전에 먼저 캡션을 업데이트하여 데이터 및 그래픽에 대한 속성 외에 이미지에 대한 속성을 추가해 보겠습니다. <code><a href="https://rdrr.io/r/base/paste.html">paste0()</a></code>를 사용하여 캡션에 이미 사용 중이던 <code>source_caption()</code> 함수의 출력과 스타일이 지정된 추가 텍스트를 결합할 수 있습니다. 이 새 텍스트는 <a href="wind-turbines.html" class="quarto-xref"><span>Chapter 6</span></a> 에서 설명한 텍스트와 유사하며 <code>&lt;br&gt;</code>은 줄 바꿈을 추가하고 <code>**</code>는 굵은 텍스트로 <code>Image</code>라는 단어의 스타일을 지정하는 데 사용됩니다. 그런 다음 <code><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs()</a></code> 함수에서 기존 캡션을 덮어쓸 수 있습니다. </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb27" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">cap</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span></span>
+<span>  <span class="fu">source_caption</span><span class="op">(</span></span>
+<span>    source <span class="op">=</span> <span class="st">"Duke Lemur Center (Zehr et al. 2014)"</span>,</span>
+<span>    sep <span class="op">=</span> <span class="st">"&lt;br&gt;"</span>,</span>
+<span>    graphic <span class="op">=</span> <span class="va">social</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  <span class="st">"&lt;br&gt;**Image**: Jax (Unsplash: @lysrix)"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">styled_plot</span> <span class="op">&lt;-</span> <span class="va">styled_plot</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span><span class="op">(</span>caption <span class="op">=</span> <span class="va">cap</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong><code>cowplot</code></strong> 패키지 <span class="citation" data-cites="cowplot">(<a href="references.html#ref-cowplot" role="doc-biblioref">C. O. Wilke 2024</a>)</span>는 <strong><code>ggplot2</code></strong>를 확장하고 여러 플롯을 하나의 시각적 요소로 배열, 정렬 및 결합할 수 있도록 합니다. 이 장에서는 이미지 포함을 포함하여 주석 및 사용자 정의를 위한 <strong><code>cowplot</code></strong> 기능에 더 관심이 있습니다. </p>
+<div id="tip-lemurs-arrange" class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip&nbsp;9.3: 플롯과 이미지를 결합하기 위한 R 패키지
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>여러 플롯을 결합하거나 플롯에 이미지를 추가하는 등 다양한 요소를 배열하는 데 사용할 수 있는 다른 R 패키지가 있습니다. 차트를 배열하는 데 가장 일반적인 것은 <strong><code>patchwork</code></strong> 패키지 <span class="citation" data-cites="patchwork">(<a href="references.html#ref-patchwork" role="doc-biblioref">Pedersen 2024</a>)</span>이며 <a href="time-zones.html" class="quarto-xref"><span>Chapter 12</span></a> 및 <a href="us-elections.html" class="quarto-xref"><span>Chapter 13</span></a> 에서 사용할 것입니다. <strong><code>egg</code></strong> 패키지 <span class="citation" data-cites="egg">(<a href="references.html#ref-egg" role="doc-biblioref">Auguie 2019</a>)</span>는 또 다른 인기 있는 대안이며 <code>geom_custom()</code> 함수는 이미지를 추가하는 데 특히 유용합니다. <strong><code>ggimage</code></strong> 패키지 <span class="citation" data-cites="ggimage">(<a href="references.html#ref-ggimage" role="doc-biblioref">Yu 2023</a>)</span>도 차트에 이미지를 추가하는 데 사용할 수 있으며, 데이터 열을 파일 경로 또는 이미지 좌표와 같은 이미지 속성에 매핑할 때 좋습니다. </p>
+</div>
+</div>
+<p><strong><code>cowplot</code></strong>을 사용하면 <code><a href="https://wilkelab.org/cowplot/reference/ggdraw.html">ggdraw()</a></code> 함수를 사용하여 <strong><code>ggplot2</code></strong> <code>styled_plot</code> 객체 위에 레이어를 설정하여 그 위에 그릴 수 있도록 합니다. 그런 다음 <code><a href="https://wilkelab.org/cowplot/reference/draw_image.html">draw_image()</a></code> 함수를 사용하여 <code>lemur_nobg</code> 이미지를 맨 위에 추가합니다. 기본적으로 플롯 위의 레이어는 0에서 1까지의 좌표를 가지며 <code>(0, 0)</code>은 플롯의 왼쪽 하단 모서리이고 <code>(1, 1)</code>은 오른쪽 상단입니다. 이미지를 오른쪽 하단 모서리에 배치하고 싶으므로 <code>hjust</code> 및 <code>halign</code>을 <code>1</code>로 설정하여 이미지의 오른쪽을 <code>x</code> 값 <code>1</code>과 정렬합니다. <code>vjust</code> 및 <code>valign</code>을 <code>0</code>으로 설정하면 이미지의 하단을 <code>y</code> 값 <code>0</code>과 정렬합니다. <code>width</code>는 이미지의 크기를 정의합니다 - 약간의 시행착오 끝에 이미지 너비로 <code>0.4</code>를 선택했습니다. </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb28" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">final_plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wilkelab.org/cowplot/reference/ggdraw.html">ggdraw</a></span><span class="op">(</span><span class="va">styled_plot</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://wilkelab.org/cowplot/reference/draw_image.html">draw_image</a></span><span class="op">(</span></span>
+<span>    <span class="va">lemur_nobg</span>,</span>
+<span>    x <span class="op">=</span> <span class="fl">1</span>, y <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>    hjust <span class="op">=</span> <span class="fl">1</span>, halign <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>    vjust <span class="op">=</span> <span class="fl">0</span>, valign <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>    width <span class="op">=</span> <span class="fl">0.4</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="va">final_plot</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div id="fig-lemurs-img-plot" class="quarto-float quarto-figure quarto-figure-center anchored" alt="붉은 목도리 여우원숭이의 체중이 나이에 따라 어떻게 변하는지 보여주는 산점도. 오른쪽 하단 모서리에 붉은 목도리 여우원숭이의 이미지가 오버레이되어 있습니다.">
+<figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-lemurs-img-plot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="lemurs_files/figure-html/fig-lemurs-img-plot-1.png" class="img-fluid figure-img" alt="붉은 목도리 여우원숭이의 체중이 나이에 따라 어떻게 변하는지 보여주는 산점도. 오른쪽 하단 모서리에 붉은 목도리 여우원숭이의 이미지가 오버레이되어 있습니다.">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-lemurs-img-plot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9.13: 붉은 목도리 여우원숭이의 체중이 나이에 따라 어떻게 변하는지 보여주는 산점도. 오른쪽 하단 모서리에 붉은 목도리 여우원숭이의 이미지가 오버레이되어 있습니다.
+</figcaption></figure>
+</div>
+</div>
+</div>
+<p>마지막으로 <code><a href="https://ggplot2.tidyverse.org/reference/ggsave.html">ggsave()</a></code>를 사용하여 이미지를 저장합니다: </p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb29" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsave.html">ggsave</a></span><span class="op">(</span></span>
+<span>  filename <span class="op">=</span> <span class="st">"lemurs.png"</span>,</span>
+<span>  plot <span class="op">=</span> <span class="va">final_plot</span>,</span>
+<span>  width <span class="op">=</span> <span class="fl">5</span>,</span>
+<span>  height <span class="op">=</span> <span class="fl">0.67</span> <span class="op">*</span> <span class="fl">5</span></span>
+<span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong><code>cowplot</code></strong>을 사용하여 이미지를 추가할 때 콘솔에 사용자 정의 글꼴을 찾을 수 없다는 경고가 반환될 수 있습니다. 그러나 글꼴이 차트에 올바르게 표시되면 이러한 경고를 무시할 수 있습니다.</p>
+</section></section><section id="회고" class="level2" data-number="9.6"><h2 data-number="9.6" class="anchored" data-anchor-id="회고">
+<span class="header-section-number">9.6</span> 회고</h2>
+<p>그 배후에 있는 코드의 복잡성에도 불구하고 이것은 비교적 간단한 플롯입니다. 그리고 이것이 이 시각화의 장점이 있는 곳입니다 - 깨끗하고 미니멀한 차트를 만드는 데 종종 많은 노력이 필요합니다. 여우원숭이 이미지는 차트에 재미있는 요소를 추가하고 데이터가 표시되는 방식에 추가적인 복잡성을 더하지 않으면서도 더 눈길을 끌고 흥미롭게 만듭니다. 수컷과 암컷 여우원숭이의 데이터를 구분하기 위해 색상 외에 모양을 사용한 것도 차트의 접근성을 높여 더 많은 청중이 이용할 수 있게 하므로 또 다른 장점입니다. 그러나 개선할 수 있는 부분이 몇 군데 있습니다. 가장 눈에 띄는 것은 여우원숭이 이미지의 배경 제거입니다. 앞서 언급했듯이 여우원숭이의 흰색 털 일부는 배경과 색상이 비슷하여 잘못 제거되었습니다.</p>
+<p>x축과 y축 모두 축 선택에 더 많은 주의를 기울임으로써 플롯을 더욱 개선할 수 있습니다. 독자가 여우원숭이 나이 또는 체중의 어떤 측면에 관심이 있는지에 따라 다른 축 선택이 더 적절할 수 있습니다. 예를 들어 성인 여우원숭이에 관심이 있는 경우 데이터를 하위 집합화하여 특정 연령 이상의 여우원숭이만 고려하는 것이 더 효과적일 것입니다. 여우원숭이가 성인 체중에 도달하는 시기를 살펴보는 데 관심이 있는 경우 특정 연령 미만의 여우원숭이를 살펴보거나 축을 변환(예: 로그)하면 여우원숭이가 성장을 멈추는 지점을 더 쉽게 확인할 수 있습니다. 마찬가지로 y축은 체중 데이터가 기록되는 방식이므로 그 단위로 그램을 사용합니다. 어린 여우원숭이의 경우 그램 단위로 측정하는 것이 적절합니다. 그러나 데이터에 있는 대부분의 여우원숭이는 성인이므로 킬로그램 단위로 데이터를 표시하는 것이 더 합리적일 수 있습니다.</p>
+<p>이 차트에서 각 개별 여우원숭이에 대해 여러 체중 측정이 기록되어 있다는 것은 현재 명확하지 않습니다. 즉, 차트에 표시된 데이터 포인트는 독립적이지 않으며 이는 많은 통계 모델의 일반적인 가정입니다. 전반적으로 이것은 사람들이 여우원숭이에 대해 더 많이 배우도록 끌어들일 가능성이 매우 높은 재미있고 해석하기 쉬운 차트입니다. 그러나 통계 모델링 전의 탐색 단계의 일부라면 좀 더 미세조정이 필요할 수 있습니다.</p>
+</section><section id="연습-문제" class="level2" data-number="9.7"><h2 data-number="9.7" class="anchored" data-anchor-id="연습-문제">
+<span class="header-section-number">9.7</span> 연습 문제</h2>
+<ul>
+<li><p>다른 종을 선택하고 이 시각화를 다시 만들어 보십시오.</p></li>
+<li><p><a href="nobel-laureates.html" class="quarto-xref"><span>Chapter 8</span></a> 에서 배운 내용을 바탕으로 종(및 선택적 이미지 경로)을 인수로 사용하는 매개변수화된 플롯 함수를 만들 수 있습니까?</p></li>
+</ul>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list" style="display: none">
+<div id="ref-Anscombe1973" class="csl-entry" role="listitem">
+Anscombe, F. J. 1973. <span>“Graphs in Statistical Analysis.”</span> <em>The American Statistician</em> 27 (1): 17–21. <a href="https://doi.org/10.1080/00031305.1973.10478966">https://doi.org/10.1080/00031305.1973.10478966</a>.
+</div>
+<div id="ref-aphalo2024" class="csl-entry" role="listitem">
+Aphalo, Pedro J. 2024. <em><span class="nocase">Learn R: As a Language</span></em>. Second Edition. CRC Press. <a href="https://www.learnr-book.info/">https://www.learnr-book.info/</a>.
+</div>
+<div id="ref-egg" class="csl-entry" role="listitem">
+Auguie, Baptiste. 2019. <em><span class="nocase">egg: Extensions for ’ggplot2’: Custom Geom, Custom Themes, Plot Alignment, Labelled Panels, Symmetric Scales, and Fixed Panel Size</span></em>. <a href="https://CRAN.R-project.org/package=egg">https://CRAN.R-project.org/package=egg</a>.
+</div>
+<div id="ref-imager" class="csl-entry" role="listitem">
+Barthelme, Simon. 2024. <em><span class="nocase">imager: Image Processing Library Based on ’CImg’</span></em>. <a href="https://CRAN.R-project.org/package=imager">https://CRAN.R-project.org/package=imager</a>.
+</div>
+<div id="ref-vandenBrandv4" class="csl-entry" role="listitem">
+Brand, Teun van den. 2025. <span>“<span class="nocase">ggplot2 4.0.0</span>.”</span> <a href="https://www.tidyverse.org/blog/2025/09/ggplot2-4-0-0/" class="uri">https://www.tidyverse.org/blog/2025/09/ggplot2-4-0-0/</a>.
+</div>
+<div id="ref-bridson2007" class="csl-entry" role="listitem">
+Bridson, Robert. 2007. <span>“Fast Poisson Disk Sampling in Arbitrary Dimensions.”</span> In <em>ACM SIGGRAPH 2007 Sketches</em>. SIGGRAPH ’07. New York, NY, USA: Association for Computing Machinery. <a href="https://doi.org/10.1145/1278780.1278807">https://doi.org/10.1145/1278780.1278807</a>.
+</div>
+<div id="ref-Brown2009" class="csl-entry" role="listitem">
+Brown, Mark J.F., and Paxton, Robert J. 2009. <span>“The Conservation of Bees: A Global Perspective.”</span> <em>Apidologie</em> 40 (3): 410–16. <a href="https://doi.org/10.1051/apido/2009019">https://doi.org/10.1051/apido/2009019</a>.
+</div>
+<div id="ref-geomtextpath" class="csl-entry" role="listitem">
+Cameron, Allan, and Teun van den Brand. 2024. <em><span class="nocase">geomtextpath: Curved Text in ’ggplot2’</span></em>. <a href="https://CRAN.R-project.org/package=geomtextpath">https://CRAN.R-project.org/package=geomtextpath</a>.
+</div>
+<div id="ref-cartocolors" class="csl-entry" role="listitem">
+CARTO. 2016. <em><span>’CARTOColors’ Palettes</span></em>. <a href="https://carto.com/carto-colors/">https://carto.com/carto-colors/</a>.
+</div>
+<div id="ref-extrafont" class="csl-entry" role="listitem">
+Chang, Winston. 2023. <em><span class="nocase">extrafont</span>: Tools for Using Fonts</em>. <a href="https://CRAN.R-project.org/package=extrafont">https://CRAN.R-project.org/package=extrafont</a>.
+</div>
+<div id="ref-dumbbell" class="csl-entry" role="listitem">
+Cheung, Foo. 2021. <em><span class="nocase">dumbbell</span>: Displaying Changes Between Two Points Using Dumbbell Plots</em>. <a href="https://CRAN.R-project.org/package=dumbbell">https://CRAN.R-project.org/package=dumbbell</a>.
+</div>
+<div id="ref-ggannotate" class="csl-entry" role="listitem">
+Cowgill, Matt, and John Helveston. 2021. <em><span class="nocase">ggannotate: Interactively Annotate ggplot2 Plots</span></em>. <a href="https://github.com/MattCowgill/ggannotate">https://github.com/MattCowgill/ggannotate</a>.
+</div>
+<div id="ref-pak" class="csl-entry" role="listitem">
+Csárdi, Gábor, and Jim Hester. 2024. <em><span class="nocase">pak: Another Approach to Package Installation</span></em>. <a href="https://CRAN.R-project.org/package=pak">https://CRAN.R-project.org/package=pak</a>.
+</div>
+<div id="ref-remotes" class="csl-entry" role="listitem">
+Csárdi, Gábor, Jim Hester, Hadley Wickham, Winston Chang, Martin Morgan, and Dan Tenenbaum. 2024. <em><span class="nocase">remotes: R Package Installation from Remote Repositories, Including ’GitHub’</span></em>. <a href="https://CRAN.R-project.org/package=remotes">https://CRAN.R-project.org/package=remotes</a>.
+</div>
+<div id="ref-ggview" class="csl-entry" role="listitem">
+Domin, Iaroslav. 2024. <em><span class="nocase">ggview: ’ggplot2’ Picture Previewer</span></em>. <a href="https://CRAN.R-project.org/package=ggview">https://CRAN.R-project.org/package=ggview</a>.
+</div>
+<div id="ref-tidyplots" class="csl-entry" role="listitem">
+Engler, Jan Broder. 2024. <span>“Tidyplots Empowers Life Scientists with Easy Code-Based Data Visualization.”</span> <em>bioRxiv</em>. <a href="https://doi.org/10.1101/2024.11.08.621836">https://doi.org/10.1101/2024.11.08.621836</a>.
+</div>
+<div id="ref-ggpattern" class="csl-entry" role="listitem">
+FC, Mike, Trevor L. Davis, and ggplot2 authors. 2024. <em><span class="nocase">ggpattern: ’ggplot2’ Pattern Geoms</span></em>. <a href="https://CRAN.R-project.org/package=ggpattern">https://CRAN.R-project.org/package=ggpattern</a>.
+</div>
+<div id="ref-flaticon" class="csl-entry" role="listitem">
+Flaticon.com. 2024. <span>“<span>Wind Power Flaticon</span>.”</span> <a href="https://www.flaticon.com/free-icon/wind-power_5670189" class="uri">https://www.flaticon.com/free-icon/wind-power_5670189</a>.
+</div>
+<div id="ref-fontawesome" class="csl-entry" role="listitem">
+Font Awesome. 2024. <span>“<span>Font Awesome 6</span>.”</span> <a href="https://fontawesome.com/" class="uri">https://fontawesome.com/</a>.
+</div>
+<div id="ref-Hullman2021" class="csl-entry" role="listitem">
+Franconeri, Steven L., Lace M. Padilla, Priti Shah, Jeffrey M. Zacks, and Jessica Hullman. 2021. <span>“The Science of Visual Data Communication: What Works.”</span> <em>Psychological Science in the Public Interest</em> 22 (3): 110–61. <a href="https://doi.org/10.1177/15291006211051956">https://doi.org/10.1177/15291006211051956</a>.
+</div>
+<div id="ref-viridis" class="csl-entry" role="listitem">
+Garnier, Simon, Ross, Noam, Rudis, Robert, Camargo, et al. 2024. <em><span class="nocase">viridis(Lite)</span> - Colorblind-Friendly Color Maps for <span>R</span></em>. <a href="https://doi.org/10.5281/zenodo.4679423">https://doi.org/10.5281/zenodo.4679423</a>.
+</div>
+<div id="ref-ggiraph" class="csl-entry" role="listitem">
+Gohel, David, and Panagiotis Skintzos. 2024. <em><span class="nocase">ggiraph: Make ’ggplot2’ Graphics Interactive</span></em>. <a href="https://CRAN.R-project.org/package=ggiraph">https://CRAN.R-project.org/package=ggiraph</a>.
+</div>
+<div id="ref-GAcharts" class="csl-entry" role="listitem">
+Government Analysis Function. 2021. <span>“Data Visualisation: Colours.”</span> <a href="https://analysisfunction.civilservice.gov.uk/policy-store/data-visualisation-colours-in-charts/" class="uri">https://analysisfunction.civilservice.gov.uk/policy-store/data-visualisation-colours-in-charts/</a>.
+</div>
+<div id="ref-geofacet" class="csl-entry" role="listitem">
+Hafen, Ryan. 2023. <em><span class="nocase">geofacet</span>: <span class="nocase">’ggplot2’</span> Faceting Utilities for Geographical Data</em>. <a href="https://CRAN.R-project.org/package=geofacet">https://CRAN.R-project.org/package=geofacet</a>.
+</div>
+<div id="ref-harmon2024" class="csl-entry" role="listitem">
+Harmon, Jon. 2024. <em><span class="nocase">Web APIs with R</span></em>. <span>CRC Press</span>. <a href="https://wapir.io/">https://wapir.io/</a>.
+</div>
+<div id="ref-lintr" class="csl-entry" role="listitem">
+Hester, Jim, Florent Angly, Russ Hyde, Michael Chirico, Kun Ren, Alexander Rosenstock, and Indrajeet Patil. 2024. <em><span class="nocase">lintr</span>: A ’Linter’ for <span>R</span> Code</em>. <a href="https://CRAN.R-project.org/package=lintr">https://CRAN.R-project.org/package=lintr</a>.
+</div>
+<div id="ref-glue" class="csl-entry" role="listitem">
+Hester, Jim, and Jennifer Bryan. 2024. <em><span class="nocase">glue</span>: Interpreted String Literals</em>. <a href="https://glue.tidyverse.org/">https://glue.tidyverse.org/</a>.
+</div>
+<div id="ref-camcorder" class="csl-entry" role="listitem">
+Hughes, Ellis. 2022a. <em><span class="nocase">camcorder</span>: Record Your Plot History</em>. <a href="https://CRAN.R-project.org/package=camcorder">https://CRAN.R-project.org/package=camcorder</a>.
+</div>
+<div id="ref-tidytuesdayR" class="csl-entry" role="listitem">
+———. 2022b. <em><span class="nocase">tidytuesdayR</span>: Access the Weekly ’TidyTuesday’ Project Dataset</em>. <a href="https://CRAN.R-project.org/package=tidytuesdayR">https://CRAN.R-project.org/package=tidytuesdayR</a>.
+</div>
+<div id="ref-paletteer" class="csl-entry" role="listitem">
+Hvitfeldt, Emil. 2021. <em><span class="nocase">paletteer</span>: Comprehensive Collection of Color Palettes</em>. <a href="https://github.com/EmilHvitfeldt/paletteer">https://github.com/EmilHvitfeldt/paletteer</a>.
+</div>
+<div id="ref-animalshelter" class="csl-entry" role="listitem">
+———. 2025. <em><span class="nocase">animalshelter</span>: Animal Shelter Data</em>. <a href="https://github.com/EmilHvitfeldt/animalshelter">https://github.com/EmilHvitfeldt/animalshelter</a>.
+</div>
+<div id="ref-fontawesomeR" class="csl-entry" role="listitem">
+Iannone, Richard. 2024. <em><span class="nocase">fontawesome: Easily Work with ’Font Awesome’ Icons</span></em>. <a href="https://CRAN.R-project.org/package=fontawesome">https://CRAN.R-project.org/package=fontawesome</a>.
+</div>
+<div id="ref-zones_data" class="csl-entry" role="listitem">
+Internet Assigned Numbers Authority. 2023. <span>“The <span class="nocase">tz</span> Database: Time Zone and Daylight Saving Time Data.”</span> <span>Internet Assigned Numbers Authority</span>. <a href="https://data.iana.org/time-zones/tz-link.html">https://data.iana.org/time-zones/tz-link.html</a>.
+</div>
+<div id="ref-img_jax" class="csl-entry" role="listitem">
+Jax (@lysrix). 2017. <span>“Lemur.”</span> <a href="https://unsplash.com/photos/red-and-white-rodent-h5xrh3CNT-k">https://unsplash.com/photos/red-and-white-rodent-h5xrh3CNT-k</a>.
+</div>
+<div id="ref-kays2020" class="csl-entry" role="listitem">
+Kays, R., R. R. Dunn, A. W. Parsons, B. Mcdonald, T. Perkins, S. A. Powers, L. Shell, et al. 2020. <span>“The Small Home Ranges and Large Local Ecological Impacts of Pet Cats.”</span> <em>Animal Conservation</em> 23 (5): 516–23. <a href="https://doi.org/10.1111/acv.12563">https://doi.org/10.1111/acv.12563</a>.
+</div>
+<div id="ref-r4rest" class="csl-entry" role="listitem">
+Keyes, David. 2024. <em><span class="nocase">R for the Rest of Us: A Statistics-Free Introduction</span></em>. No Starch Press. <a href="https://book.rfortherestofus.com/">https://book.rfortherestofus.com/</a>.
+</div>
+<div id="ref-longbeach_data" class="csl-entry" role="listitem">
+Long Beach Animal Shelter. 2025. <span>“<span>Animal Shelter Data</span>.”</span> City of Long Beach Animal Care Services. <a href="https://data.longbeach.gov/explore/dataset/animal-shelter-intakes-and-outcomes/information/">https://data.longbeach.gov/explore/dataset/animal-shelter-intakes-and-outcomes/information/</a>.
+</div>
+<div id="ref-Vizumap" class="csl-entry" role="listitem">
+Lucchesi, Lydia, and Petra Kuhnert. 2020. <em><span>Vizumap</span>: Visualizing Uncertainty in Spatial Data</em>. <a href="https://github.com/lydialucchesi/Vizumap">https://github.com/lydialucchesi/Vizumap</a>.
+</div>
+<div id="ref-museums_data" class="csl-entry" role="listitem">
+Mapping Museums. 2021. <span>“Mapping Museums Data.”</span> <a href="https://www.mappingmuseums.org">www.mappingmuseums.org</a>.
+</div>
+<div id="ref-rnaturalearth" class="csl-entry" role="listitem">
+Massicotte, Philippe, and Andy South. 2023. <em><span class="nocase">rnaturalearth</span>: World Map Data from Natural Earth</em>. <a href="https://docs.ropensci.org/rnaturalearth/">https://docs.ropensci.org/rnaturalearth/</a>.
+</div>
+<div id="ref-Matejka2017" class="csl-entry" role="listitem">
+Matejka, Justin, and George Fitzmaurice. 2017. <span>“Same Stats, Different Graphs: Generating Datasets with Varied Appearance and Identical Statistics Through Simulated Annealing.”</span> In, 1290–94. <a href="https://doi.org/10.1145/3025453.3025912">https://doi.org/10.1145/3025453.3025912</a>.
+</div>
+<div id="ref-cats_data" class="csl-entry" role="listitem">
+McDonald, J. L., and H. Cole. 2020. <span>“Data from: The Small Home Ranges and Large Local Ecological Impacts of Pet Cats [United Kingdom].”</span> Movebank data repository. <a href="https://doi.org/doi:10.5441/001/1.pf315732">https://doi.org/doi:10.5441/001/1.pf315732</a>.
+</div>
+<div id="ref-colorblindr" class="csl-entry" role="listitem">
+McWhite, Claire D., and Claus O. Wilke. 2024. <em><span class="nocase">colorblindr: Simulate colorblindness in R figures</span></em>. <a href="https://github.com/clauswilke/colorblindr">https://github.com/clauswilke/colorblindr</a>.
+</div>
+<div id="ref-Apiculture" class="csl-entry" role="listitem">
+Mid-Atlantic Apiculture Research and Extension Consortium. 2024. <span>“Seasonal Cycles of Activities in Colonies.”</span> <a href="https://canr.udel.edu/maarec/honey-bee-biology/seasonal-cycles-of-activities-in-colonies/" class="uri">https://canr.udel.edu/maarec/honey-bee-biology/seasonal-cycles-of-activities-in-colonies/</a>.
+</div>
+<div id="ref-poissoned" class="csl-entry" role="listitem">
+mikefc. 2024. <em><span class="nocase">poissoned: Tileable Poisson Disc Sampling</span></em>. <a href="https://github.com/coolbutuseless/poissoned">https://github.com/coolbutuseless/poissoned</a>.
+</div>
+<div id="ref-MetBrewer" class="csl-entry" role="listitem">
+Mills, Blake Robert. 2022. <em><span>MetBrewer</span>: Color Palettes Inspired by Works at the Metropolitan Museum of Art</em>. <a href="https://CRAN.R-project.org/package=MetBrewer">https://CRAN.R-project.org/package=MetBrewer</a>.
+</div>
+<div id="ref-elections_data" class="csl-entry" role="listitem">
+MIT Election Data and Science Lab. 2017. <span>“<span>U.S. House 1976–2022</span>.”</span> Harvard Dataverse. <a href="https://doi.org/10.7910/DVN/IG0UN2">https://doi.org/10.7910/DVN/IG0UN2</a>.
+</div>
+<div id="ref-styler" class="csl-entry" role="listitem">
+Müller, Kirill, and Lorenz Walthert. 2023. <em><span class="nocase">styler</span>: Non-Invasive Pretty Printing of <span>R</span> Code</em>. <a href="https://CRAN.R-project.org/package=styler">https://CRAN.R-project.org/package=styler</a>.
+</div>
+<div id="ref-tibble" class="csl-entry" role="listitem">
+Müller, Kirill, and Hadley Wickham. 2023. <em><span class="nocase">tibble</span>: Simple Data Frames</em>. <a href="https://CRAN.R-project.org/package=tibble">https://CRAN.R-project.org/package=tibble</a>.
+</div>
+<div id="ref-Muth2018" class="csl-entry" role="listitem">
+Muth, Lisa. 2018. <span>“An Alternative to Pink &amp; Blue: Colors for Gender Data.”</span> <a href="https://blog.datawrapper.de/gendercolor/" class="uri">https://blog.datawrapper.de/gendercolor/</a>.
+</div>
+<div id="ref-turbines_data" class="csl-entry" role="listitem">
+Natural Resources Canada. 2021. <span>“Canadian Wind Turbine Database.”</span> Natural Resources Canada (Government of Canada). <a href="https://open.canada.ca/data/en/dataset/79fdad93-9025-49ad-ba16-c26d718cc070">https://open.canada.ca/data/en/dataset/79fdad93-9025-49ad-ba16-c26d718cc070</a>.
+</div>
+<div id="ref-ggbranding" class="csl-entry" role="listitem">
+Noblet, Guillaume. 2025. <em><span class="nocase">ggbranding: Add Personal Branding to ’ggplot2’ Charts</span></em>. <a href="https://github.com/gnoblet/ggbranding">https://github.com/gnoblet/ggbranding</a>.
+</div>
+<div id="ref-rcartocolor" class="csl-entry" role="listitem">
+Nowosad, Jakub. 2018. <em><span>’CARTOColors’ Palettes</span></em>. <a href="https://jakubnowosad.com/rcartocolor/">https://jakubnowosad.com/rcartocolor/</a>.
+</div>
+<div id="ref-magick" class="csl-entry" role="listitem">
+Ooms, Jeroen. 2024. <em><span class="nocase">magick: Advanced Graphics and Image-Processing in R</span></em>. <a href="https://CRAN.R-project.org/package=magick">https://CRAN.R-project.org/package=magick</a>.
+</div>
+<div id="ref-doctors_data" class="csl-entry" role="listitem">
+Our World in Data. 2019. <span>“Medical Doctors Per 1,000 People.”</span> <a href="https://ourworldindata.org/grapher/physicians-per-1000-people">https://ourworldindata.org/grapher/physicians-per-1000-people</a>.
+</div>
+<div id="ref-sf" class="csl-entry" role="listitem">
+Pebesma, Edzer. 2018. <span>“<span class="nocase">Simple Features for R: Standardized Support for Spatial Vector Data</span>.”</span> <em><span>The R Journal</span></em> 10 (1): 439–46. <a href="https://doi.org/10.32614/RJ-2018-009">https://doi.org/10.32614/RJ-2018-009</a>.
+</div>
+<div id="ref-ggforce" class="csl-entry" role="listitem">
+Pedersen, Thomas Lin. 2022. <em><span class="nocase">ggforce</span>: Accelerating <span class="nocase">’ggplot2’</span></em>. <a href="https://CRAN.R-project.org/package=ggforce">https://CRAN.R-project.org/package=ggforce</a>.
+</div>
+<div id="ref-patchwork" class="csl-entry" role="listitem">
+———. 2024. <em><span class="nocase">patchwork</span>: The Composer of Plots</em>. <a href="https://CRAN.R-project.org/package=patchwork">https://CRAN.R-project.org/package=patchwork</a>.
+</div>
+<div id="ref-Pedersen2025" class="csl-entry" role="listitem">
+———. 2025. <span>“<span class="nocase">Fonts in R</span>.”</span> <a href="https://www.tidyverse.org/blog/2025/05/fonts-in-r/" class="uri">https://www.tidyverse.org/blog/2025/05/fonts-in-r/</a>.
+</div>
+<div id="ref-marquee" class="csl-entry" role="listitem">
+Pedersen, Thomas Lin, and Martin Mitáš. 2024. <em><span class="nocase">marquee: Markdown Parser and Renderer for R Graphics</span></em>. <a href="https://CRAN.R-project.org/package=marquee">https://CRAN.R-project.org/package=marquee</a>.
+</div>
+<div id="ref-systemfonts" class="csl-entry" role="listitem">
+Pedersen, Thomas Lin, Jeroen Ooms, and Devon Govett. 2024. <em><span class="nocase">systemfonts: System Native Font Finding</span></em>. <a href="https://CRAN.R-project.org/package=systemfonts">https://CRAN.R-project.org/package=systemfonts</a>.
+</div>
+<div id="ref-ragg" class="csl-entry" role="listitem">
+Pedersen, Thomas Lin, and Maxim Shemanarev. 2023. <em><span class="nocase">ragg</span>: Graphic Devices Based on <span>AGG</span></em>. <a href="https://CRAN.R-project.org/package=ragg">https://CRAN.R-project.org/package=ragg</a>.
+</div>
+<div id="ref-pldb_data" class="csl-entry" role="listitem">
+PLDB contributors. 2022. <span>“<span>PLDB</span>: A Programming Language Database.”</span> <em><span>PLDB</span></em>. <a href="https://pldb.com">https://pldb.com</a>.
+</div>
+<div id="ref-sysfonts" class="csl-entry" role="listitem">
+Qiu, Yixuan. 2022. <em><span class="nocase">sysfonts</span>: Loading Fonts into <span>R</span></em>. <a href="https://CRAN.R-project.org/package=sysfonts">https://CRAN.R-project.org/package=sysfonts</a>.
+</div>
+<div id="ref-showtext" class="csl-entry" role="listitem">
+———. 2023. <em><span class="nocase">showtext</span>: Using Fonts More Easily in <span>R</span> Graphs</em>. <a href="https://CRAN.R-project.org/package=showtext">https://CRAN.R-project.org/package=showtext</a>.
+</div>
+<div id="ref-rproj" class="csl-entry" role="listitem">
+R Core Team. 2024. <em><span>R</span>: A Language and Environment for Statistical Computing</em>. Vienna, Austria: R Foundation for Statistical Computing. <a href="https://www.R-project.org/">https://www.R-project.org/</a>.
+</div>
+<div id="ref-tidytuesday" class="csl-entry" role="listitem">
+R4DS Online Learning Community. 2023. <span>“Tidy Tuesday: A Weekly Social Data Project.”</span> <a href="https://github.com/rfordatascience/tidytuesday">https://github.com/rfordatascience/tidytuesday</a>.
+</div>
+<div id="ref-social_icons" class="csl-entry" role="listitem">
+Rennie, Nicola. 2023a. <span>“Adding Social Media Icons to Charts with <span class="nocase">ggplot2</span>.”</span> <a href="https://nrennie.rbind.io/blog/adding-social-media-icons-ggplot2/">https://nrennie.rbind.io/blog/adding-social-media-icons-ggplot2/</a>.
+</div>
+<div id="ref-template_files" class="csl-entry" role="listitem">
+———. 2023b. <span>“Creating Template Files with <span>R</span>.”</span> <a href="https://nrennie.rbind.io/blog/script-templates-r/">https://nrennie.rbind.io/blog/script-templates-r/</a>.
+</div>
+<div id="ref-streamline" class="csl-entry" role="listitem">
+———. 2023c. <span>“Four Ways to Streamline Your <span>R</span> Workflows.”</span> <a href="https://nrennie.rbind.io/blog/four-ways-streamline-r-workflows/">https://nrennie.rbind.io/blog/four-ways-streamline-r-workflows/</a>.
+</div>
+<div id="ref-ggtextcircle" class="csl-entry" role="listitem">
+———. 2024a. <em><span class="nocase">ggtextcircle: Circular Text in ’ggplot2’</span></em>. <a href="https://github.com/nrennie/ggtextcircle">https://github.com/nrennie/ggtextcircle</a>.
+</div>
+<div id="ref-nobel" class="csl-entry" role="listitem">
+———. 2024b. <em><span class="nocase">nobel: Access data from the Nobel Prize API via R</span></em>. <a href="https://github.com/nrennie/nobel">https://github.com/nrennie/nobel</a>.
+</div>
+<div id="ref-pkgs_data" class="csl-entry" role="listitem">
+———. 2024c. <span>“<span class="nocase">tidytuesday</span>.”</span> <em>GitHub Repository</em>. GitHub. <a href="https://github.com/nrennie/tidytuesday">https://github.com/nrennie/tidytuesday</a>.
+</div>
+<div id="ref-signif2024a" class="csl-entry" role="listitem">
+Rennie, Nicola, and Andreas Krause. 2024. <span>“<span class="nocase">Presenting data the Significance way - Part 1</span>.”</span> <em>Significance</em> 21 (3): 36–39. <a href="https://doi.org/10.1093/jrssig/qmae045">https://doi.org/10.1093/jrssig/qmae045</a>.
+</div>
+<div id="ref-Reynolds2025" class="csl-entry" role="listitem">
+Reynolds, Gina. 2025. <span>“<span class="nocase">Everyday ggplot2 extension</span>.”</span> <a href="https://evamaerey.github.io/everyday_ggplot2_extension/" class="uri">https://evamaerey.github.io/everyday_ggplot2_extension/</a>.
+</div>
+<div id="ref-hex_forcats" class="csl-entry" role="listitem">
+RStudio. 2018a. <span>“<span class="nocase">forcats</span> Hex Sticker.”</span> <a href="https://github.com/rstudio/hex-stickers/blob/main/PNG/forcats.png">https://github.com/rstudio/hex-stickers/blob/main/PNG/forcats.png</a>.
+</div>
+<div id="ref-hex_ggplot2" class="csl-entry" role="listitem">
+———. 2018b. <span>“<span class="nocase">ggplot2</span> Hex Sticker.”</span> <a href="https://github.com/rstudio/hex-stickers/blob/main/PNG/ggplot2.png">https://github.com/rstudio/hex-stickers/blob/main/PNG/ggplot2.png</a>.
+</div>
+<div id="ref-hex_purrr" class="csl-entry" role="listitem">
+———. 2018c. <span>“<span class="nocase">purrr</span> Hex Sticker.”</span> <a href="https://github.com/rstudio/hex-stickers/blob/main/PNG/purrr.png">https://github.com/rstudio/hex-stickers/blob/main/PNG/purrr.png</a>.
+</div>
+<div id="ref-hex_readr" class="csl-entry" role="listitem">
+———. 2018d. <span>“<span class="nocase">readr</span> Hex Sticker.”</span> <a href="https://github.com/rstudio/hex-stickers/blob/main/PNG/readr.png">https://github.com/rstudio/hex-stickers/blob/main/PNG/readr.png</a>.
+</div>
+<div id="ref-hex_tibble" class="csl-entry" role="listitem">
+———. 2018e. <span>“<span class="nocase">tibble</span> Hex Sticker.”</span> <a href="https://github.com/rstudio/hex-stickers/blob/main/PNG/tibble.png">https://github.com/rstudio/hex-stickers/blob/main/PNG/tibble.png</a>.
+</div>
+<div id="ref-hex_dplyr" class="csl-entry" role="listitem">
+———. 2020a. <span>“<span class="nocase">dplyr</span> Hex Sticker.”</span> <a href="https://github.com/rstudio/hex-stickers/blob/main/PNG/dplyr.png">https://github.com/rstudio/hex-stickers/blob/main/PNG/dplyr.png</a>.
+</div>
+<div id="ref-hex_stringr" class="csl-entry" role="listitem">
+———. 2020b. <span>“<span class="nocase">stringr</span> Hex Sticker.”</span> <a href="https://github.com/rstudio/hex-stickers/blob/main/PNG/stringr.png">https://github.com/rstudio/hex-stickers/blob/main/PNG/stringr.png</a>.
+</div>
+<div id="ref-hex_tidyr" class="csl-entry" role="listitem">
+———. 2020c. <span>“<span class="nocase">tidyr</span> Hex Sticker.”</span> <a href="https://github.com/rstudio/hex-stickers/blob/main/PNG/tidyr.png">https://github.com/rstudio/hex-stickers/blob/main/PNG/tidyr.png</a>.
+</div>
+<div id="ref-ggalt" class="csl-entry" role="listitem">
+Rudis, Bob, Ben Bolker, and Jan Schulz. 2017. <em><span class="nocase">ggalt: Extra Coordinate Systems, ’Geoms’, Statistical Transformations, Scales and Fonts for ’ggplot2’</span></em>. <a href="https://CRAN.R-project.org/package=ggalt">https://CRAN.R-project.org/package=ggalt</a>.
+</div>
+<div id="ref-waffle" class="csl-entry" role="listitem">
+Rudis, Bob, and Dave Gandy. 2023. <em><span class="nocase">waffle</span>: Create Waffle Chart Visualizations</em>. <a href="https://CRAN.R-project.org/package=waffle">https://CRAN.R-project.org/package=waffle</a>.
+</div>
+<div id="ref-lattice" class="csl-entry" role="listitem">
+Sarkar, Deepayan. 2008. <em>Lattice: Multivariate Data Visualization with r</em>. New York: Springer. <a href="http://lmdvr.r-forge.r-project.org">http://lmdvr.r-forge.r-project.org</a>.
+</div>
+<div id="ref-openxlsx" class="csl-entry" role="listitem">
+Schauberger, Philipp, and Alexander Walker. 2023. <em><span class="nocase">openxlsx: Read, Write and Edit xlsx Files</span></em>. <a href="https://CRAN.R-project.org/package=openxlsx">https://CRAN.R-project.org/package=openxlsx</a>.
+</div>
+<div id="ref-owidapi" class="csl-entry" role="listitem">
+Scheuch, Christoph. 2025. <em><span class="nocase">owidapi</span>: Access the Our World in Data Chart API</em>. <a href="https://doi.org/10.32614/CRAN.package.owidapi">https://doi.org/10.32614/CRAN.package.owidapi</a>.
+</div>
+<div id="ref-GGally" class="csl-entry" role="listitem">
+Schloerke, Barret, Di Cook, Joseph Larmarange, Francois Briatte, Moritz Marbach, Edwin Thoen, Amos Elberg, and Jason Crowley. 2024. <em><span class="nocase">GGally: Extension to ’ggplot2’</span></em>. <a href="https://CRAN.R-project.org/package=GGally">https://CRAN.R-project.org/package=GGally</a>.
+</div>
+<div id="ref-Schloss" class="csl-entry" role="listitem">
+Schloss, Karen B., Connor C. Gramazio, Allison T. Silverman, Madeline L. Parker, and Audrey S. Wang. 2019. <span>“Mapping Color to Meaning in Colormap Data Visualizations.”</span> <em>IEEE Transactions on Visualization and Computer Graphics</em> 25 (1): 810–19. <a href="https://doi.org/10.1109/TVCG.2018.2865147">https://doi.org/10.1109/TVCG.2018.2865147</a>.
+</div>
+<div id="ref-funspotr" class="csl-entry" role="listitem">
+Shalloway, Bryan. 2023. <em><span class="nocase">funspotr: Spot R Functions &amp; Packages</span></em>. <a href="https://CRAN.R-project.org/package=funspotr">https://CRAN.R-project.org/package=funspotr</a>.
+</div>
+<div id="ref-plotly" class="csl-entry" role="listitem">
+Sievert, Carson. 2020. <em>Interactive Web-Based Data Visualization with r, Plotly, and Shiny</em>. Chapman; Hall/CRC. <a href="https://plotly-r.com">https://plotly-r.com</a>.
+</div>
+<div id="ref-ggrepel" class="csl-entry" role="listitem">
+Slowikowski, Kamil. 2024. <em><span class="nocase">ggrepel: Automatically Position Non-Overlapping Text Labels with ’ggplot2’</span></em>. <a href="https://CRAN.R-project.org/package=ggrepel">https://CRAN.R-project.org/package=ggrepel</a>.
+</div>
+<div id="ref-visdat" class="csl-entry" role="listitem">
+Tierney, Nicholas. 2017. <span>“<span class="nocase">visdat: Visualising Whole Data Frames</span>.”</span> <em>JOSS</em> 2 (16): 355. <a href="https://doi.org/10.21105/joss.00355">https://doi.org/10.21105/joss.00355</a>.
+</div>
+<div id="ref-naniar" class="csl-entry" role="listitem">
+Tierney, Nicholas, and Dianne Cook. 2023. <span>“Expanding Tidy Data Principles to Facilitate Missing Data Exploration, Visualization and Assessment of Imputations.”</span> <em>Journal of Statistical Software</em> 105 (7): 1–31. <a href="https://doi.org/10.18637/jss.v105.i07">https://doi.org/10.18637/jss.v105.i07</a>.
+</div>
+<div id="ref-Tol2021" class="csl-entry" role="listitem">
+Tol, Paul. 2021. <span>“<span class="nocase">Paul Tol’s Notes: Colour schemes and templates</span>.”</span> <a href="https://sronpersonalpages.nl/~pault/" class="uri">https://sronpersonalpages.nl/~pault/</a>.
+</div>
+<div id="ref-UScensuspop" class="csl-entry" role="listitem">
+United States Census Bureau. 2021a. <span>“Historical Population Change Data (1910-2020).”</span> <a href="https://www.census.gov/data/tables/time-series/dec/popchange-data-text.html" class="uri">https://www.census.gov/data/tables/time-series/dec/popchange-data-text.html</a>.
+</div>
+<div id="ref-UScensus" class="csl-entry" role="listitem">
+———. 2021b. <span>“State Area Measurements and Internal Point Coordinates.”</span> <a href="https://www.census.gov/geographies/reference-files/2010/geo/state-area.html" class="uri">https://www.census.gov/geographies/reference-files/2010/geo/state-area.html</a>.
+</div>
+<div id="ref-bees_data" class="csl-entry" role="listitem">
+United States Department of Agriculture: Economics, Statistics and Market Information System. 2022. <span>“Honey Bee Colonies.”</span> <span>USDA Economics, Statistics and Market Information System</span>. <a href="https://usda.library.cornell.edu/concern/publications/rn301137d">https://usda.library.cornell.edu/concern/publications/rn301137d</a>.
+</div>
+<div id="ref-crsuggest" class="csl-entry" role="listitem">
+Walker, Kyle. 2022. <em><span class="nocase">crsuggest: Obtain Suggested Coordinate Reference System Information for Spatial Data</span></em>. <a href="https://CRAN.R-project.org/package=crsuggest">https://CRAN.R-project.org/package=crsuggest</a>.
+</div>
+<div id="ref-Wanzer2021" class="csl-entry" role="listitem">
+Wanzer, Dana Linnell, Tarek Azzam, Natalie D. Jones, and Darrel Skousen. 2021. <span>“The Role of Titles in Enhancing Data Visualization.”</span> <em>Evaluation and Program Planning</em> 84: 101896. <a href="https://doi.org/10.1016/j.evalprogplan.2020.101896">https://doi.org/10.1016/j.evalprogplan.2020.101896</a>.
+</div>
+<div id="ref-ggplot2" class="csl-entry" role="listitem">
+Wickham, Hadley. 2016. <em><span class="nocase">ggplot2</span>: Elegant Graphics for Data Analysis</em>. Springer-Verlag New York. <a href="https://ggplot2.tidyverse.org">https://ggplot2.tidyverse.org</a>.
+</div>
+<div id="ref-forcats" class="csl-entry" role="listitem">
+———. 2023a. <em><span class="nocase">forcats</span>: Tools for Working with Categorical Variables (Factors)</em>. <a href="https://doi.org/10.32614/CRAN.package.forcats">https://doi.org/10.32614/CRAN.package.forcats</a>.
+</div>
+<div id="ref-stringr" class="csl-entry" role="listitem">
+———. 2023b. <em><span class="nocase">stringr: Simple, Consistent Wrappers for Common String Operations</span></em>. <a href="https://CRAN.R-project.org/package=stringr">https://CRAN.R-project.org/package=stringr</a>.
+</div>
+<div id="ref-tidyverse" class="csl-entry" role="listitem">
+Wickham, Hadley, Mara Averick, Jennifer Bryan, Winston Chang, Lucy D’Agostino McGowan, Romain François, Garrett Grolemund, et al. 2019. <span>“Welcome to the <span class="nocase">tidyverse</span>.”</span> <em>Journal of Open Source Software</em> 4 (43): 1686. <a href="https://doi.org/10.21105/joss.01686">https://doi.org/10.21105/joss.01686</a>.
+</div>
+<div id="ref-readxl" class="csl-entry" role="listitem">
+Wickham, Hadley, and Jennifer Bryan. 2023. <em><span class="nocase">readxl: Read Excel Files</span></em>. <a href="https://CRAN.R-project.org/package=readxl">https://CRAN.R-project.org/package=readxl</a>.
+</div>
+<div id="ref-r4ds" class="csl-entry" role="listitem">
+Wickham, Hadley, Mine Çetinkaya-Rundel, and Garrett Grolemund. 2023. <em><span>R</span> for Data Science</em>. Second Edition. O-Reilly. <a href="https://r4ds.hadley.nz">https://r4ds.hadley.nz</a>.
+</div>
+<div id="ref-dplyr" class="csl-entry" role="listitem">
+Wickham, Hadley, Romain François, Lionel Henry, Kirill Müller, and Davis Vaughan. 2023. <em><span class="nocase">dplyr</span>: A Grammar of Data Manipulation</em>. <a href="https://CRAN.R-project.org/package=dplyr">https://CRAN.R-project.org/package=dplyr</a>.
+</div>
+<div id="ref-purrr" class="csl-entry" role="listitem">
+Wickham, Hadley, and Lionel Henry. 2023. <em><span class="nocase">purrr</span>: Functional Programming Tools</em>. <a href="https://CRAN.R-project.org/package=purrr">https://CRAN.R-project.org/package=purrr</a>.
+</div>
+<div id="ref-readr" class="csl-entry" role="listitem">
+Wickham, Hadley, Jim Hester, and Jennifer Bryan. 2024. <em><span class="nocase">readr</span>: Read Rectangular Text Data</em>. <a href="https://CRAN.R-project.org/package=readr">https://CRAN.R-project.org/package=readr</a>.
+</div>
+<div id="ref-scales" class="csl-entry" role="listitem">
+Wickham, Hadley, Thomas Lin Pedersen, and Dana Seidel. 2023. <em><span class="nocase">scales</span>: Scale Functions for Visualization</em>. <a href="https://CRAN.R-project.org/package=scales">https://CRAN.R-project.org/package=scales</a>.
+</div>
+<div id="ref-tidyr" class="csl-entry" role="listitem">
+Wickham, Hadley, Davis Vaughan, and Maximilian Girlich. 2024. <em><span class="nocase">tidyr</span>: Tidy Messy Data</em>. <a href="https://CRAN.R-project.org/package=tidyr">https://CRAN.R-project.org/package=tidyr</a>.
+</div>
+<div id="ref-ggtextures" class="csl-entry" role="listitem">
+Wilke, Claus. 2022. <em><span class="nocase">ggtextures: Drawing Textured Rectangles and Bars with grid and ggplot2</span></em>. <a href="https://github.com/clauswilke/ggtextures">https://github.com/clauswilke/ggtextures</a>.
+</div>
+<div id="ref-cowplot" class="csl-entry" role="listitem">
+Wilke, Claus O. 2024. <em><span class="nocase">cowplot</span>: Streamlined Plot Theme and Plot Annotations for <span class="nocase">’ggplot2’</span></em>. <a href="https://wilkelab.org/cowplot/">https://wilkelab.org/cowplot/</a>.
+</div>
+<div id="ref-ggtext" class="csl-entry" role="listitem">
+Wilke, Claus O., and Brenton M. Wiernik. 2022. <em><span class="nocase">ggtext</span>: Improved Text Rendering Support for <span class="nocase">’ggplot2’</span></em>. <a href="https://CRAN.R-project.org/package=ggtext">https://CRAN.R-project.org/package=ggtext</a>.
+</div>
+<div id="ref-nobel_data" class="csl-entry" role="listitem">
+www.nobelprize.org. 2024. <span>“<span>Nobel Prize API Version 2.1</span>.”</span> <a href="https://api.nobelprize.org/2.1/laureates">https://api.nobelprize.org/2.1/laureates</a>.
+</div>
+<div id="ref-owidR" class="csl-entry" role="listitem">
+York, Piers. 2023. <em><span class="nocase">owidR</span>: Import Data from Our World in Data</em>. <a href="https://github.com/piersyork/owidR">https://github.com/piersyork/owidR</a>.
+</div>
+<div id="ref-ggimage" class="csl-entry" role="listitem">
+Yu, Guangchuang. 2023. <em><span class="nocase">ggimage: Use Image in ’ggplot2’</span></em>. <a href="https://CRAN.R-project.org/package=ggimage">https://CRAN.R-project.org/package=ggimage</a>.
+</div>
+<div id="ref-gghighlight" class="csl-entry" role="listitem">
+Yutani, Hiroaki. 2023. <em><span class="nocase">gghighlight</span>: Highlight Lines and Points in <span class="nocase">’ggplot2’</span></em>. <a href="https://CRAN.R-project.org/package=gghighlight">https://CRAN.R-project.org/package=gghighlight</a>.
+</div>
+<div id="ref-lemurs_data" class="csl-entry" role="listitem">
+Zehr, Sarah M., Richard G. Roach, David Haring, Julie Taylor, Freda H. Cameron, and Anne D. Yoder. 2014. <span>“<span class="nocase">Life history profiles for 27 strepsirrhine primate taxa generated using captive data from the Duke Lemur Center</span>.”</span> <em>Scientific Data</em> 1 (1). <a href="https://doi.org/10.1038/sdata.2014.19">https://doi.org/10.1038/sdata.2014.19</a>.
+</div>
+</div>
+</section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/nrennie\.rbind\.io\/art-of-viz\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><nav class="page-navigation"><div class="nav-page nav-page-previous">
+      <a href="./images.html" class="pagination-link" aria-label="이미지 작업">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">이미지 작업</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./r-packages.html" class="pagination-link" aria-label="R 패키지: 사용자 지정 패면 레이블에 이미지 사용하기">
+        <span class="nav-page-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">R 패키지: 사용자 지정 패면 레이블에 이미지 사용하기</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+<script src="site_libs/quarto-contrib/line-highlight-1.0.0/line-highlight.js" defer="true"></script>
+</body></html>
