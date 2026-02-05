@@ -50,5 +50,5 @@ r-ggforce = ">=0.5.0,<0.6"
 r-colorspace = ">=2.1_2,<3"
 
 [tasks]
-install-r-pkgs = "R -e \"remotes::install_github('coolbutuseless/poissoned'); remotes::install_github('clauswilke/colorblindr'); install.packages(c('camcorder', 'tidytuesdayR'), repos='http://cran.r-project.org')\""
+install-r-pkgs = "R -e \"remotes::install_github('coolbutuseless/poissoned', auth_token = NULL); remotes::install_github('clauswilke/colorblindr', auth_token = NULL); install.packages(c('camcorder', 'tidytuesdayR'), repos='http://cran.r-project.org')\""
 render = "quarto render"

@@ -23,8 +23,10 @@ jobs:
           run-install: true
 
       - name: Install R packages
-        run: R -e "remotes::install_github('coolbutuseless/poissoned'); remotes::install_github('clauswilke/colorblindr'); install.packages(c('camcorder', 'tidytuesdayR'), repos='http://cran.r-project.org')"
+        run: R -e "remotes::install_github('coolbutuseless/poissoned', auth_token = NULL); remotes::install_github('clauswilke/colorblindr', auth_token = NULL); install.packages(c('camcorder', 'tidytuesdayR'), repos='http://cran.r-project.org')"
         shell: pixi run bash -e {0}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Render and Publish
         run: |
