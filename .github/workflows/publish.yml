@@ -19,14 +19,18 @@ jobs:
         with:
           pixi-version: v0.39.5
           cache: true
+          frozen: true
+          run-install: true
 
       - name: Install R packages
-        run: pixi run install-r-pkgs
+        run: R -e "remotes::install_github('coolbutuseless/poissoned'); remotes::install_github('clauswilke/colorblindr'); install.packages(c('camcorder', 'tidytuesdayR'), repos='http://cran.r-project.org')"
+        shell: pixi run bash -e {0}
 
       - name: Render and Publish
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          pixi run quarto publish gh-pages --no-browser
+          quarto publish gh-pages --no-browser
+        shell: pixi run bash -e {0}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
