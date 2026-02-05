@@ -92,7 +92,7 @@ div.csl-indent {
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-795e9e8eca1e12b12abcb09a27409631.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-68ad1da78fd76636681285468deb74db.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-8fdef79e5307f93f1ac50f4e683e47eb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <link href="site_libs/quarto-contrib/line-highlight-1.0.0/line-highlight.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -483,7 +483,7 @@ Figure&nbsp;14.1: 서로 다른 기간에 시운전된 풍력 터빈 수의 와�
 </div>
 </section><section id="ggpattern으로-플로팅" class="level3" data-number="14.2.2"><h3 data-number="14.2.2" class="anchored" data-anchor-id="ggpattern으로-플로팅">
 <span class="header-section-number">14.2.2</span> <strong><code>ggpattern</code></strong>으로 플로팅</h3>
-<p>이제 <code><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point()</a></code>를 사용하는 대신 이미지를 플롯하려고 합니다. <strong><code>ggimage</code></strong> <span class="citation" data-cites="ggimage">(<a href="references.html#ref-ggimage" role="doc-biblioref">Yu 2023</a>)</span> 또는 <strong><code>ggpattern</code></strong> <span class="citation" data-cites="ggpattern">(<a href="references.html#ref-ggpattern" role="doc-biblioref">FC, Davis, and ggplot2 authors 2024</a>)</span>을 사용할 수 있습니다. <strong><code>ggpattern</code></strong> 패키지는 기하학적 또는 이미지 패턴으로 채워진 영역을 지원하는 더 많은 <strong><code>ggplot2</code></strong> <code>geom</code> 함수를 제공합니다. <code><a href="https://trevorldavis.com/R/ggpattern/reference/geom-docs.html">geom_tile_pattern()</a></code> 함수를 사용할 수 있으며 <code>"image"</code> 패턴을 사용하고 싶다고 지정하고 Flaticon 이미지의 파일 이름을 <code>pattern_filename</code>에 제공할 수 있습니다. <code>fill = "white"</code>를 설정하면 아이콘에 흰색 배경이 제공됩니다. 또한 <code><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_void()</a></code>를 설정하여 방해가 되는 모든 배경 요소를 제거할 수 있습니다.</p>
+<p>이제 <code><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point()</a></code>를 사용하는 대신 이미지를 플롯하려고 합니다. <strong><code>ggimage</code></strong> <span class="citation" data-cites="ggimage">(<a href="references.html#ref-ggimage" role="doc-biblioref">Yu 2023</a>)</span> 또는 <strong><code>ggpattern</code></strong> <span class="citation" data-cites="ggpattern">(<a href="references.html#ref-ggpattern" role="doc-biblioref">FC, Davis, and ggplot2 authors 2024</a>)</span>을 사용할 수 있습니다. <strong><code>ggpattern</code></strong> 패키지는 기하학적 또는 이미지 패턴으로 채워진 영역을 지원하는 더 많은 <strong><code>ggplot2</code></strong> <code>geom</code> 함수를 제공합니다. <code><a href="https://rdrr.io/pkg/ggpattern/man/geom-docs.html">geom_tile_pattern()</a></code> 함수를 사용할 수 있으며 <code>"image"</code> 패턴을 사용하고 싶다고 지정하고 Flaticon 이미지의 파일 이름을 <code>pattern_filename</code>에 제공할 수 있습니다. <code>fill = "white"</code>를 설정하면 아이콘에 흰색 배경이 제공됩니다. 또한 <code><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_void()</a></code>를 설정하여 방해가 되는 모든 배경 요소를 제거할 수 있습니다.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span></span>
 <span>  data <span class="op">=</span> <span class="va">new_data</span>,</span>
@@ -491,7 +491,7 @@ Figure&nbsp;14.1: 서로 다른 기간에 시운전된 풍력 터빈 수의 와�
 <span>    x <span class="op">=</span> <span class="va">x</span>, y <span class="op">=</span> <span class="va">y</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://trevorldavis.com/R/ggpattern/reference/geom-docs.html">geom_tile_pattern</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/ggpattern/man/geom-docs.html">geom_tile_pattern</a></span><span class="op">(</span></span>
 <span>    fill <span class="op">=</span> <span class="st">"white"</span>,</span>
 <span>    pattern <span class="op">=</span> <span class="st">"image"</span>,</span>
 <span>    pattern_filename <span class="op">=</span> <span class="st">"images/wind-power.png"</span></span>
