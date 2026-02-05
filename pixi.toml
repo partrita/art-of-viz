@@ -1,4 +1,5 @@
 [workspace]
+name = "art-of-viz"
 authors = ["deepthought <deepthough@postech.ac.kr>"]
 channels = ["conda-forge"]
 platforms = ["linux-64"]
