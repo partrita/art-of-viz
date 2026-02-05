@@ -14,35 +14,19 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
         
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libcurl4-openssl-dev \
-            libmagick++-dev \
-            libharfbuzz-dev \
-            libfribidi-dev \
-            libudunits2-dev \
-            libgdal-dev \
-            libproj-dev \
-            libgeos-dev
-
-      - name: Set up Quarto
-        uses: quarto-dev/quarto-actions/setup@v2
-      
-      - name: Install R
-        uses: r-lib/actions/setup-r@v2
+      - name: Set up Pixi
+        uses: prefix-dev/setup-pixi@v0.8.1
         with:
-          r-version: '4.5.0'
+          pixi-version: v0.39.5
+          cache: true
 
-      - name: Install R Dependencies
-        uses: r-lib/actions/setup-renv@v2
-        with:
-          cache-version: 1
+      - name: Install R packages
+        run: pixi run install-r-pkgs
 
       - name: Render and Publish
-        uses: quarto-dev/quarto-actions/publish@v2
-        with:
-          target: gh-pages
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          pixi run quarto publish gh-pages --no-browser
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
