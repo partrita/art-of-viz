@@ -566,7 +566,7 @@ Figure&nbsp;5.3: 매년 각 유형의 입소 동물 수 히트맵. 2020년과 20
 </section><section id="탐색적-스케치" class="level3" data-number="5.2.2"><h3 data-number="5.2.2" class="anchored" data-anchor-id="탐색적-스케치">
 <span class="header-section-number">5.2.2</span> 탐색적 스케치</h3>
 <p>게이지 차트는 반원 위로 구부러진 누적 막대 차트라고 생각할 수 있습니다. 여기서는 하나의 누적 막대 차트 대신 두 개의 누적 막대 차트가 있습니다.</p>
-<div id="fig-longbeach-sketch" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" alt="단일 동물 유형에 대한 데이터를 시각화하기 위한 아이디어의 초기 스케치.">
+<div id="fig-longbeach-sketch" class="quarto-float quarto-figure quarto-figure-center anchored" alt="단일 동물 유형에 대한 데이터를 시각화하기 위한 아이디어의 초기 스케치." data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-longbeach-sketch-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="images/sketch-longbeach.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="단일 동물 유형에 대한 데이터를 시각화하기 위한 아이디어의 초기 스케치.">
 </div>
@@ -884,9 +884,11 @@ Figure&nbsp;5.7: A 2x2 grid of charts showing simulations of how the current cha
 <p>이전 장에서 보았듯이 <strong><code>sysfonts</code></strong> 및 <strong><code>showtext</code></strong> 패키지를 사용하여 Google 글꼴을 로드할 수 있습니다. 여기서는 제목과 본문 모두에 <code>"Ubuntu"</code> 서체를 사용하여 깔끔하고 미니멀하게 유지합니다. </p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb29" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/sysfonts/man/font_add_google.html">font_add_google</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"Ubuntu"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/sysfonts/man/font_add_google.html">font_add_google</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"Noto Sans KR"</span>, family <span class="op">=</span> <span class="st">"noto_sans_kr"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/showtext/man/showtext_auto.html">showtext_auto</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/showtext/man/showtext_opts.html">showtext_opts</a></span><span class="op">(</span>dpi <span class="op">=</span> <span class="fl">300</span><span class="op">)</span></span>
-<span><span class="va">body_font</span> <span class="op">&lt;-</span> <span class="st">"Ubuntu"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span><span class="va">body_font</span> <span class="op">&lt;-</span> <span class="st">"Ubuntu"</span></span>
+<span><span class="va">korean_font</span> <span class="op">&lt;-</span> <span class="st">"noto_sans_kr"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>제목과 부제목에 대한 텍스트를 정의해 보겠습니다. 여기서 제목은 차트의 핵심 메시지를 정의하여 독자가 그래픽을 훑어보더라도 요점을 이해할 수 있도록 합니다. 부제목은 플롯을 해석하는 방법에 대한 간단한 설명을 제공하고 독자가 가져가기를 원하는 주요 결론을 반복합니다. <code>caption</code> 변수는 이 시각화에 대한 데이터 소스와 차트 작성자를 식별합니다.</p>
 <div class="cell">
@@ -935,7 +937,12 @@ Figure&nbsp;5.8: Previous plot with additional labels indicating the year on eac
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb33" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">theme_plot</span> <span class="op">&lt;-</span> <span class="va">text_plot</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_fixed.html">coord_fixed</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_void</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">8.5</span>, base_family <span class="op">=</span> <span class="va">body_font</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_void</a></span><span class="op">(</span>base_size <span class="op">=</span> <span class="fl">8.5</span>, base_family <span class="op">=</span> <span class="va">body_font</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span></span>
+<span>    text <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span>family <span class="op">=</span> <span class="va">korean_font</span><span class="op">)</span>,</span>
+<span>    plot.title <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span>family <span class="op">=</span> <span class="va">korean_font</span><span class="op">)</span>,</span>
+<span>    plot.subtitle <span class="op">=</span> <span class="fu"><a href="https://wilkelab.org/ggtext/reference/element_textbox.html">element_textbox_simple</a></span><span class="op">(</span>family <span class="op">=</span> <span class="va">korean_font</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
 <span><span class="va">theme_plot</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div id="fig-longbeach-style-1" class="quarto-float quarto-figure quarto-figure-center anchored" alt="Edited version of previous plot with fixed coordinate system to prevent squashing, and all theme elements removed">

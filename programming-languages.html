@@ -581,7 +581,7 @@ Tip&nbsp;2.2: 스케치의 중요성
 </div>
 </div>
 <p><code>#</code>을 주석으로 사용하는 언어의 타임라인에 대한 덤벨 차트는 다음과 비슷할 수 있습니다:</p>
-<div id="fig-languages-sketch" class="quarto-float quarto-figure quarto-figure-center anchored" alt="손으로 그린 'Comment: #'이라는 제목의 차트는 시간 경과에 따른 언어의 진화를 보여주며, 점과 선은 서로 다른 단계와 발전을 나타냅니다. 1950년경에 시작하여 2020년까지 확장되어 언어 변화의 상당한 기간을 암시합니다." data-fig-align="center">
+<div id="fig-languages-sketch" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" alt="손으로 그린 'Comment: #'이라는 제목의 차트는 시간 경과에 따른 언어의 진화를 보여주며, 점과 선은 서로 다른 단계와 발전을 나타냅니다. 1950년경에 시작하여 2020년까지 확장되어 언어 변화의 상당한 기간을 암시합니다.">
 <figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-languages-sketch-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="images/sketch-languages.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="손으로 그린 'Comment: #'이라는 제목의 차트는 시간 경과에 따른 언어의 진화를 보여주며, 점과 선은 서로 다른 단계와 발전을 나타냅니다. 1950년경에 시작하여 2020년까지 확장되어 언어 변화의 상당한 기간을 암시합니다.">
 </div>
@@ -590,7 +590,7 @@ Figure&nbsp;2.5: 특정 주석 문자에 대해 서로 다른 언어가 활성�
 </figcaption></figure>
 </div>
 <p>이것이 서로 다른 주석 기호 간에 어떻게 다른지 보여주기 위해 이 차트의 작은 다중(small multiples)을 만들 수 있습니다. 기본적으로 데이터의 다른 하위 집합에 대해 동일한 플롯을 여러 번 만드는 것입니다. <strong><code>ggplot2</code></strong>에서 이것은 <em>패면(facets)</em>이라고 하며 다음과 비슷할 수 있습니다:</p>
-<div id="fig-languages-sketch-2" class="quarto-float quarto-figure quarto-figure-center anchored" alt="'Title'이라는 제목의 손으로 그린 차트는 시간 경과에 따른 세 가지 다른 언어의 진화를 보여줍니다. 각 언어는 수직선으로 표시되며 점과 수평선은 변화와 발전을 나타냅니다. 선은 1950년부터 2020년까지 확장되어 언어 진화의 상당한 기간을 암시합니다. '#', '//', ';' 주석은 각 언어 내의 다른 유형의 변경 또는 기능을 나타낼 가능성이 높습니다." data-fig-align="center">
+<div id="fig-languages-sketch-2" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" alt="'Title'이라는 제목의 손으로 그린 차트는 시간 경과에 따른 세 가지 다른 언어의 진화를 보여줍니다. 각 언어는 수직선으로 표시되며 점과 수평선은 변화와 발전을 나타냅니다. 선은 1950년부터 2020년까지 확장되어 언어 진화의 상당한 기간을 암시합니다. '#', '//', ';' 주석은 각 언어 내의 다른 유형의 변경 또는 기능을 나타낼 가능성이 높습니다.">
 <figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-languages-sketch-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="images/sketch-languages-2.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="'Title'이라는 제목의 손으로 그린 차트는 시간 경과에 따른 세 가지 다른 언어의 진화를 보여줍니다. 각 언어는 수직선으로 표시되며 점과 수평선은 변화와 발전을 나타냅니다. 선은 1950년부터 2020년까지 확장되어 언어 진화의 상당한 기간을 암시합니다. '#', '//', ';' 주석은 각 언어 내의 다른 유형의 변경 또는 기능을 나타낼 가능성이 높습니다.">
 </div>
@@ -823,8 +823,12 @@ Figure&nbsp;2.10: 각각 #, //, ;를 주석 기호로 사용하는 상위 10개 
 <span><span class="fu"><a href="https://rdrr.io/pkg/sysfonts/man/font_add_google.html">font_add_google</a></span><span class="op">(</span></span>
 <span>  name <span class="op">=</span> <span class="st">"Share Tech Mono"</span>, family <span class="op">=</span> <span class="st">"share"</span></span>
 <span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/sysfonts/man/font_add_google.html">font_add_google</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"Noto Sans KR"</span>, family <span class="op">=</span> <span class="st">"noto_sans_kr"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/showtext/man/showtext_auto.html">showtext_auto</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/showtext/man/showtext_opts.html">showtext_opts</a></span><span class="op">(</span>dpi <span class="op">=</span> <span class="fl">300</span><span class="op">)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span><span class="fu"><a href="https://rdrr.io/pkg/showtext/man/showtext_opts.html">showtext_opts</a></span><span class="op">(</span>dpi <span class="op">=</span> <span class="fl">300</span><span class="op">)</span></span>
+<span><span class="va">body_font</span> <span class="op">&lt;-</span> <span class="st">"share"</span></span>
+<span><span class="va">title_font</span> <span class="op">&lt;-</span> <span class="st">"vt"</span></span>
+<span><span class="va">korean_font</span> <span class="op">&lt;-</span> <span class="st">"noto_sans_kr"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div id="tip-languages-showtext" class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -849,7 +853,8 @@ Tip&nbsp;2.5: <strong><code>showtext</code></strong>의 대안
 <p>색상과 마찬가지로 서체 이름을 변수로 저장하여 다른 서체로 플롯이 어떻게 보이는지 쉽게 확인할 수 있습니다. 제목(및 기타 중요한 요소)의 서체를 저장하는 <code>title_font</code>와 다른 모든 텍스트에 대한 <code>body_font</code> 두 가지 변수를 저장합니다.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">body_font</span> <span class="op">&lt;-</span> <span class="st">"share"</span></span>
-<span><span class="va">title_font</span> <span class="op">&lt;-</span> <span class="st">"vt"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span><span class="va">title_font</span> <span class="op">&lt;-</span> <span class="st">"vt"</span></span>
+<span><span class="va">korean_font</span> <span class="op">&lt;-</span> <span class="st">"noto_sans_kr"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>플롯의 모든 비-기하학적(non-geom) 요소(예: 배경색, 제목에 사용되는 서체 또는 캡션 정렬 방식)의 스타일링은 <strong><code>ggplot2</code></strong>의 <code><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme()</a></code> 함수에서 처리됩니다. <code><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_classic()</a></code>, <code><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_minimal()</a></code> 또는 <code><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_gray()</a></code>와 같은 몇 가지 인수를 미리 설정하는 여러 내장 테마가 있습니다. 기본 테마는 <code><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html">theme_gray()</a></code>이며 기본 회색 배경은 여기에서 비롯됩니다. </p>
 <p>일반적으로 제목 텍스트가 다른 텍스트보다 크게 나타나기를 원합니다. 마찬가지로 축 텍스트는 다른 텍스트보다 작기를 원할 수 있습니다. <strong><code>ggplot2</code></strong>에서 모든 텍스트는 어떤 기준 텍스트 크기에 상대적으로 정의됩니다. 플롯에 사용되는 모든 텍스트의 크기를 늘리거나 줄이려면 내장 테마의 <code>base_size</code> 인수를 변경하면 모든 요소에 사용되는 기준 텍스트 크기가 설정됩니다. 즉, 모든 단일 텍스트 요소의 크기를 개별적으로 늘릴 필요가 없습니다. 마찬가지로 <code>base_family</code>는 모든 (비-기하학적) 텍스트 요소에 사용되는 기본 서체를 변경합니다.</p>
@@ -936,15 +941,17 @@ Tip&nbsp;2.6: 테마 개선 사항
 <span>    <span class="op">)</span>,</span>
 <span>    plot.title <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span></span>
 <span>      color <span class="op">=</span> <span class="va">main_col</span>,</span>
-<span>      family <span class="op">=</span> <span class="va">title_font</span>,</span>
+<span>      family <span class="op">=</span> <span class="va">korean_font</span>,</span>
 <span>      size <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">rel</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span>,</span>
 <span>    <span class="op">)</span>,</span>
 <span>    plot.subtitle <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span></span>
 <span>      color <span class="op">=</span> <span class="va">main_col</span>,</span>
+<span>      family <span class="op">=</span> <span class="va">korean_font</span>,</span>
 <span>      margin <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">margin</a></span><span class="op">(</span>b <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span>    <span class="op">)</span>,</span>
 <span>    plot.caption <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span></span>
 <span>      color <span class="op">=</span> <span class="va">main_col</span>,</span>
+<span>      family <span class="op">=</span> <span class="va">korean_font</span>,</span>
 <span>      margin <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">margin</a></span><span class="op">(</span>b <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>,</span>
 <span>      hjust <span class="op">=</span> <span class="fl">0</span></span>
 <span>    <span class="op">)</span>,</span>
@@ -1001,16 +1008,18 @@ Figure&nbsp;2.11: 각각 #, //, ;를 주석 기호로 사용하는 상위 10개 
 <span>    <span class="op">)</span>,</span>
 <span>    plot.title <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span></span>
 <span>      color <span class="op">=</span> <span class="va">main_col</span>,</span>
-<span>      family <span class="op">=</span> <span class="va">title_font</span>,</span>
+<span>      family <span class="op">=</span> <span class="va">korean_font</span>,</span>
 <span>      size <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">rel</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span>
 <span>    <span class="op">)</span>,</span>
 <span>    plot.subtitle <span class="op">=</span> <span class="fu"><a href="https://wilkelab.org/ggtext/reference/element_textbox.html">element_textbox_simple</a></span><span class="op">(</span></span>
 <span>      color <span class="op">=</span> <span class="va">main_col</span>,</span>
+<span>      family <span class="op">=</span> <span class="va">korean_font</span>,</span>
 <span>      margin <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">margin</a></span><span class="op">(</span>b <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>,</span>
 <span>      lineheight <span class="op">=</span> <span class="fl">0.5</span></span>
 <span>    <span class="op">)</span>,</span>
 <span>    plot.caption <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">element_text</a></span><span class="op">(</span></span>
 <span>      color <span class="op">=</span> <span class="va">main_col</span>,</span>
+<span>      family <span class="op">=</span> <span class="va">korean_font</span>,</span>
 <span>      margin <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">margin</a></span><span class="op">(</span>b <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>,</span>
 <span>      hjust <span class="op">=</span> <span class="fl">0</span></span>
 <span>    <span class="op">)</span>,</span>
@@ -1048,7 +1057,7 @@ Tip&nbsp;2.7: <code><a href="https://ggplot2.tidyverse.org/reference/geom_text.h
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb30" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">theme_plot2</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html">geom_text</a></span><span class="op">(</span></span>
 <span>    mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">1932</span>, y <span class="op">=</span> <span class="va">n</span>, label <span class="op">=</span> <span class="va">title</span><span class="op">)</span>,</span>
-<span>    family <span class="op">=</span> <span class="va">body_font</span>,</span>
+<span>    family <span class="op">=</span> <span class="va">korean_font</span>,</span>
 <span>    hjust <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>    size <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>    color <span class="op">=</span> <span class="va">main_col</span></span>
@@ -1079,7 +1088,7 @@ Figure&nbsp;2.13: 각각 #, //, ;를 주석 기호로 사용하는 상위 10개 
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html">geom_text</a></span><span class="op">(</span></span>
 <span>    data <span class="op">=</span> <span class="va">plot_data</span>,</span>
 <span>    mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">1932</span>, y <span class="op">=</span> <span class="va">n</span>, label <span class="op">=</span> <span class="va">rank_label</span><span class="op">)</span>,</span>
-<span>    family <span class="op">=</span> <span class="va">body_font</span>,</span>
+<span>    family <span class="op">=</span> <span class="va">korean_font</span>,</span>
 <span>    vjust <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>    lineheight <span class="op">=</span> <span class="fl">0.7</span>,</span>
 <span>    hjust <span class="op">=</span> <span class="fl">0</span>,</span>

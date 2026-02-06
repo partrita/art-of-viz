@@ -667,10 +667,12 @@ Figure&nbsp;13.7: 미국 모양의 그리드에 배열된 패싯 영역 차트�
 <span><span class="fu"><a href="https://rdrr.io/pkg/sysfonts/man/font_add_google.html">font_add_google</a></span><span class="op">(</span></span>
 <span>  name <span class="op">=</span> <span class="st">"Carter One"</span>, family <span class="op">=</span> <span class="st">"Carter"</span></span>
 <span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/sysfonts/man/font_add_google.html">font_add_google</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"Noto Sans KR"</span>, family <span class="op">=</span> <span class="st">"noto_sans_kr"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/showtext/man/showtext_auto.html">showtext_auto</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/showtext/man/showtext_opts.html">showtext_opts</a></span><span class="op">(</span>dpi <span class="op">=</span> <span class="fl">300</span><span class="op">)</span></span>
 <span><span class="va">body_font</span> <span class="op">&lt;-</span> <span class="st">"Roboto"</span></span>
-<span><span class="va">title_font</span> <span class="op">&lt;-</span> <span class="st">"Carter"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span><span class="va">title_font</span> <span class="op">&lt;-</span> <span class="st">"Carter"</span></span>
+<span><span class="va">korean_font</span> <span class="op">&lt;-</span> <span class="st">"noto_sans_kr"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p><a href="cats.html" class="quarto-xref"><span>Chapter 7</span></a> 와 <a href="lemurs.html" class="quarto-xref"><span>Chapter 9</span></a> 에서 했던 것처럼 색상 텍스트에 HTML 스타일링을 추가하기 위해 <code><a href="https://glue.tidyverse.org/reference/glue.html">glue()</a></code>를 사용하여 부제목에 대한 텍스트를 작성합니다. 색상 텍스트는 범례 역할을 하며(나중에 우리만의 사용자 정의 범례도 추가할 예정이지만), 부제목 텍스트는 차트가 보여주는 내용에 대한 정보를 제공합니다. 색상 텍스트는 읽기 쉽도록 굵은 텍스트로 서식을 지정합니다. <a href="time-zones.html" class="quarto-xref"><span>Chapter 12</span></a> 에서와 같이 데이터 소스에 대한 정보를 캡션이 아닌 부제목 끝줄에 추가합니다. 또한 <a href="time-zones.html" class="quarto-xref"><span>Chapter 12</span></a> 에서 했던 것처럼 텍스트 배치를 용이하게 하기 위해 제목 텍스트를 부제목 변수에 직접 추가합니다. </p>
 <div class="cell">
@@ -732,6 +734,7 @@ Figure&nbsp;13.7: 미국 모양의 그리드에 배열된 패싯 영역 차트�
 <span>    <span class="op">)</span>,</span>
 <span>    plot.margin <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">margin</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">5</span>, <span class="fl">5</span>, <span class="fl">125</span><span class="op">)</span>,</span>
 <span>    plot.tag <span class="op">=</span> <span class="fu"><a href="https://wilkelab.org/ggtext/reference/element_textbox.html">element_textbox_simple</a></span><span class="op">(</span></span>
+<span>      family <span class="op">=</span> <span class="va">korean_font</span>,</span>
 <span>      hjust <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>      color <span class="op">=</span> <span class="va">text_col</span>,</span>
 <span>      maxwidth <span class="op">=</span> <span class="fl">0.65</span>,</span>
@@ -739,6 +742,7 @@ Figure&nbsp;13.7: 미국 모양의 그리드에 배열된 패싯 영역 차트�
 <span>      size <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">rel</a></span><span class="op">(</span><span class="fl">1.0</span><span class="op">)</span></span>
 <span>    <span class="op">)</span>,</span>
 <span>    plot.caption <span class="op">=</span> <span class="fu"><a href="https://wilkelab.org/ggtext/reference/element_textbox.html">element_textbox_simple</a></span><span class="op">(</span></span>
+<span>      family <span class="op">=</span> <span class="va">korean_font</span>,</span>
 <span>      hjust <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>      halign <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>      color <span class="op">=</span> <span class="va">text_col</span>,</span>
@@ -817,7 +821,7 @@ Figure&nbsp;13.8: 미국 모양의 그리드에 배열된 패싯 영역 차트�
 <span>    x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">min</a></span><span class="op">(</span><span class="va">ca_data</span><span class="op">$</span><span class="va">year</span><span class="op">)</span>,</span>
 <span>    y <span class="op">=</span> <span class="fl">0.05</span>,</span>
 <span>    label <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">min</a></span><span class="op">(</span><span class="va">ca_data</span><span class="op">$</span><span class="va">year</span><span class="op">)</span>,</span>
-<span>    family <span class="op">=</span> <span class="va">body_font</span>,</span>
+<span>    family <span class="op">=</span> <span class="va">korean_font</span>,</span>
 <span>    color <span class="op">=</span> <span class="va">bg_col</span>,</span>
 <span>    size <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>    hjust <span class="op">=</span> <span class="fl">0</span></span>
@@ -827,7 +831,7 @@ Figure&nbsp;13.8: 미국 모양의 그리드에 배열된 패싯 영역 차트�
 <span>    x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span><span class="op">(</span><span class="va">ca_data</span><span class="op">$</span><span class="va">year</span><span class="op">)</span>,</span>
 <span>    y <span class="op">=</span> <span class="fl">0.05</span>,</span>
 <span>    label <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span><span class="op">(</span><span class="va">ca_data</span><span class="op">$</span><span class="va">year</span><span class="op">)</span>,</span>
-<span>    family <span class="op">=</span> <span class="va">body_font</span>,</span>
+<span>    family <span class="op">=</span> <span class="va">korean_font</span>,</span>
 <span>    color <span class="op">=</span> <span class="va">bg_col</span>,</span>
 <span>    size <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>    hjust <span class="op">=</span> <span class="fl">1</span></span>
@@ -838,7 +842,7 @@ Figure&nbsp;13.8: 미국 모양의 그리드에 배열된 패싯 영역 차트�
 <span>    x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/range.html">range</a></span><span class="op">(</span><span class="va">ca_data</span><span class="op">$</span><span class="va">year</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>    y <span class="op">=</span> <span class="fl">0.8</span>,</span>
 <span>    label <span class="op">=</span> <span class="st">"민주당"</span>,</span>
-<span>    family <span class="op">=</span> <span class="va">body_font</span>,</span>
+<span>    family <span class="op">=</span> <span class="va">korean_font</span>,</span>
 <span>    color <span class="op">=</span> <span class="va">bg_col</span>,</span>
 <span>    size <span class="op">=</span> <span class="fl">3.5</span></span>
 <span>  <span class="op">)</span> <span class="op">+</span></span>
@@ -847,7 +851,7 @@ Figure&nbsp;13.8: 미국 모양의 그리드에 배열된 패싯 영역 차트�
 <span>    x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/range.html">range</a></span><span class="op">(</span><span class="va">ca_data</span><span class="op">$</span><span class="va">year</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>    y <span class="op">=</span> <span class="fl">0.2</span>,</span>
 <span>    label <span class="op">=</span> <span class="st">"공화당"</span>,</span>
-<span>    family <span class="op">=</span> <span class="va">body_font</span>,</span>
+<span>    family <span class="op">=</span> <span class="va">korean_font</span>,</span>
 <span>    color <span class="op">=</span> <span class="va">bg_col</span>,</span>
 <span>    size <span class="op">=</span> <span class="fl">3.5</span></span>
 <span>  <span class="op">)</span> <span class="op">+</span></span>

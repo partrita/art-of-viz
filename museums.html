@@ -819,9 +819,11 @@ Figure&nbsp;3.7: {viridis} R 패키지에서 선택한 색상으로 이전 차�
 <p><strong><code>sysfonts</code></strong>의 <code><a href="https://rdrr.io/pkg/sysfonts/man/font_add_google.html">font_add_google()</a></code>을 사용하여 다른 서체를 로드하고 <strong><code>showtext</code></strong>로 글꼴 옵션을 설정하는 것으로 시작해 봅시다 . <em>Raleway</em>는 미니멀하고 산세리프 서체이며 본문 텍스트와 제목 텍스트 모두에 사용할 것입니다. 단일 변수 <code>body_font</code>로 저장할 수 있습니다.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/sysfonts/man/font_add_google.html">font_add_google</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"Raleway"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/sysfonts/man/font_add_google.html">font_add_google</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"Noto Sans KR"</span>, family <span class="op">=</span> <span class="st">"noto_sans_kr"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/showtext/man/showtext_auto.html">showtext_auto</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/showtext/man/showtext_opts.html">showtext_opts</a></span><span class="op">(</span>dpi <span class="op">=</span> <span class="fl">300</span><span class="op">)</span></span>
-<span><span class="va">body_font</span> <span class="op">&lt;-</span> <span class="st">"Raleway"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span><span class="va">body_font</span> <span class="op">&lt;-</span> <span class="st">"Raleway"</span></span>
+<span><span class="va">korean_font</span> <span class="op">&lt;-</span> <span class="st">"noto_sans_kr"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div id="tip-museums-typeface" class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -897,6 +899,7 @@ Tip&nbsp;3.5: <code>&lt;br&gt;</code>을 사용하여 줄 바꿈 추가
 <span>      fill <span class="op">=</span> <span class="va">bg_col</span>, color <span class="op">=</span> <span class="va">bg_col</span></span>
 <span>    <span class="op">)</span>,</span>
 <span>    plot.title <span class="op">=</span> <span class="fu"><a href="https://wilkelab.org/ggtext/reference/element_textbox.html">element_textbox_simple</a></span><span class="op">(</span></span>
+<span>      family <span class="op">=</span> <span class="va">korean_font</span>,</span>
 <span>      color <span class="op">=</span> <span class="va">text_col</span>,</span>
 <span>      lineheight <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>      size <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">rel</a></span><span class="op">(</span><span class="fl">1.2</span><span class="op">)</span>,</span>
@@ -904,10 +907,12 @@ Tip&nbsp;3.5: <code>&lt;br&gt;</code>을 사용하여 줄 바꿈 추가
 <span>      margin <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">margin</a></span><span class="op">(</span>b <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span>    <span class="op">)</span>,</span>
 <span>    plot.subtitle <span class="op">=</span> <span class="fu"><a href="https://wilkelab.org/ggtext/reference/element_textbox.html">element_textbox_simple</a></span><span class="op">(</span></span>
+<span>      family <span class="op">=</span> <span class="va">korean_font</span>,</span>
 <span>      color <span class="op">=</span> <span class="va">text_col</span>,</span>
 <span>      lineheight <span class="op">=</span> <span class="fl">0.5</span></span>
 <span>    <span class="op">)</span>,</span>
 <span>    plot.caption <span class="op">=</span> <span class="fu"><a href="https://wilkelab.org/ggtext/reference/element_textbox.html">element_textbox_simple</a></span><span class="op">(</span></span>
+<span>      family <span class="op">=</span> <span class="va">korean_font</span>,</span>
 <span>      hjust <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>      color <span class="op">=</span> <span class="va">text_col</span>,</span>
 <span>      lineheight <span class="op">=</span> <span class="fl">0.5</span></span>

@@ -554,7 +554,7 @@ Figure&nbsp;8.3: 물리학 분야의 남성 및 여성 노벨상 수상자 수�
 </ul>
 <p>시각화의 목적이 노벨상 수상자의 성별 불균형을 강조하는 것이라고 가정해 보겠습니다. 네, 남성 및 여성 노벨상 수상자가 얼마나 많은지에 대한 막대 차트는 불균형을 매우 명확하게 보여줍니다. 간단한 메시지입니다. 하지만 눈길을 확 끌지는 않습니다. 독자가 멈춰서 주의를 기울이게 만드는 시각화는 아닙니다. 그리고 데이터를 두 가지 범주로 집계하여 이들이 개체라는 사실을 무시합니다.</p>
 <p>대신 상자 밖에서 생각하여 정보를 매우 비표준적인 방식으로 제시해 봅시다:</p>
-<div id="fig-nobel-sketch" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" alt="성별에 따른 텍스트 색상을 사용하여 원 주위에 수직으로 배열된 텍스트의 초기 스케치.">
+<div id="fig-nobel-sketch" class="quarto-float quarto-figure quarto-figure-center anchored" alt="성별에 따른 텍스트 색상을 사용하여 원 주위에 수직으로 배열된 텍스트의 초기 스케치." data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-nobel-sketch-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="images/sketch-nobel.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="성별에 따른 텍스트 색상을 사용하여 원 주위에 수직으로 배열된 텍스트의 초기 스케치.">
 </div>
@@ -623,7 +623,7 @@ Tip&nbsp;8.2: 왜 R에서 주석을 추가하나요?
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fl">5</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div id="fig-nobel-sketch-theta" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" alt="반지름, 각도, x 및 y 좌표에서 텍스트 위치 간의 관계를 보여주는 스케치.">
+<div id="fig-nobel-sketch-theta" class="quarto-float quarto-figure quarto-figure-center anchored" alt="반지름, 각도, x 및 y 좌표에서 텍스트 위치 간의 관계를 보여주는 스케치." data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-nobel-sketch-theta-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="images/sketch-nobel-theta.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="반지름, 각도, x 및 y 좌표에서 텍스트 위치 간의 관계를 보여주는 스케치.">
 </div>
@@ -712,10 +712,12 @@ Figure&nbsp;8.7: 반원형으로 배열된 노벨 물리학상 수상자의 이�
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/sysfonts/man/font_add_google.html">font_add_google</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"Passion One"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/sysfonts/man/font_add_google.html">font_add_google</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"Ubuntu"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/sysfonts/man/font_add_google.html">font_add_google</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"Noto Sans KR"</span>, family <span class="op">=</span> <span class="st">"noto_sans_kr"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/showtext/man/showtext_auto.html">showtext_auto</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/showtext/man/showtext_opts.html">showtext_opts</a></span><span class="op">(</span>dpi <span class="op">=</span> <span class="fl">300</span><span class="op">)</span></span>
 <span><span class="va">body_font</span> <span class="op">&lt;-</span> <span class="st">"Ubuntu"</span></span>
-<span><span class="va">title_font</span> <span class="op">&lt;-</span> <span class="st">"Passion One"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span><span class="va">title_font</span> <span class="op">&lt;-</span> <span class="st">"Passion One"</span></span>
+<span><span class="va">korean_font</span> <span class="op">&lt;-</span> <span class="st">"noto_sans_kr"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>이제 <code>basic_plot</code>을 다시 만들어 보겠습니다. 이번에는 글꼴 <code>family</code>도 <code>body_font</code>로 설정합니다. 또한 <code>hjust = 1</code>을 사용하여 텍스트를 오른쪽 정렬하여 텍스트가 원의 바깥쪽 가장자리 주위에 나타나도록 합니다. 텍스트는 서로 옆에 위치한 이름이 겹치지 않도록 조금 더 작아야 합니다. </p>
 <div class="cell">
@@ -854,6 +856,7 @@ Figure&nbsp;8.10: 원 주위에 배열된 노벨 물리학상 수상자의 이�
 <span>      fill <span class="op">=</span> <span class="va">bg_col</span>, color <span class="op">=</span> <span class="va">bg_col</span></span>
 <span>    <span class="op">)</span>,</span>
 <span>    plot.caption <span class="op">=</span> <span class="fu"><a href="https://wilkelab.org/ggtext/reference/element_textbox.html">element_textbox_simple</a></span><span class="op">(</span></span>
+<span>      family <span class="op">=</span> <span class="va">korean_font</span>,</span>
 <span>      color <span class="op">=</span> <span class="va">primary_col</span>,</span>
 <span>      hjust <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>      halign <span class="op">=</span> <span class="fl">0</span>,</span>
@@ -931,7 +934,8 @@ Tip&nbsp;8.4: 함수에서 글꼴 사용
 <span>    <span class="va">primary_col</span> <span class="op">=</span> <span class="st">"black"</span>,</span>
 <span>    <span class="va">secondary_col</span> <span class="op">=</span> <span class="st">"gray70"</span>,</span>
 <span>    <span class="va">body_font</span> <span class="op">=</span> <span class="st">"Ubuntu"</span>,</span>
-<span>    <span class="va">title_font</span> <span class="op">=</span> <span class="st">"Passion One"</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">title_font</span> <span class="op">=</span> <span class="st">"Passion One"</span>,</span>
+<span>    <span class="va">korean_font</span> <span class="op">=</span> <span class="st">"noto_sans_kr"</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="co"># Data wrangling</span></span>
 <span>  <span class="va">category_data</span> <span class="op">&lt;-</span> <span class="va">nobel_data</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">category</span> <span class="op">==</span> <span class="va">nobel_category</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -1009,6 +1013,7 @@ Tip&nbsp;8.4: 함수에서 글꼴 사용
 <span>        fill <span class="op">=</span> <span class="va">bg_col</span>, color <span class="op">=</span> <span class="va">bg_col</span></span>
 <span>      <span class="op">)</span>,</span>
 <span>      plot.caption <span class="op">=</span> <span class="fu"><a href="https://wilkelab.org/ggtext/reference/element_textbox.html">element_textbox_simple</a></span><span class="op">(</span></span>
+<span>        family <span class="op">=</span> <span class="va">korean_font</span>,</span>
 <span>        color <span class="op">=</span> <span class="va">primary_col</span>,</span>
 <span>        hjust <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>        halign <span class="op">=</span> <span class="fl">0</span>,</span>

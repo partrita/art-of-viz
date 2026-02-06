@@ -485,7 +485,7 @@ Figure&nbsp;11.1: 기본 R로 만든, 시간이 지남에 따라 인구 1,000명
 </section><section id="탐색적-스케치" class="level3" data-number="11.2.2"><h3 data-number="11.2.2" class="anchored" data-anchor-id="탐색적-스케치">
 <span class="header-section-number">11.2.2</span> 탐색적 스케치</h3>
 <p>공간 데이터를 시각화하는 가장 일반적인 접근 방식은 물론 지도에 표시하는 것입니다. 목표가 다른 국가(또는 기타 정의된 지역)에 따라 변수가 어떻게 변하는지 보여주는 것이라면 변수 값에 따라 국가의 색상을 지정하는 것이 매우 일반적입니다. 이를 종종 <em>등치 지역도(choropleth maps)</em>라고 합니다.</p>
-<div id="fig-doctors-sketch" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" alt="상자 안에 제목이 있고 오른쪽 하단에 범례가 수평으로 배치된 세계 지도의 초기 스케치">
+<div id="fig-doctors-sketch" class="quarto-float quarto-figure quarto-figure-center anchored" alt="상자 안에 제목이 있고 오른쪽 하단에 범례가 수평으로 배치된 세계 지도의 초기 스케치" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure"><div aria-describedby="fig-doctors-sketch-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="images/sketch-doctors.png" class="img-fluid quarto-figure quarto-figure-center figure-img" alt="상자 안에 제목이 있고 오른쪽 하단에 범례가 수평으로 배치된 세계 지도의 초기 스케치">
 </div>
@@ -656,10 +656,12 @@ Figure&nbsp;11.4: 인구 1,000명당 의사 수에 따라 국가가 색으로 �
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/sysfonts/man/font_add_google.html">font_add_google</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"Roboto"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/sysfonts/man/font_add_google.html">font_add_google</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"Roboto Slab"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/sysfonts/man/font_add_google.html">font_add_google</a></span><span class="op">(</span>name <span class="op">=</span> <span class="st">"Noto Sans KR"</span>, family <span class="op">=</span> <span class="st">"noto_sans_kr"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/showtext/man/showtext_auto.html">showtext_auto</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/pkg/showtext/man/showtext_opts.html">showtext_opts</a></span><span class="op">(</span>dpi <span class="op">=</span> <span class="fl">300</span><span class="op">)</span></span>
 <span><span class="va">body_font</span> <span class="op">&lt;-</span> <span class="st">"Roboto"</span></span>
-<span><span class="va">title_font</span> <span class="op">&lt;-</span> <span class="st">"Roboto Slab"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span><span class="va">title_font</span> <span class="op">&lt;-</span> <span class="st">"Roboto Slab"</span></span>
+<span><span class="va">korean_font</span> <span class="op">&lt;-</span> <span class="st">"noto_sans_kr"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>이제 제목, 부제목 및 캡션에 대한 텍스트를 정의할 수 있습니다. 이전 장에서와 마찬가지로 <strong><code>ggtext</code></strong>를 사용하여 서식을 지정하므로 HTML 구문을 사용하여 줄 바꿈을 추가할 수 있습니다.</p>
 <div class="cell">
@@ -786,15 +788,17 @@ Tip&nbsp;11.6: 열 이름 선택
 <span>      fill <span class="op">=</span> <span class="va">bg_col</span>, color <span class="op">=</span> <span class="va">bg_col</span></span>
 <span>    <span class="op">)</span>,</span>
 <span>    plot.title <span class="op">=</span> <span class="fu"><a href="https://wilkelab.org/ggtext/reference/element_textbox.html">element_textbox_simple</a></span><span class="op">(</span></span>
+<span>      family <span class="op">=</span> <span class="va">korean_font</span>,</span>
 <span>      color <span class="op">=</span> <span class="va">text_col</span>,</span>
-<span>      family <span class="op">=</span> <span class="va">title_font</span>,</span>
 <span>      lineheight <span class="op">=</span> <span class="fl">0.5</span></span>
 <span>    <span class="op">)</span>,</span>
 <span>    plot.subtitle <span class="op">=</span> <span class="fu"><a href="https://wilkelab.org/ggtext/reference/element_textbox.html">element_textbox_simple</a></span><span class="op">(</span></span>
+<span>      family <span class="op">=</span> <span class="va">korean_font</span>,</span>
 <span>      color <span class="op">=</span> <span class="va">text_col</span>,</span>
 <span>      lineheight <span class="op">=</span> <span class="fl">0.5</span></span>
 <span>    <span class="op">)</span>,</span>
 <span>    plot.caption <span class="op">=</span> <span class="fu"><a href="https://wilkelab.org/ggtext/reference/element_textbox.html">element_textbox_simple</a></span><span class="op">(</span></span>
+<span>      family <span class="op">=</span> <span class="va">korean_font</span>,</span>
 <span>      hjust <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>      color <span class="op">=</span> <span class="va">text_col</span>,</span>
 <span>      lineheight <span class="op">=</span> <span class="fl">0.5</span></span>
@@ -837,6 +841,7 @@ Figure&nbsp;11.6: 패싯 스트립 텍스트에 제목이 복제된 세계 지�
 <span>    plot.margin <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">margin</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">5</span>, <span class="fl">0</span><span class="op">)</span>,</span>
 <span>    plot.tag.position <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.015</span>, <span class="fl">0.8</span><span class="op">)</span>,</span>
 <span>    plot.tag <span class="op">=</span> <span class="fu"><a href="https://wilkelab.org/ggtext/reference/element_textbox.html">element_textbox_simple</a></span><span class="op">(</span></span>
+<span>      family <span class="op">=</span> <span class="va">korean_font</span>,</span>
 <span>      color <span class="op">=</span> <span class="va">text_col</span>,</span>
 <span>      lineheight <span class="op">=</span> <span class="fl">0.6</span>,</span>
 <span>      hjust <span class="op">=</span> <span class="fl">0</span>,</span>
@@ -851,8 +856,8 @@ Figure&nbsp;11.6: 패싯 스트립 텍스트에 제목이 복제된 세계 지�
 <span>    <span class="op">)</span>,</span>
 <span>    <span class="co"># 제목 텍스트 색상 변경</span></span>
 <span>    strip.text <span class="op">=</span> <span class="fu"><a href="https://wilkelab.org/ggtext/reference/element_textbox.html">element_textbox_simple</a></span><span class="op">(</span></span>
+<span>      family <span class="op">=</span> <span class="va">korean_font</span>,</span>
 <span>      color <span class="op">=</span> <span class="va">bg_col</span>,</span>
-<span>      family <span class="op">=</span> <span class="va">title_font</span>,</span>
 <span>      margin <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">margin</a></span><span class="op">(</span><span class="fl">7</span>, <span class="fl">5</span>, <span class="fl">7</span>, <span class="fl">5</span><span class="op">)</span>,</span>
 <span>      lineheight <span class="op">=</span> <span class="fl">0.6</span>,</span>
 <span>      size <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">rel</a></span><span class="op">(</span><span class="fl">1.7</span><span class="op">)</span></span>
