@@ -480,7 +480,6 @@ styled_plot <- ggplot(
     plot.title = element_textbox_simple(
       family = korean_font,
       color = text_col,
-      family = title_font,
       lineheight = 0.5
     ),
     plot.subtitle = element_textbox_simple(
@@ -542,7 +541,6 @@ styled_plot2 <- styled_plot +
     strip.text = element_textbox_simple(
       family = korean_font,
       color = bg_col,
-      family = title_font,
       margin = margin(7, 5, 7, 5),
       lineheight = 0.6,
       size = rel(1.7)
