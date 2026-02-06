@@ -458,9 +458,11 @@ col_plot
 ```{r}
 #| label: museums-fonts
 font_add_google(name = "Raleway")
+font_add_google(name = "Noto Sans KR", family = "noto_sans_kr")
 showtext_auto()
 showtext_opts(dpi = 300)
 body_font <- "Raleway"
+korean_font <- "noto_sans_kr"
 ```
 
 ::: {#tip-museums-typeface .callout-tip}
@@ -545,6 +547,7 @@ text_plot +
       fill = bg_col, color = bg_col
     ),
     plot.title = element_textbox_simple(
+      family = korean_font,
       color = text_col,
       lineheight = 0.5,
       size = rel(1.2),
@@ -552,10 +555,12 @@ text_plot +
       margin = margin(b = 5)
     ),
     plot.subtitle = element_textbox_simple(
+      family = korean_font,
       color = text_col,
       lineheight = 0.5
     ),
     plot.caption = element_textbox_simple(
+      family = korean_font,
       hjust = 0,
       color = text_col,
       lineheight = 0.5

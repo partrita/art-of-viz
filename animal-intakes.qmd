@@ -465,9 +465,11 @@ theme_set(theme_gray(base_size = 11))
 ```{r}
 #| label: longbeach-fonts
 font_add_google(name = "Ubuntu")
+font_add_google(name = "Noto Sans KR", family = "noto_sans_kr")
 showtext_auto()
 showtext_opts(dpi = 300)
 body_font <- "Ubuntu"
+korean_font <- "noto_sans_kr"
 ```
 
 제목과 부제목에 대한 텍스트를 정의해 보겠습니다. 여기서 제목은 차트의 핵심 메시지를 정의하여 독자가 그래픽을 훑어보더라도 요점을 이해할 수 있도록 합니다. 부제목은 플롯을 해석하는 방법에 대한 간단한 설명을 제공하고 독자가 가져가기를 원하는 주요 결론을 반복합니다. `caption` 변수는 이 시각화에 대한 데이터 소스와 차트 작성자를 식별합니다.
@@ -523,7 +525,12 @@ text_plot
 #| fig-alt: "Edited version of previous plot with fixed coordinate system to prevent squashing, and all theme elements removed"
 theme_plot <- text_plot +
   coord_fixed() +
-  theme_void(base_size = 8.5, base_family = body_font)
+  theme_void(base_size = 8.5, base_family = body_font) +
+  theme(
+    text = element_text(family = korean_font),
+    plot.title = element_text(family = korean_font),
+    plot.subtitle = element_textbox_simple(family = korean_font)
+  )
 theme_plot
 ```
 

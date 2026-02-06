@@ -29,6 +29,13 @@ library(dplyr)
 library(ggpattern)
 library(ggplot2)
 library(waffle)
+library(showtext)
+library(sysfonts)
+library(ggtext)
+font_add_google(name = "Noto Sans KR", family = "noto_sans_kr")
+showtext_auto()
+showtext_opts(dpi = 300)
+korean_font <- "noto_sans_kr"
 ```
 
 이 장에서는 두 가지 새로운 패키지를 소개합니다:
@@ -101,7 +108,7 @@ dummy_data <- data.frame(
   n = c(10, 20, 30, 40, 50, 60, 70, 80)
 )
 basic_plot <- ggplot(dummy_data, aes(label = Region, values = n, color = Region)) +
-  geom_pictogram(n_rows = 10, flip = TRUE, size = 2.5,  family = "sans") +
+  geom_pictogram(n_rows = 10, flip = TRUE, size = 2.5,  family = korean_font) +
   facet_wrap(~Year_Group, nrow = 1, strip.position = "bottom") +
   scale_label_pictogram(values = "circle", guide = "none")
 ```
@@ -157,7 +164,10 @@ ggplot(
   )
 ) +
   geom_point() +
-  facet_wrap(~Year_Group, nrow = 1)
+  facet_wrap(~Year_Group, nrow = 1) +
+  theme(
+    strip.text = element_text(family = korean_font)
+  )
 ```
 
 ### **`ggpattern`**으로 플로팅

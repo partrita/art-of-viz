@@ -430,9 +430,11 @@ font_add_google(
   name = "Source Code Pro",
   family = "source"
 )
+font_add_google(name = "Noto Sans KR", family = "noto_sans_kr")
 showtext_auto()
 showtext_opts(dpi = 300)
 body_font <- "source"
+korean_font <- "noto_sans_kr"
 ```
 
 이전 장에서 했던 것처럼 @sec-cats 에서 정의한 `social_caption()` 함수를 사용하여 소셜 미디어 핸들과 Font Awesome 아이콘이 포함된 캡션을 만듭니다: \index{social\_caption}
@@ -558,6 +560,7 @@ theme_plot <- init_theme_plot +
     plot.title.position = "plot",
     plot.title = element_textbox_simple(
       color = text_col,
+      family = korean_font,
       hjust = 0,
       halign = 0,
       margin = margin(b = 5, t = 5),
@@ -566,6 +569,7 @@ theme_plot <- init_theme_plot +
     ),
     plot.subtitle = element_textbox_simple(
       color = text_col,
+      family = korean_font,
       hjust = 0,
       halign = 0,
       margin = margin(b = 5, t = 0)
@@ -655,6 +659,7 @@ img_plot <- theme_plot %+% plot_img_data
 img_plot +
   theme(
     strip.text.x = element_textbox_simple(
+      family = korean_font,
       hjust = 0.5,
       halign = 0.5
     )

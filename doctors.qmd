@@ -333,10 +333,12 @@ col_plot
 #| label: doctors-font
 font_add_google(name = "Roboto")
 font_add_google(name = "Roboto Slab")
+font_add_google(name = "Noto Sans KR", family = "noto_sans_kr")
 showtext_auto()
 showtext_opts(dpi = 300)
 body_font <- "Roboto"
 title_font <- "Roboto Slab"
+korean_font <- "noto_sans_kr"
 ```
 
 이제 제목, 부제목 및 캡션에 대한 텍스트를 정의할 수 있습니다. 이전 장에서와 마찬가지로 **`ggtext`**를 사용하여 서식을 지정하므로 HTML 구문을 사용하여 줄 바꿈을 추가할 수 있습니다.
@@ -476,15 +478,18 @@ styled_plot <- ggplot(
       fill = bg_col, color = bg_col
     ),
     plot.title = element_textbox_simple(
+      family = korean_font,
       color = text_col,
       family = title_font,
       lineheight = 0.5
     ),
     plot.subtitle = element_textbox_simple(
+      family = korean_font,
       color = text_col,
       lineheight = 0.5
     ),
     plot.caption = element_textbox_simple(
+      family = korean_font,
       hjust = 0,
       color = text_col,
       lineheight = 0.5
@@ -520,6 +525,7 @@ styled_plot2 <- styled_plot +
     plot.margin = margin(0, 0, 5, 0),
     plot.tag.position = c(0.015, 0.8),
     plot.tag = element_textbox_simple(
+      family = korean_font,
       color = text_col,
       lineheight = 0.6,
       hjust = 0,
@@ -534,6 +540,7 @@ styled_plot2 <- styled_plot +
     ),
     # 제목 텍스트 색상 변경
     strip.text = element_textbox_simple(
+      family = korean_font,
       color = bg_col,
       family = title_font,
       margin = margin(7, 5, 7, 5),

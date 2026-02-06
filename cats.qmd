@@ -246,10 +246,12 @@ basic_plot
 #| label: cats-fonts
 font_add_google(name = "Chewy")
 font_add_google(name = "Ubuntu")
+font_add_google(name = "Noto Sans KR", family = "noto_sans_kr")
 showtext_auto()
 showtext_opts(dpi = 300)
 title_font <- "Chewy"
 body_font <- "Ubuntu"
+korean_font <- "noto_sans_kr"
 ```
 
 ### 주석 추가
@@ -504,8 +506,8 @@ text_plot +
       face = "bold",
       size = rel(1.5)
     ),
-    plot.subtitle = element_textbox_simple(),
-    plot.caption = element_textbox_simple(),
+    plot.subtitle = element_textbox_simple(family = korean_font),
+    plot.caption = element_textbox_simple(family = korean_font),
     plot.title.position = "plot",
     plot.caption.position = "plot",
     # background and grid

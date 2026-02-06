@@ -344,10 +344,12 @@ font_add_google(name = "Roboto")
 font_add_google(
   name = "Carter One", family = "Carter"
 )
+font_add_google(name = "Noto Sans KR", family = "noto_sans_kr")
 showtext_auto()
 showtext_opts(dpi = 300)
 body_font <- "Roboto"
 title_font <- "Carter"
+korean_font <- "noto_sans_kr"
 ```
 
 @sec-cats 와 @sec-lemurs 에서 했던 것처럼 색상 텍스트에 HTML 스타일링을 추가하기 위해 `glue()`를 사용하여 부제목에 대한 텍스트를 작성합니다. 색상 텍스트는 범례 역할을 하며(나중에 우리만의 사용자 정의 범례도 추가할 예정이지만), 부제목 텍스트는 차트가 보여주는 내용에 대한 정보를 제공합니다. 색상 텍스트는 읽기 쉽도록 굵은 텍스트로 서식을 지정합니다. @sec-time-zones 에서와 같이 데이터 소스에 대한 정보를 캡션이 아닌 부제목 끝줄에 추가합니다. 또한 @sec-time-zones 에서 했던 것처럼 텍스트 배치를 용이하게 하기 위해 제목 텍스트를 부제목 변수에 직접 추가합니다. \index{glue!glue}
@@ -435,6 +437,7 @@ styled_plot_2 <- styled_plot_1 +
     ),
     plot.margin = margin(5, 5, 5, 125),
     plot.tag = element_textbox_simple(
+      family = korean_font,
       hjust = 0,
       color = text_col,
       maxwidth = 0.65,
@@ -442,6 +445,7 @@ styled_plot_2 <- styled_plot_1 +
       size = rel(1.0)
     ),
     plot.caption = element_textbox_simple(
+      family = korean_font,
       hjust = 1,
       halign = 1,
       color = text_col,
@@ -528,7 +532,7 @@ p_inset <- ca_plot +
     x = min(ca_data$year),
     y = 0.05,
     label = min(ca_data$year),
-    family = body_font,
+    family = korean_font,
     color = bg_col,
     size = 3,
     hjust = 0
@@ -538,7 +542,7 @@ p_inset <- ca_plot +
     x = max(ca_data$year),
     y = 0.05,
     label = max(ca_data$year),
-    family = body_font,
+    family = korean_font,
     color = bg_col,
     size = 3,
     hjust = 1
@@ -549,7 +553,7 @@ p_inset <- ca_plot +
     x = mean(range(ca_data$year)),
     y = 0.8,
     label = "민주당",
-    family = body_font,
+    family = korean_font,
     color = bg_col,
     size = 3.5
   ) +
@@ -558,7 +562,7 @@ p_inset <- ca_plot +
     x = mean(range(ca_data$year)),
     y = 0.2,
     label = "공화당",
-    family = body_font,
+    family = korean_font,
     color = bg_col,
     size = 3.5
   ) +

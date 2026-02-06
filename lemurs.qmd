@@ -289,6 +289,11 @@ R에서 그래픽 장치는 시각적 출력(플롯 포함)을 렌더링하는 �
 ```{r}
 #| label: lemurs-fonts
 #| eval: false
+library(showtext) # Ensure showtext is loaded for font_add_google
+font_add_google(name = "Noto Sans KR", family = "noto_sans_kr")
+showtext_auto()
+showtext_opts(dpi = 300)
+
 register_font(
   name = "Lato",
   plain = "fonts/Lato/Lato-Regular.ttf",
@@ -389,11 +394,13 @@ theme_plot <- text_plot +
       margin = margin(b = 5)
     ),
     plot.subtitle = element_textbox_simple(
-      color = text_col
+      color = text_col,
+      family = korean_font
     ),
     plot.caption = element_textbox_simple(
       hjust = 0, halign = 0,
-      color = text_col
+      color = text_col,
+      family = korean_font
     )
   )
 theme_plot

@@ -402,9 +402,13 @@ basic_plot
 font_add_google(
   name = "Red Hat Text", family = "red_hat"
 )
+font_add_google(
+  name = "Noto Sans KR", family = "noto_sans_kr"
+)
 showtext_auto()
 showtext_opts(dpi = 300)
 body_font <- "red_hat"
+korean_font <- "noto_sans_kr"
 ```
 
 ### 텍스트 추가
@@ -447,6 +451,11 @@ theme_plot <- text_plot +
   theme_void(
     base_family = body_font,
     base_size = 7.5
+  ) +
+  theme(
+    text = element_text(family = korean_font),
+    plot.title = element_text(family = korean_font),
+    plot.subtitle = element_textbox_simple(family = korean_font)
   )
 ```
 

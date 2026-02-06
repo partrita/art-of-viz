@@ -293,10 +293,12 @@ names(col_palette) <- unique(timezones_sf$continent)
 #| label: timezones-fonts
 font_add_google(name = "Commissioner")
 font_add_google(name = "Fraunces")
+font_add_google(name = "Noto Sans KR", family = "noto_sans_kr")
 showtext_auto()
 showtext_opts(dpi = 300)
 body_font <- "Commissioner"
 title_font <- "Fraunces"
+korean_font <- "noto_sans_kr"
 ```
 
 ### 사용자 정의 막대 차트 범례 만들기
@@ -589,6 +591,7 @@ styled_map <- text_map +
     # add and position text
     plot.tag.position = c(-0.01, 0.12),
     plot.tag = element_textbox_simple(
+      family = korean_font,
       color = text_col,
       hjust = 0,
       maxwidth = unit(200, "pt"),

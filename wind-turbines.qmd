@@ -462,8 +462,10 @@ font_add(
   family = "Font Awesome 6",
   regular = "fonts/Font-Awesome-6-Free-Solid-900.otf"
 )
+font_add_google(name = "Noto Sans KR", family = "noto_sans_kr")
 showtext_auto()
 showtext_opts(dpi = 300)
+korean_font <- "noto_sans_kr"
 ```
 
 ::: {#tip-turbines-open .callout-tip}
@@ -737,18 +739,21 @@ scale_plot +
     plot.title = element_marquee(
       color = text_col,
       width = 1,
-      size = 12
+      size = 12,
+      family = korean_font
     ),
     plot.subtitle = element_marquee(
       color = text_col,
       width = 1,
-      size = 9
+      size = 9,
+      family = korean_font
     ),
     plot.caption = element_marquee(
       hjust = 0,
       lineheight = 0.5,
       size = 8,
-      margin = margin(t = 5)
+      margin = margin(t = 5),
+      family = korean_font
     )
   )
 ```
