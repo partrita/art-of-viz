@@ -311,6 +311,7 @@ register_font(
 #| label: lemurs-fonts-2
 body_font <- "Lato"
 title_font <- "Passion One"
+korean_font <- "noto_sans_kr"
 ```
 
 `register_font()`를 사용하는 대안은 다운로드한 글꼴 파일을 마우스 오른쪽 버튼으로 클릭하고 *설치(Install)*를 선택하여 시스템에 글꼴을 설치하는 것입니다. 그러면 **`ragg`**가 글꼴을 자동으로 찾을 수 있어야 합니다. 그러나 시스템 전체에 글꼴을 설치할 수 없거나 선호하지 않는 이유가 있을 수 있습니다. 스크립트에서 `register_font()`를 사용하면 R 외부에서 발생하는 다른 프로세스에 의존하는 대신 글꼴이 설치된 방법에 대한 기록도 남습니다.
