@@ -9,6 +9,7 @@ library(ggimage)
 # Fonts -------------------------------------------------------------------
 
 font_add_google("Source Sans 3", "Source")
+font_add_google("Noto Sans KR", "noto_sans_kr")
 showtext_auto()
 showtext_opts(dpi = 300)
 
@@ -45,6 +46,7 @@ n_y <- 8
 col_palette <- c("#FBEBFF", "#E999FF", "#9300B8", "#400052")
 bg_col <- "#200029"
 body_font <- "Source"
+korean_font <- "noto_sans_kr"
 
 padding <- 20
 width <- 5
@@ -220,7 +222,7 @@ ggplot() +
     "text",
     x = 1.25, y = 2.2,
     label = "ggplot2를 활용한\n데이터 시각화의\n기술",
-    family = body_font,
+    family = korean_font,
     color = "white",
     hjust = 0,
     vjust = 1,
